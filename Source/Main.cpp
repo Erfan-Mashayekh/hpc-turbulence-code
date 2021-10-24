@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
     NSEOF::FlowField* flowField = NULL;
     NSEOF::Simulation* simulation = NULL;
 
-#ifdef DEBUG
+#ifndef NDEBUG
     std::cout << "Processor " << parameters.parallel.rank << " with index ";
     std::cout << parameters.parallel.indices[0] << ",";
     std::cout << parameters.parallel.indices[1] << ",";

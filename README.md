@@ -122,3 +122,11 @@ for `DPStencil.hpp`, you should change it to
 Make sure to use `make clean` before you use `make`. Sometimes there are build artifacts from previous build processes that spoil your current compilation process. `make clean` takes care of deleting everything that should not be there and allows the compiler to start from scratch.
 
 Sometimes it is also helpful to delete the `build` folder and create a new one, following the steps from the Compilation section above.
+
+## How can I see all the compiler flags the generated Makefile is using?
+
+Instead of using `make`, run `make VERBOSE=1`. You can also run `make -n` to invoke a dry run where you see what the Makefile would do in case of compilation.
+
+## How can I see the test output?
+
+Instead of using `make test`, run `ctest --verbose`.
