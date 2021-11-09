@@ -67,7 +67,7 @@ namespace NSEOF::Stencils {
 
         FLOAT posZ = firstCornerPos_[2];
 
-        for (int i, j, k = firstCornerInd_[2]; k < firstCornerInd_[2] + numPointsZ; k++) {
+        for (int i = -1, j = -1, k = firstCornerInd_[2]; k < firstCornerInd_[2] + numPointsZ; k++) {
             FLOAT posY = firstCornerPos_[1];
 
             for (j = firstCornerInd_[1]; j < firstCornerInd_[1] + numPointsY; j++) {
