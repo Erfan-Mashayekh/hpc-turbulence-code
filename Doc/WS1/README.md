@@ -8,7 +8,7 @@ Working on the very first worksheet of this course, I got familiar with the skel
 
 After implementing the hands-on task in the class, **Double Pressure Stencil**, I understood what was expected of us in this worksheet. So at first, I started implementing the **apply** function. In this function, given a cell, we are expected to get the pressure (_at the center of the cell_) and velocity values (_average across the cell_) from **Flow Field**. After getting those values, I stored them in the object by making use of the **vector** data structure in order to access the values of the particular cells during the **write** operation. I also needed to know the **First Corner**, which is the start of the _White Region_. For that reason, I simply kept the first iterated _cell indexes_. The code snippet below shows the implementation of the **apply** function:
 
-```{cpp}
+```cpp
 // Init data structures
 FLOAT pressure; auto* velocity = (FLOAT*) malloc(3 * sizeof(FLOAT));
 
@@ -60,7 +60,7 @@ Everything works as expected!
 
 **dt_vtk** acts as an upper bound for **dt**. We simply set **dt** = **dt_vtk** here.
 
-```{cpp}
+```cpp
 // If dt is larger than timeVtk, set dt = timeVtk!
 if (floor(parameters.timestep.dt, 2) > floor(timeVtk, 2)) {
     parameters.timestep.dt = timeVtk;
@@ -71,7 +71,7 @@ if (floor(parameters.timestep.dt, 2) > floor(timeVtk, 2)) {
 
 The most problematic case. In this case, we are doing as many time steps as we can until we reach the next point in time to plot.
 
-```{cpp}
+```cpp
 // In case dt is smaller than timeVtk, wait for the right time to plot!
 FLOAT time_before = time;
 do {
