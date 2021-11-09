@@ -20,14 +20,13 @@ namespace NSEOF::Stencils {
 class VTKStencil : public FieldStencil<FlowField> {
 
 private:
-    std::vector<FLOAT*> positions_;
+    int* firstCornerInd_;
+    FLOAT* firstCornerPos_;
+
     std::vector<FLOAT> pressures_;
     std::vector<FLOAT*> velocities_;
 
-    void save_(FLOAT*, FLOAT&, FLOAT*);
-
-    int getNumElementsInWhiteRegion_();
-    int getFirstIndexInWhiteRegion_(int);
+    void setFirstCorner_(int, int, int);
 
     void writePositions_(FILE *filePtr);
     void writePressures_(FILE*);

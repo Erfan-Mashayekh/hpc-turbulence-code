@@ -5,99 +5,95 @@
 
 namespace NSEOF::Stencils {
     VTKStencil::VTKStencil(const Parameters& parameters)
-        : FieldStencil<FlowField>(parameters) {}
+            : FieldStencil<FlowField>(parameters) {
+        firstCornerInd_ = nullptr;
+        firstCornerPos_ = nullptr;
+    }
 
-    void VTKStencil::save_(FLOAT* position, FLOAT& pressure, FLOAT* velocity) {
-        // Check if no ghosting cells are included!
-        for (int dim = 0; dim < 3; dim++) {
-            ASSERTION(0 <= position[dim] && position[dim] <= 1)
+    void VTKStencil::setFirstCorner_(int i, int j, int k = 0) {
+        firstCornerInd_ = (int*) malloc(3 * sizeof(int));
+        firstCornerPos_ = (FLOAT*) malloc(3 * sizeof(FLOAT));
+
+        firstCornerInd_[0] = i;
+        firstCornerInd_[1] = j;
+        firstCornerInd_[2] = k;
+
+        firstCornerPos_[0] = (parameters_.geometry.dim == 2)
+                ? parameters_.meshsize->getPosX(i, j) : parameters_.meshsize->getPosX(i, j, k);
+        firstCornerPos_[1] = (parameters_.geometry.dim == 2)
+                ? parameters_.meshsize->getPosY(i, j) : parameters_.meshsize->getPosY(i, j, k);
+        firstCornerPos_[2] = (parameters_.geometry.dim == 2)
+                ? 0 : parameters_.meshsize->getPosZ(i, j, k);
+    }
+
+    void VTKStencil::apply(FlowField& flowField, int i, int j) {
+        FLOAT pressure;
+        auto* velocity = (FLOAT*) malloc(3 * sizeof(FLOAT));
+
+        // Set the starting position, the first corner!
+        if (firstCornerInd_ == nullptr) {
+            setFirstCorner_(i, j);
         }
 
-        positions_.push_back(position);
+        flowField.getPressureAndVelocity(pressure, velocity, i, j);
+
         pressures_.push_back(pressure);
         velocities_.push_back(velocity);
     }
 
-    void VTKStencil::apply(FlowField& flowField, int i, int j) {
-        auto* position = (FLOAT*) malloc(3 * sizeof(FLOAT));
-        FLOAT pressure;
-        auto* velocity = (FLOAT*) malloc(3 * sizeof(FLOAT));
-
-        // Get position given the indices
-        position[0] = parameters_.meshsize->getPosX(i, j);
-        position[1] = parameters_.meshsize->getPosY(i, j);
-
-        // Set 0 for the z-axis values
-        position[2] = 0.0; velocity[2] = 0.0;
-
-        flowField.getPressureAndVelocity(pressure, velocity, i, j);
-        save_(position, pressure, velocity);
-    }
-
     void VTKStencil::apply(FlowField& flowField, int i, int j, int k) {
-        auto* position = (FLOAT*) malloc(3 * sizeof(FLOAT));
         FLOAT pressure;
         auto* velocity = (FLOAT*) malloc(3 * sizeof(FLOAT));
 
-        // get position given the indices
-        position[0] = parameters_.meshsize->getPosX(i, j, k);
-        position[1] = parameters_.meshsize->getPosY(i, j, k);
-        position[2] = parameters_.meshsize->getPosZ(i, j, k);
-
-        flowField.getPressureAndVelocity(pressure, velocity, i, j, k);
-        save_(position, pressure, velocity);
-    }
-
-    /**
-     * Find the number of elements in the white region
-     */
-    int VTKStencil::getNumElementsInWhiteRegion_() {
-        const auto localSize = parameters_.parallel.localSize;
-        int numElementsInWhiteRegion = 1;
-
-        for (int i = 0; i < parameters_.geometry.dim; i++) {
-            numElementsInWhiteRegion *= localSize[i];
+        // Set the starting position, the first corner!
+        if (firstCornerInd_ == nullptr) {
+            setFirstCorner_(i, j, k);
         }
 
-        return numElementsInWhiteRegion;
-    }
+        flowField.getPressureAndVelocity(pressure, velocity, i, j, k);
 
-    /**
-     * Find the first index in the white region, "begin"
-     * Elements [0, 1, ... , begin - 1] are in the gray region
-     */
-    int VTKStencil::getFirstIndexInWhiteRegion_(const int numElements) {
-        int numElementsInWhiteRegion = getNumElementsInWhiteRegion_();
-        int begin = numElements - numElementsInWhiteRegion;
-
-        return begin;
+        pressures_.push_back(pressure);
+        velocities_.push_back(velocity);
     }
 
     void VTKStencil::writePositions_(FILE* filePtr) {
-        fprintf(filePtr, "DATASET %s\n", parameters_.vtk.datasetName.c_str());
-        fprintf(filePtr, "DIMENSIONS %d %d %d\n",
-                parameters_.geometry.sizeX + 1, parameters_.geometry.sizeY + 1,
-                (parameters_.geometry.dim == 2) ? 0 : parameters_.geometry.sizeZ + 1);
-        fprintf(filePtr, "POINTS %d float\n",
-                (parameters_.geometry.sizeX + 1) * (parameters_.geometry.sizeY + 1));
+        const int numPointsX = parameters_.geometry.sizeX + 1;
+        const int numPointsY = parameters_.geometry.sizeY + 1;
+        const int numPointsZ = parameters_.geometry.dim == 2 ? 1 : parameters_.geometry.sizeZ + 1;
 
-        for (auto& position : positions_) {
-            fprintf(filePtr, "%f %f %f\n", position[0], position[1], position[2]);
+        fprintf(filePtr, "DATASET %s\n", parameters_.vtk.datasetName.c_str());
+        fprintf(filePtr, "DIMENSIONS %d %d %d\n", numPointsX, numPointsY, numPointsZ);
+        fprintf(filePtr, "POINTS %d float\n", numPointsX * numPointsY * numPointsZ);
+
+        FLOAT posZ = firstCornerPos_[2];
+
+        for (int i, j, k = firstCornerInd_[2]; k < firstCornerInd_[2] + numPointsZ; k++) {
+            FLOAT posY = firstCornerPos_[1];
+
+            for (j = firstCornerInd_[1]; j < firstCornerInd_[1] + numPointsY; j++) {
+                FLOAT posX = firstCornerPos_[0];
+
+                for (i = firstCornerInd_[0]; i < firstCornerInd_[0] + numPointsX; i++) {
+                    fprintf(filePtr, "%f %f %f\n", posX, posY, posZ);
+                    posX += parameters_.meshsize->getDx(i, j, k);
+                }
+
+                posY += parameters_.meshsize->getDy(i, j, k);
+            }
+
+            posZ += parameters_.meshsize->getDz(i, j, k);
         }
 
         fprintf(filePtr, "\n");
     }
 
     void VTKStencil::writePressures_(FILE* filePtr) {
-        fprintf(filePtr, "CELL_DATA %d\n", getNumElementsInWhiteRegion_());
+        fprintf(filePtr, "CELL_DATA %zu\n", pressures_.size());
         fprintf(filePtr, "SCALARS pressure float 1\n");
         fprintf(filePtr, "LOOKUP_TABLE default\n");
 
-        int numElements = int(pressures_.size());
-        int begin = getFirstIndexInWhiteRegion_(numElements);
-
-        for (int i = begin; i < numElements; i++) {
-            fprintf(filePtr, "%f\n", pressures_[i]);
+        for (auto& pressure : pressures_) {
+            fprintf(filePtr, "%f\n", pressure);
         }
 
         fprintf(filePtr, "\n");
@@ -106,11 +102,7 @@ namespace NSEOF::Stencils {
     void VTKStencil::writeVelocities_(FILE* filePtr) {
         fprintf(filePtr, "VECTORS velocity float\n");
 
-        int numElements = int(velocities_.size());
-        int begin = getFirstIndexInWhiteRegion_(numElements);
-
-        for (int i = begin; i < numElements; i++) {
-            auto* velocity = velocities_[i];
+        for (auto& velocity : velocities_) {
             fprintf(filePtr, "%f %f %f\n", velocity[0], velocity[1], velocity[2]);
         }
 
@@ -133,5 +125,6 @@ namespace NSEOF::Stencils {
 
         // Close the file stream
         fclose(filePtr);
+        exit(0);
     }
 } // namespace NSEOF::Stencils

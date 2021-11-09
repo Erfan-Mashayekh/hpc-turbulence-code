@@ -101,8 +101,10 @@ public:
     const std::string datasetName = "STRUCTURED_GRID"; //! Dataset Name
     const std::string outDir = "output";               //! Output directory
 
-    const int lowOffset = 1;                           //! Low offset for the iterator (Default gray area)
-    const int highOffset = 1;                          //! High offset for the iterator (Default gray area)
+    //! The next offsets are set to iterate only in the white region!
+    //! Since this is a bounded iterator, the real offsets become "low = 1 + 1 = 2" and "high = 1 + 0 = 1".
+    const int whiteRegionLowOffset = 1;                //! Low offset for the iterator
+    const int whiteRegionHighOffset = 0;               //! High offset for the iterator
 
     FLOAT interval;                                    //! Time interval for file printing
     std::string prefix;                                //! Output filename
