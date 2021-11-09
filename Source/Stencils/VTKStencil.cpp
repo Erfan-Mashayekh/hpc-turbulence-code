@@ -125,6 +125,5 @@ namespace NSEOF::Stencils {
 
         // Close the file stream
         fclose(filePtr);
-        exit(0);
     }
 } // namespace NSEOF::Stencils
