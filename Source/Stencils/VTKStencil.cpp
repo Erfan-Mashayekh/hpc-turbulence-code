@@ -112,9 +112,12 @@ namespace NSEOF::Stencils {
     }
 
     void VTKStencil::write(int timeStep) {
-        // Open the file stream
+        // Decide on the filename
+        long time = timeStep * parameters_.vtk.interval * 1e6;
         std::string filename = parameters_.vtk.outDir + "/" + parameters_.vtk.prefix + "_" +
-                               std::to_string(timeStep) + ".vtk";
+                               std::to_string(time) + ".vtk";
+
+        // Open the file stream
         FILE* filePtr = fopen(filename.c_str(), "w");
 
         // Write header to the file
