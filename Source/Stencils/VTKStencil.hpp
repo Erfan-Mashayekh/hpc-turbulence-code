@@ -26,6 +26,9 @@ private:
 
     void save_(FLOAT*, FLOAT&, FLOAT*);
 
+    int getNumElementsInWhiteRegion_();
+    int getFirstIndexInWhiteRegion_(int);
+
     void writePositions_(FILE *filePtr);
     void writePressures_(FILE*);
     void writeVelocities_(FILE*);

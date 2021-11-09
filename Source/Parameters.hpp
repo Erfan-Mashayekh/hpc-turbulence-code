@@ -101,8 +101,8 @@ public:
     const std::string datasetName = "STRUCTURED_GRID"; //! Dataset Name
     const std::string outDir = "output";               //! Output directory
 
-    const int ghostCellsLowOffset = 1;                 //! Low offset for ghost cells
-    const int ghostCellsHighOffset = 1;                //! High offset for ghost cells
+    const int lowOffset = 1;                           //! Low offset for the iterator (Default gray area)
+    const int highOffset = 1;                          //! High offset for the iterator (Default gray area)
 
     FLOAT interval;                                    //! Time interval for file printing
     std::string prefix;                                //! Output filename

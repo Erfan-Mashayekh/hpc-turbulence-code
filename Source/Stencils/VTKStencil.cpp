@@ -48,6 +48,31 @@ namespace NSEOF::Stencils {
         save_(position, pressure, velocity);
     }
 
+    /**
+     * Find the number of elements in the white region
+     */
+    int VTKStencil::getNumElementsInWhiteRegion_() {
+        const auto firstCorner = parameters_.parallel.localSize;
+        int numElementsInWhiteRegion = 1;
+
+        for (int i = 0; i < parameters_.geometry.dim; i++) {
+            numElementsInWhiteRegion *= firstCorner[i];
+        }
+
+        return numElementsInWhiteRegion;
+    }
+
+    /**
+     * Find the first index in the white region, "begin"
+     * Elements [0, 1, ... , begin - 1] are in the gray region
+     */
+    int VTKStencil::getFirstIndexInWhiteRegion_(const int numElements) {
+        int numElementsInWhiteRegion = getNumElementsInWhiteRegion_();
+        int begin = numElements - numElementsInWhiteRegion;
+
+        return begin;
+    }
+
     void VTKStencil::writePositions_(FILE* filePtr) {
         fprintf(filePtr, "DATASET %s\n", parameters_.vtk.datasetName.c_str());
         fprintf(filePtr, "DIMENSIONS %d %d %d\n",
@@ -64,12 +89,15 @@ namespace NSEOF::Stencils {
     }
 
     void VTKStencil::writePressures_(FILE* filePtr) {
-        fprintf(filePtr, "CELL_DATA %zu\n", pressures_.size());
+        fprintf(filePtr, "CELL_DATA %d\n", getNumElementsInWhiteRegion_());
         fprintf(filePtr, "SCALARS pressure float 1\n");
         fprintf(filePtr, "LOOKUP_TABLE default\n");
 
-        for (auto& pressure : pressures_) {
-            fprintf(filePtr, "%f\n", pressure);
+        int numElements = int(pressures_.size());
+        int begin = getFirstIndexInWhiteRegion_(numElements);
+
+        for (int i = begin; i < numElements; i++) {
+            fprintf(filePtr, "%f\n", pressures_[i]);
         }
 
         fprintf(filePtr, "\n");
@@ -78,7 +106,11 @@ namespace NSEOF::Stencils {
     void VTKStencil::writeVelocities_(FILE* filePtr) {
         fprintf(filePtr, "VECTORS velocity float\n");
 
-        for (auto& velocity : velocities_) {
+        int numElements = int(velocities_.size());
+        int begin = getFirstIndexInWhiteRegion_(numElements);
+
+        for (int i = begin; i < numElements; i++) {
+            auto* velocity = velocities_[i];
             fprintf(filePtr, "%f %f %f\n", velocity[0], velocity[1], velocity[2]);
         }
 
