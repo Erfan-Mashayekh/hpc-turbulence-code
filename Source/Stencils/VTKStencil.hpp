@@ -36,8 +36,8 @@ public:
     VTKStencil(const Parameters& parameters);
     ~VTKStencil() override = default;
 
-    void apply(FlowField& flowField, int i, int j) override;
     void apply(FlowField& flowField, int i, int j, int k) override;
+    void apply(FlowField& flowField, int i, int j) override;
 
     void write(int timeStep);
 };

@@ -97,7 +97,7 @@ class VTKParameters {
 public:
     const std::string vtkFileHeader = "# vtk DataFile Version 2.0\n"
                                       "I need something to put here\n"
-                                      "WS01!\n";       //! VTK File Prefix
+                                      "ASCII!\n";      //! VTK File Prefix
     const std::string datasetName = "STRUCTURED_GRID"; //! Dataset Name
     const std::string outDir = "output";               //! Output directory
 

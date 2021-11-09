@@ -26,22 +26,8 @@ namespace NSEOF::Stencils {
                 ? 0 : parameters_.meshsize->getPosZ(i, j, k);
     }
 
-    void VTKStencil::apply(FlowField& flowField, int i, int j) {
-        FLOAT pressure;
-        auto* velocity = (FLOAT*) malloc(3 * sizeof(FLOAT));
-
-        // Set the starting position, the first corner!
-        if (firstCornerInd_ == nullptr) {
-            setFirstCorner_(i, j);
-        }
-
-        flowField.getPressureAndVelocity(pressure, velocity, i, j);
-
-        pressures_.push_back(pressure);
-        velocities_.push_back(velocity);
-    }
-
     void VTKStencil::apply(FlowField& flowField, int i, int j, int k) {
+        // Init data structures
         FLOAT pressure;
         auto* velocity = (FLOAT*) malloc(3 * sizeof(FLOAT));
 
@@ -50,10 +36,26 @@ namespace NSEOF::Stencils {
             setFirstCorner_(i, j, k);
         }
 
-        flowField.getPressureAndVelocity(pressure, velocity, i, j, k);
+        // Get the pressure and velocity
+        if (parameters_.geometry.dim == 2) { // 2D
+            flowField.getPressureAndVelocity(pressure, velocity, i, j);
 
+            // Set z-velocity to 0!
+            velocity[2] = 0.0;
+        } else if (parameters_.geometry.dim == 3) { // 3D
+            flowField.getPressureAndVelocity(pressure, velocity, i, j, k);
+        } else {
+            std::cerr << "This app only supports 2D and 3D geometry" << std::endl;
+            exit(1);
+        }
+
+        // Store the data
         pressures_.push_back(pressure);
         velocities_.push_back(velocity);
+    }
+
+    void VTKStencil::apply(FlowField& flowField, int i, int j) {
+        apply(flowField, i, j, 0);
     }
 
     void VTKStencil::writePositions_(FILE* filePtr) {
