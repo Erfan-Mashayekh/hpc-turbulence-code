@@ -18,7 +18,6 @@
 #include "Stencils/NeumannBoundaryStencils.hpp"
 #include "Stencils/BFInputStencils.hpp"
 #include "Stencils/InitTaylorGreenFlowFieldStencil.hpp"
-#include "Stencils/VTKStencil.hpp"
 
 #include "Solvers/LinearSolver.hpp"
 
@@ -52,10 +51,6 @@ protected:
     Stencils::ObstacleStencil obstacleStencil_;
     FieldIterator<FlowField> velocityIterator_;
     FieldIterator<FlowField> obstacleIterator_;
-
-    // Members for VTK
-    Stencils::VTKStencil vtkStencil_;
-    FieldIterator<FlowField> vtkIterator_;
 
     std::unique_ptr<Solvers::LinearSolver> solver_;
 

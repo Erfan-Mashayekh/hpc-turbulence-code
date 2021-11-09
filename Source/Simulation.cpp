@@ -1,9 +1,9 @@
 #include "Simulation.hpp"
 
+#include "Stencils/VTKStencil.hpp"
+
 #include "Solvers/SORSolver.hpp"
 #include "Solvers/PetscSolver.hpp"
-
-#include "Stencils/VTKStencil.hpp"
 
 namespace NSEOF {
 
@@ -24,10 +24,6 @@ Simulation::Simulation(Parameters& parameters, FlowField& flowField)
     , obstacleStencil_(parameters)
     , velocityIterator_(flowField_, parameters, velocityStencil_)
     , obstacleIterator_(flowField_, parameters, obstacleStencil_)
-    // VTK (Offsets set for the ghost cells!)
-    , vtkStencil_ (parameters)
-    , vtkIterator_ (flowField_, parameters, vtkStencil_,
-                    parameters.vtk.ghostCellsLowOffset, parameters.vtk.ghostCellsHighOffset)
 #ifdef BUILD_WITH_PETSC
     , solver_(std::make_unique<Solvers::PetscSolver>(flowField_, parameters))
 #else
@@ -98,6 +94,11 @@ void Simulation::solveTimestep() {
 void Simulation::plotVTK(int timeStep) {
     // TODO WS1: create VTKStencil and respective iterator; iterate stencil
     //           over flowField_ and write flow field information to VTK file.
+    Stencils::VTKStencil vtkStencil_(parameters_);
+    FieldIterator<FlowField> vtkIterator_(flowField_, parameters_, vtkStencil_,
+                                          parameters_.vtk.ghostCellsLowOffset,
+                                          parameters_.vtk.ghostCellsHighOffset);
+
     vtkIterator_.iterate();
     vtkStencil_.write(timeStep);
 }
