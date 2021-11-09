@@ -52,11 +52,11 @@ namespace NSEOF::Stencils {
      * Find the number of elements in the white region
      */
     int VTKStencil::getNumElementsInWhiteRegion_() {
-        const auto firstCorner = parameters_.parallel.localSize;
+        const auto localSize = parameters_.parallel.localSize;
         int numElementsInWhiteRegion = 1;
 
         for (int i = 0; i < parameters_.geometry.dim; i++) {
-            numElementsInWhiteRegion *= firstCorner[i];
+            numElementsInWhiteRegion *= localSize[i];
         }
 
         return numElementsInWhiteRegion;
