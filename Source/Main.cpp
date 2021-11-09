@@ -9,6 +9,13 @@
 #include <stdio.h>
 #include <iostream>
 #include <iomanip>
+#include <filesystem>
+
+
+FLOAT floor(FLOAT value, int decimal_places) {
+    const double multiplier = std::pow(10.0, decimal_places);
+    return std::ceil(value * multiplier) / multiplier;
+}
 
 
 int main(int argc, char *argv[]) {
@@ -91,18 +98,36 @@ int main(int argc, char *argv[]) {
 
     //flowField->getFlags().show();
 
+    // create output dir
+    if (
+        !std::filesystem::is_directory(parameters.vtk.outputDir) ||
+        !std::filesystem::exists(parameters.vtk.outputDir)
+    ) {
+        std::filesystem::create_directory(parameters.vtk.outputDir);
+    }
+
     FLOAT time = 0.0;
     FLOAT timeVtk = parameters.vtk.interval;
     FLOAT timeStdOut = parameters.stdOut.interval;
     int timeSteps = 0;
 
     // TODO WS1: plot initial state
+    simulation->plotVTK(timeSteps++);
 
     // Time loop
     while (time < parameters.simulation.finalTime) {
         simulation->solveTimestep();
 
-        time += parameters.timestep.dt;
+        // if dt is larger than timeVtk, set dt = timeVtk!
+        if (floor(parameters.timestep.dt, 2) > floor(timeVtk, 2)) {
+            parameters.timestep.dt = timeVtk;
+        }
+
+        // in case dt is smaller than timeVtk, wait for the right time!
+        FLOAT time_before = time;
+        do {
+            time += parameters.timestep.dt;
+        } while (floor(time, 2) < floor(time_before + timeVtk, 2));
 
         if ((rank == 0) && (timeStdOut <= time)) {
             std::cout << "Current time: " << time << "\tTimestep: " << parameters.timestep.dt << std::endl;
@@ -110,11 +135,11 @@ int main(int argc, char *argv[]) {
         }
 
         // TODO WS1: trigger VTK output
-
-        timeSteps++;
+        simulation->plotVTK(timeSteps++);
     }
 
     // TODO WS1: plot final output
+    simulation->plotVTK(timeSteps);
 
     delete simulation;
     simulation = NULL;

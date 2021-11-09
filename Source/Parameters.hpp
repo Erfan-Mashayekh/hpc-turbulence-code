@@ -95,8 +95,17 @@ public:
 
 class VTKParameters {
 public:
-    FLOAT interval;     //! Time interval for file printing
-    std::string prefix; //! Output filename
+    const std::string vtkFileHeader = "# vtk DataFile Version 2.0\n"
+                                      "I need something to put here\n"
+                                      "WS01!\n";       //! VTK File Prefix
+    const std::string datasetName = "STRUCTURED_GRID"; //! Dataset Name
+    const std::string outputDir = "output";            //! Output directory
+
+    const int ghostCellsLowOffset = 1;                 //! Low offset for ghost cells
+    const int ghostCellsHighOffset = 1;                //! High offset for ghost cells
+
+    FLOAT interval;                                    //! Time interval for file printing
+    std::string prefix;                                //! Output filename
 };
 
 class StdOutParameters {
