@@ -2,14 +2,13 @@
 #include "Configuration.hpp"
 #include "MeshsizeFactory.hpp"
 
-
 #include "ParallelManagers/PetscParallelConfiguration.hpp"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
 #include <iomanip>
-#include <filesystem>
+#include <sys/stat.h>
 
 
 FLOAT floor(FLOAT value, int decimal_places) {
@@ -96,14 +95,11 @@ int main(int argc, char *argv[]) {
     }
     simulation->initializeFlowField();
 
-    //flowField->getFlags().show();
+    // flowField->getFlags().show();
 
-    // create output dir
-    if (
-        !std::filesystem::is_directory(parameters.vtk.outputDir) ||
-        !std::filesystem::exists(parameters.vtk.outputDir)
-    ) {
-        std::filesystem::create_directory(parameters.vtk.outputDir);
+    // Create output directory (Master)
+    if (rank == 0) {
+        mkdir(parameters.vtk.outDir.c_str(), 0777);
     }
 
     FLOAT time = 0.0;
@@ -118,18 +114,19 @@ int main(int argc, char *argv[]) {
     while (time < parameters.simulation.finalTime) {
         simulation->solveTimestep();
 
-        // if dt is larger than timeVtk, set dt = timeVtk!
+        // If dt is larger than timeVtk, set dt = timeVtk!
         if (floor(parameters.timestep.dt, 2) > floor(timeVtk, 2)) {
             parameters.timestep.dt = timeVtk;
         }
 
-        // in case dt is smaller than timeVtk, wait for the right time!
+        // In case dt is smaller than timeVtk, wait for the right time to plot!
         FLOAT time_before = time;
         do {
             time += parameters.timestep.dt;
         } while (floor(time, 2) < floor(time_before + timeVtk, 2));
 
-        if ((rank == 0) && (timeStdOut <= time)) {
+        // Log the time (Master)
+        if (rank == 0 && timeStdOut <= time) {
             std::cout << "Current time: " << time << "\tTimestep: " << parameters.timestep.dt << std::endl;
             timeStdOut += parameters.stdOut.interval;
         }

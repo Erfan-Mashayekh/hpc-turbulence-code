@@ -23,11 +23,11 @@ namespace NSEOF::Stencils {
         FLOAT pressure;
         auto* velocity = (FLOAT*) malloc(3 * sizeof(FLOAT));
 
-        // get position given the indices
+        // Get position given the indices
         position[0] = parameters_.meshsize->getPosX(i, j);
         position[1] = parameters_.meshsize->getPosY(i, j);
 
-        // set 0 for the z-axis values
+        // Set 0 for the z-axis values
         position[2] = 0.0; velocity[2] = 0.0;
 
         flowField.getPressureAndVelocity(pressure, velocity, i, j);
@@ -87,7 +87,7 @@ namespace NSEOF::Stencils {
 
     void VTKStencil::write(int timeStep) {
         // Open the file stream
-        std::string filename = parameters_.vtk.outputDir + "/" + parameters_.vtk.prefix + "_" +
+        std::string filename = parameters_.vtk.outDir + "/" + parameters_.vtk.prefix + "_" +
                                std::to_string(timeStep) + ".vtk";
         FILE* filePtr = fopen(filename.c_str(), "w");
 
