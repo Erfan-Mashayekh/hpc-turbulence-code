@@ -2,6 +2,10 @@
 
 ## Worksheet 1: Getting Started
 
+**Name:** _Batuhan Erden_
+
+**Matriculation Number:** _03738750_
+
 #### Part 1: VTK Stencil
 
 Working on the very first worksheet of this course, I got familiar with the skeleton code that we will be using throughout the course. I have also read through the **MPI** architecture in the project since I had done a few project with **MPI**.
@@ -109,16 +113,43 @@ As can be seen below, I used ParaView to check my results. I have both printed 2
 
 #### Part 6: Flow Physics and Profiling (Questions Answered)
 
-1. TODO
-2. TODO
+##### 1) Study of the scenarios cavity, channel and channel with backward-facing step in more detail:
+
+- _**The influence of the Reynolds number on the velocity and pressure field. In particular,**_
+
+  - _**How many vortices can you observe in the cavity scenario, depending on the choice of the Reynolds number? Where are these vortices located?**_
+
+    As we increase the _Reynolds number_, the vorticity distribution seems more homogeneous. That is, the vortices are distributed more evenly throughout the surface. In contrast, lower _Reynolds number_ resulted in more inhomogeneous distribution where the vortices lie mostly around the borders.
+
+  - _**How does the velocity/pressure field of the channel flow depend on the Reynolds number?**_
+
+    As can be seen in the graph below where **Velocity (Orange)** is plotted over **Pressure (Red)** with  the _Reynolds number_ set to **500 (Left)** and **100 (Right)**, it is not hard to deduce that setting the _Reynolds number_ high resulted in a higher **velocity/pressure field** as **velocity** values got bigger while **pressure** values got smaller. In a nutshell, **velocity/pressure field** and the _Reynolds number_ has a positive correlation.
+
+    ![channel_Velocity/Pressure_Re](data/img/channel_vel-press_re.png)
+
+  - _**How is the velocity/pressure field behind the backward-facing step affected by the choice of the Reynolds number?**_
+
+    As can be seen in the graph below, the results look similar with that of channel flow. Again, we can say that **velocity/pressure field** and the _Reynolds number_ has a positive correlation.
+
+    ![backward_Velocity/Pressure_Re](data/img/backward_vel-press_re.png)
+
+- _**The influence of the length and height of the backward-facing step on the flow field.**_
+
+  LOREM IPSUM
+
+- _**The influence of the used mesh on the overall accuracy and time step size. You may restrict your considerations to the channel flow scenario for this sub-task.**_
+
+  LOREM IPSUM
+
+##### 2) Investigation of the sequential performance using gprof:
+
+The **write** routine takes most of the time not because we have some loops (_They are not computationally-expensive_), but because we are writing to the file **at each iteration**! This is something that slows down our computation. As an improvement, instead of writing to the file at each iteration, we could _append_ each line to a string, and then write the whole string **at the end of the iteration**.
+
+Another improvement point would be implementing a new logging mechanism where the logs do not get printed to the console **at each time step**, but they get written to a file **at the end of the program**. Because **printing to console is way more computationally-expensive** than it seems.
 
 
 
-
-
-
-
-Thanks for reading through the report!
+I thank you for the opportunity of gaining hands-on experience with such algorithms, and I truly appreciate your effort.
 
 
 
