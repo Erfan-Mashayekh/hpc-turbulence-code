@@ -8,7 +8,7 @@
 
 #### Part 1: VTK Stencil
 
-Working on the very first worksheet of this course, I got familiar with the skeleton code that we will be using throughout the course. I have also read through the **MPI** architecture in the project since I had done a few project with **MPI**.
+Working on the very first worksheet of this course, I got familiar with the skeleton code that we will be using throughout the course. I have also thought about the parallelization via **MPI**.
 
 After implementing the hands-on task in the class, **Double Pressure Stencil**, I understood what was expected of us in this worksheet. So at first, I started implementing the **apply** function. In this function, given a cell, we are expected to get the pressure (_at the center of the cell_) and velocity values (_average across the cell_) from **Flow Field**. After getting those values, I stored them in the object by making use of the **vector** data structure in order to access the values of the particular cells during the **write** operation. I also needed to know the **First Corner**, which is the start of the _White Region_. For that reason, I simply kept the first iterated _cell indexes_. The code snippet below shows the implementation of the **apply** function:
 
@@ -149,9 +149,29 @@ As can be seen below, I used ParaView to check my results. I have both printed 2
 
 ##### 2) Investigation of the sequential performance using gprof:
 
+**Expected:**
+
 The **write** routine takes most of the time not because we have some loops (_They are not computationally-expensive_), but because we are writing to the file **at each iteration**! This is something that slows down our computation. As an improvement, instead of writing to the file at each iteration, we could _append_ each line to a string, and then write the whole string **at the end of the iteration**.
 
-Another improvement point would be implementing a new logging mechanism where the logs do not get printed to the console **at each time step**, but they get written to a file **at the end of the program**. Because **printing to console is way more computationally-expensive** than it seems.
+**Actual:**
+
+As can be seen in the output of the **gprof** command (_Performance analysis for Cavity 2D_ ) below, the case is not as expected. Actually, the **write** routine takes absolutely no time compared to the other routines. I ran the performance analysis for each of the example cases, and the results are not that different and the routines that takes most of the time are the same.
+
+For the Cavity2D case, the **apply** routine took _37,50%_ of the time followed by **getVelocity** that took _25,00%_ of the time. When I checked my implementation of the **apply** routine and the implementation of **getVelocity**, I saw no possible improvements since I believe they are implemented in the best way possible. However, as you can see under the _calls_ section, there are too many calls to those routines. **apply** is called **231231** time and **getVelocity**, which gets called under **apply**, is called **3051048** times. So, we immediately can see there is room for improvement. We can for example make use of the **MPI** to parallelize the simulation so that multiple processes work on those _bottleneck_ routines.
+
+```
+Performance Analysis for Cavity2D
+For more, check Doc/WS1/data/prof
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  us/call  us/call  name    
+ 37.50      0.03     0.03   231231     0.13     0.19  NSEOF::Stencils::FGHStencil::apply(NSEOF::FlowField&, int, int)
+ 25.00      0.05     0.02  3051048     0.01     0.01  NSEOF::FlowField::getVelocity()
+ 12.50      0.06     0.01   231231     0.04     0.04  NSEOF::Stencils::RHSStencil::apply(NSEOF::FlowField&, int, int)
+ 12.50      0.07     0.01     1001     9.99     9.99  NSEOF::Solvers::PetscSolver::solve()
+ 12.50      0.08     0.01                             NSEOF::Solvers::computeMatrix2D(_p_KSP*, _p_Mat*, _p_Mat*, void*)
+```
 
 
 
