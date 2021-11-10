@@ -11,12 +11,6 @@
 #include <sys/stat.h>
 
 
-FLOAT floor(FLOAT value, int decimal_places) {
-    const double multiplier = std::pow(10.0, decimal_places);
-    return std::ceil(value * multiplier) / multiplier;
-}
-
-
 int main(int argc, char *argv[]) {
     // Parallelization related. Initialize and identify.
     // ---------------------------------------------------
@@ -114,7 +108,7 @@ int main(int argc, char *argv[]) {
         simulation->solveTimestep();
 
         // If dt is larger than timeVtk, set dt = timeVtk!
-        if (floor(parameters.timestep.dt, 2) > floor(parameters.vtk.interval, 2)) {
+        if (parameters.timestep.dt > parameters.vtk.interval) {
             parameters.timestep.dt = parameters.vtk.interval;
         }
 
@@ -128,7 +122,7 @@ int main(int argc, char *argv[]) {
                 std::cout << "Current time: " << time << "\tTimestep: " << parameters.timestep.dt << std::endl;
                 timeStdOut += parameters.stdOut.interval;
             }
-        } while (floor(time, 2) < floor(time_before + parameters.vtk.interval, 2));
+        } while (time < time_before + parameters.vtk.interval);
 
         // TODO WS1: trigger VTK output
         simulation->plotVTK(timeSteps++);
