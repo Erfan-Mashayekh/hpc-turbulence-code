@@ -135,11 +135,17 @@ As can be seen below, I used ParaView to check my results. I have both printed 2
 
 - _**The influence of the length and height of the backward-facing step on the flow field.**_
 
-  LOREM IPSUM
+  As can be seen in the graphs below, I have tested different length and height settings of the backward-facing step. It definitely has an influence on the flow field. When we look at the flow field at the top (the default one), we can see that the pressure is getting closer to **0.8**. However, when we look at the ones at the bottom, in both cases, the pressure gets to a point higher than default one.
+
+  On the bottom left, we have smaller length and height values. As can be seen easily, the pressure is getting closer to even **1.0** whereas on the bottom right, where we have larger length and height values, the pressure was lower (close to **0.9**).
+
+  ![backward_length-height](data/img/backward_length-height.png)
 
 - _**The influence of the used mesh on the overall accuracy and time step size. You may restrict your considerations to the channel flow scenario for this sub-task.**_
 
-  LOREM IPSUM
+  The mesh structure used has a significant effect on the overall accuracy and time step size. One can see how the **stretched mesh (left)** converged faster (_More accurate!_) than **uniform mesh (right)**. According to the time step, **stretched mesh (left)** has a **dt** of _0.000228466_ whereas **uniform mesh (right)** has a **dt** of _0.0496032_, which is higher.
+
+  ![channel_mesh](data/img/channel_mesh.png)
 
 ##### 2) Investigation of the sequential performance using gprof:
 
@@ -153,7 +159,7 @@ I thank you for the opportunity of gaining hands-on experience with such algorit
 
 
 
-_Batuhan Erden_
+#### _Batuhan Erden_
 
 
 
