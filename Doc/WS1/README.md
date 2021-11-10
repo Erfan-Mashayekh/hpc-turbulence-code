@@ -62,8 +62,8 @@ Everything works as expected!
 
 ```cpp
 // If dt is larger than timeVtk, set dt = timeVtk!
-if (floor(parameters.timestep.dt, 2) > floor(timeVtk, 2)) {
-    parameters.timestep.dt = timeVtk;
+if (floor(parameters.timestep.dt, 2) > floor(parameters.vtk.interval, 2)) {
+    parameters.timestep.dt = parameters.vtk.interval;
 }
 ```
 
@@ -76,7 +76,7 @@ The most problematic case. In this case, we are doing as many time steps as we c
 FLOAT time_before = time;
 do {
     time += parameters.timestep.dt;
-} while (floor(time, 2) < floor(time_before + timeVtk, 2));
+} while (floor(time, 2) < floor(time_before + parameters.vtk.interval, 2));
 ```
 
 #### Part 5: The results on ParaView
