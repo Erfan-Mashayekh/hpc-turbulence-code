@@ -40,7 +40,7 @@ The most problematic case. In this case, we are doing as many time steps as we c
 
 #### Part 4: The results on ParaView
 
-I have used ParaView to check my results. I have both printed 2D and 3D and analyzed both pressure and velocity. To keep the report short, I have not included any images here. Please check [here for pressure](https://gitlab.lrz.de/erdenbatuhan/hpc_turbulence_code_skeleton/-/tree/475535abbe5a111868121e2e216241d0d395b41d/Doc/WS1/data/out/pressure) and [here for velocity](https://gitlab.lrz.de/erdenbatuhan/hpc_turbulence_code_skeleton/-/tree/475535abbe5a111868121e2e216241d0d395b41d/Doc/WS1/data/out/velocity).*
+I have used ParaView to check my results. I have both printed 2D and 3D and analyzed both pressure and velocity. To keep the report short, I have not included any images here. Please check [here for pressure](https://gitlab.lrz.de/erdenbatuhan/hpc_turbulence_code_skeleton/-/tree/475535abbe5a111868121e2e216241d0d395b41d/Doc/WS1/data/out/pressure) and [here for velocity](https://gitlab.lrz.de/erdenbatuhan/hpc_turbulence_code_skeleton/-/tree/475535abbe5a111868121e2e216241d0d395b41d/Doc/WS1/data/out/velocity).
 
 #### Part 5: Flow Physics and Profiling (Questions Answered)
 
