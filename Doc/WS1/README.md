@@ -153,7 +153,7 @@ I thank you for the opportunity of gaining hands-on experience with such algorit
 
 
 
-**Batuhan Erden** (Matriculation Number: _03738750_)
+_Batuhan Erden_
 
 
 
