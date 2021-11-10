@@ -83,7 +83,7 @@ do {
 } while (floor(time, 2) < floor(time_before + parameters.vtk.interval, 2));
 ```
 
-#### Part 5: The results on ParaView
+#### Part 4: The results on ParaView
 
 As can be seen below, I used ParaView to check my results. I have both printed 2D and 3D and analyzed both pressure and velocity.
 
@@ -111,7 +111,7 @@ As can be seen below, I used ParaView to check my results. I have both printed 2
 
 ![Cavity3D-Velocity_x](data/out/velocity/Cavity3D_x.png)
 
-#### Part 6: Flow Physics and Profiling (Questions Answered)
+#### Part 5: Flow Physics and Profiling (Questions Answered)
 
 ##### 1) Study of the scenarios cavity, channel and channel with backward-facing step in more detail:
 
