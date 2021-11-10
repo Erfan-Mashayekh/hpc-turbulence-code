@@ -103,7 +103,6 @@ int main(int argc, char *argv[]) {
     }
 
     FLOAT time = 0.0;
-    FLOAT timeVtk = parameters.vtk.interval;
     FLOAT timeStdOut = parameters.stdOut.interval;
     int timeSteps = 0;
 
@@ -115,21 +114,21 @@ int main(int argc, char *argv[]) {
         simulation->solveTimestep();
 
         // If dt is larger than timeVtk, set dt = timeVtk!
-        if (floor(parameters.timestep.dt, 2) > floor(timeVtk, 2)) {
-            parameters.timestep.dt = timeVtk;
+        if (floor(parameters.timestep.dt, 2) > floor(parameters.vtk.interval, 2)) {
+            parameters.timestep.dt = parameters.vtk.interval;
         }
 
         // In case dt is smaller than timeVtk, wait for the right time to plot!
         FLOAT time_before = time;
         do {
             time += parameters.timestep.dt;
-        } while (floor(time, 2) < floor(time_before + timeVtk, 2));
 
-        // Log the time (Master)
-        if (rank == 0 && timeStdOut <= time) {
-            std::cout << "Current time: " << time << "\tTimestep: " << parameters.timestep.dt << std::endl;
-            timeStdOut += parameters.stdOut.interval;
-        }
+            // Log the time (Master)
+            if (rank == 0 && timeStdOut <= time) {
+                std::cout << "Current time: " << time << "\tTimestep: " << parameters.timestep.dt << std::endl;
+                timeStdOut += parameters.stdOut.interval;
+            }
+        } while (floor(time, 2) < floor(time_before + parameters.vtk.interval, 2));
 
         // TODO WS1: trigger VTK output
         simulation->plotVTK(timeSteps++);
