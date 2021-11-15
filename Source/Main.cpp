@@ -98,6 +98,7 @@ int main(int argc, char *argv[]) {
 
     FLOAT time = 0.0;
     FLOAT timeStdOut = parameters.stdOut.interval;
+    FLOAT timeVtk = parameters.vtk.interval;
     int timeSteps = 0;
 
     // TODO WS1: plot initial state
@@ -107,25 +108,22 @@ int main(int argc, char *argv[]) {
     while (time < parameters.simulation.finalTime) {
         simulation->solveTimestep();
 
-        // If dt is larger than timeVtk, set dt = timeVtk!
-        if (parameters.timestep.dt > parameters.vtk.interval) {
-            parameters.timestep.dt = parameters.vtk.interval;
+        // time step
+        time += parameters.timestep.dt;
+
+        // Log the time (Master)
+        if (rank == 0 && timeStdOut <= time) {
+            std::cout << "Current time: " << time << "\tTimestep: " << parameters.timestep.dt << std::endl;
+            timeStdOut += parameters.stdOut.interval;
         }
 
-        // In case dt is smaller than timeVtk, wait for the right time to plot!
-        FLOAT time_before = time;
-        do {
-            time += parameters.timestep.dt;
-
-            // Log the time (Master)
-            if (rank == 0 && timeStdOut <= time) {
-                std::cout << "Current time: " << time << "\tTimestep: " << parameters.timestep.dt << std::endl;
-                timeStdOut += parameters.stdOut.interval;
-            }
-        } while (time < time_before + parameters.vtk.interval);
-
         // TODO WS1: trigger VTK output
-        simulation->plotVTK(timeSteps++);
+        if (timeVtk <= time) {
+            simulation->plotVTK(timeSteps);
+            timeVtk += parameters.vtk.interval;
+        }
+
+        timeSteps++;
     }
 
     // TODO WS1: plot final output
