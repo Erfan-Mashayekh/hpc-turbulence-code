@@ -8,6 +8,10 @@ namespace NSEOF::Stencils {
             : FieldStencil<FlowField>(parameters) {}
 
     VTKStencil::~VTKStencil() {
+        for (FLOAT* velocity : velocities_) {
+            delete velocity;
+        }
+
         pressures_.clear();
         velocities_.clear();
     }
@@ -28,7 +32,7 @@ namespace NSEOF::Stencils {
     void VTKStencil::apply(FlowField& flowField, int i, int j, int k) {
         // Init data structures
         FLOAT pressure;
-        FLOAT velocity[3];
+        auto* velocity = (FLOAT*) malloc(3 * sizeof(FLOAT));
 
         // Set the starting position, the first corner, if it has not been set already!
         if (firstCornerInd_[0] == -1) {
