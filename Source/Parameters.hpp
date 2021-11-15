@@ -95,8 +95,19 @@ public:
 
 class VTKParameters {
 public:
-    FLOAT interval;     //! Time interval for file printing
-    std::string prefix; //! Output filename
+    const std::string vtkFileHeader = "# vtk DataFile Version 2.0\n"
+                                      "I need something to put here\n"
+                                      "ASCII!\n";      //! VTK File Prefix
+    const std::string datasetName = "STRUCTURED_GRID"; //! Dataset Name
+    const std::string outDir = "output";               //! Output directory
+
+    //! The next offsets are set to iterate only in the white region!
+    //! Since this is a bounded iterator, the real offsets become "low = 1 + 1 = 2" and "high = 1 + 0 = 1".
+    const int whiteRegionLowOffset = 1;                //! Low offset for the iterator
+    const int whiteRegionHighOffset = 0;               //! High offset for the iterator
+
+    FLOAT interval;                                    //! Time interval for file printing
+    std::string prefix;                                //! Output filename
 };
 
 class StdOutParameters {

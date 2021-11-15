@@ -52,7 +52,6 @@ protected:
     FieldIterator<FlowField> velocityIterator_;
     FieldIterator<FlowField> obstacleIterator_;
 
-
     std::unique_ptr<Solvers::LinearSolver> solver_;
 
     virtual void setTimeStep();

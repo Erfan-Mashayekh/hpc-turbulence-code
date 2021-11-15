@@ -1,0 +1,997 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  us/call  us/call  name    
+ 33.33      0.01     0.01   143982     0.07     0.07  NSEOF::ScalarField::getScalar(int, int, int)
+ 33.33      0.02     0.01    18942     0.53     0.53  NSEOF::Stencils::FGHStencil::apply(NSEOF::FlowField&, int, int)
+ 33.33      0.03     0.01                             NSEOF::Simulation::solveTimestep()
+  0.00      0.03     0.00   435780     0.00     0.00  NSEOF::VectorField::getVector(int, int, int)
+  0.00      0.03     0.00   302450     0.00     0.00  NSEOF::UniformMeshsize::getDy(int, int) const
+  0.00      0.03     0.00   299134     0.00     0.00  NSEOF::UniformMeshsize::getDx(int, int) const
+  0.00      0.03     0.00   251966     0.00     0.00  NSEOF::FlowField::getVelocity()
+  0.00      0.03     0.00   133906     0.00     0.00  NSEOF::FlowField::getFGH()
+  0.00      0.03     0.00    70959     0.00     0.00  NSEOF::IntScalarField::getValue(int, int, int)
+  0.00      0.03     0.00    70930     0.00     0.00  NSEOF::FlowField::getPressure()
+  0.00      0.03     0.00    38313     0.00     0.00  NSEOF::FlowField::getFlags()
+  0.00      0.03     0.00    19404     0.00     0.00  NSEOF::UniformMeshsize::getDx(int, int, int) const
+  0.00      0.03     0.00    19024     0.00     0.00  NSEOF::FlowField::getRHS()
+  0.00      0.03     0.00    18942     0.00     0.07  NSEOF::Stencils::RHSStencil::apply(NSEOF::FlowField&, int, int)
+  0.00      0.03     0.00    18942     0.00     0.00  NSEOF::Stencils::MaxUStencil::applyTopWall(NSEOF::FlowField&, int, int)
+  0.00      0.03     0.00    18942     0.00     0.00  NSEOF::Stencils::ObstacleStencil::apply(NSEOF::FlowField&, int, int)
+  0.00      0.03     0.00    18942     0.00     0.26  NSEOF::Stencils::VelocityStencil::apply(NSEOF::FlowField&, int, int)
+  0.00      0.03     0.00    16800     0.00     0.07  NSEOF::Stencils::VTKStencil::apply(NSEOF::FlowField&, int, int)
+  0.00      0.03     0.00    16800     0.00     0.07  NSEOF::FlowField::getPressureAndVelocity(double&, double*, int, int)
+  0.00      0.03     0.00    15067     0.00     0.00  NSEOF::FlowField::getCellsY() const
+  0.00      0.03     0.00    12597     0.00     0.00  NSEOF::FlowField::getCellsX() const
+  0.00      0.03     0.00     3985     0.00     0.00  NSEOF::UniformMeshsize::getPosY(int, int) const
+  0.00      0.03     0.00     1886     0.00     0.00  non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyLeftWall(NSEOF::FlowField&, int, int)
+  0.00      0.03     0.00     1886     0.00     0.00  non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyRightWall(NSEOF::FlowField&, int, int)
+  0.00      0.03     0.00     1826     0.00     0.00  NSEOF::Stencils::BFInputVelocityStencil::applyLeftWall(NSEOF::FlowField&, int, int)
+  0.00      0.03     0.00     1826     0.00     0.00  NSEOF::Stencils::NeumannVelocityBoundaryStencil::applyRightWall(NSEOF::FlowField&, int, int)
+  0.00      0.03     0.00     1804     0.00     0.00  NSEOF::Stencils::BFInputFGHStencil::applyLeftWall(NSEOF::FlowField&, int, int)
+  0.00      0.03     0.00     1804     0.00     0.00  NSEOF::Stencils::NeumannFGHBoundaryStencil::applyTopWall(NSEOF::FlowField&, int, int)
+  0.00      0.03     0.00     1764     0.00     0.00  NSEOF::UniformMeshsize::getDy(int, int, int) const
+  0.00      0.03     0.00     1066     0.00     0.00  non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyTopWall(NSEOF::FlowField&, int, int)
+  0.00      0.03     0.00     1066     0.00     0.00  non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyBottomWall(NSEOF::FlowField&, int, int)
+  0.00      0.03     0.00      996     0.00     0.00  NSEOF::Stencils::MovingWallVelocityStencil::applyTopWall(NSEOF::FlowField&, int, int)
+  0.00      0.03     0.00      996     0.00     0.00  NSEOF::Stencils::MovingWallVelocityStencil::applyBottomWall(NSEOF::FlowField&, int, int)
+  0.00      0.03     0.00      984     0.00     0.00  NSEOF::Stencils::MovingWallFGHStencil::applyTopWall(NSEOF::FlowField&, int, int)
+  0.00      0.03     0.00      984     0.00     0.00  NSEOF::Stencils::MovingWallFGHStencil::applyBottomWall(NSEOF::FlowField&, int, int)
+  0.00      0.03     0.00      756     0.00     0.00  void std::vector<double*, std::allocator<double*> >::_M_realloc_insert<double* const&>(__gnu_cxx::__normal_iterator<double**, std::vector<double*, std::allocator<double*> > >, double* const&)
+  0.00      0.03     0.00      756     0.00     0.00  void std::vector<double, std::allocator<double> >::_M_realloc_insert<double const&>(__gnu_cxx::__normal_iterator<double*, std::vector<double, std::allocator<double> > >, double const&)
+  0.00      0.03     0.00      495     0.00    35.16  NSEOF::FieldIterator<NSEOF::FlowField>::iterate()
+  0.00      0.03     0.00      495     0.00     0.00  NSEOF::FlowField::getCellsZ() const
+  0.00      0.03     0.00      348     0.00     0.00  NSEOF::UniformMeshsize::getPosX(int, int) const
+  0.00      0.03     0.00      341     0.00     0.00  tinyxml2::StrPair::GetStr()
+  0.00      0.03     0.00      264     0.00     0.00  NSEOF::Stencils::BFStepInitStencil::apply(NSEOF::FlowField&, int, int)
+  0.00      0.03     0.00      246     0.00     0.00  NSEOF::Stencils::MaxUStencil::getMaxValues() const
+  0.00      0.03     0.00      224     0.00     0.00  tinyxml2::XMLElement::ToElement()
+  0.00      0.03     0.00      165     0.00     0.00  NSEOF::GlobalBoundaryIterator<NSEOF::FlowField>::iterate()
+  0.00      0.03     0.00      164     0.00     0.00  NSEOF::UniformMeshsize::getDxMin() const
+  0.00      0.03     0.00      164     0.00     0.00  NSEOF::UniformMeshsize::getDyMin() const
+  0.00      0.03     0.00       85     0.00     0.00  tinyxml2::XMLComment::ParseDeep(char*, tinyxml2::StrPair*)
+  0.00      0.03     0.00       84     0.00     0.00  NSEOF::Stencils::VTKStencil::setFirstCorner_(int, int, int)
+  0.00      0.03     0.00       84     0.00     0.00  NSEOF::Stencils::VTKStencil::writePositions_(_IO_FILE*)
+  0.00      0.03     0.00       84     0.00     0.00  NSEOF::Stencils::VTKStencil::write(int)
+  0.00      0.03     0.00       84     0.00     0.00  NSEOF::Stencils::VTKStencil::VTKStencil(NSEOF::Parameters const&)
+  0.00      0.03     0.00       84     0.00     0.00  NSEOF::UniformMeshsize::getDz(int, int, int) const
+  0.00      0.03     0.00       82     0.00    35.16  NSEOF::Simulation::setTimeStep()
+  0.00      0.03     0.00       82     0.00    18.34  NSEOF::Solvers::PetscSolver::solve()
+  0.00      0.03     0.00       82     0.00     0.00  NSEOF::Stencils::MaxUStencil::reset()
+  0.00      0.03     0.00       51     0.00     0.00  tinyxml2::XMLNode::DeleteChildren()
+  0.00      0.03     0.00       48     0.00     0.00  tinyxml2::XMLDocument::Identify(char*, tinyxml2::XMLNode**)
+  0.00      0.03     0.00       44     0.00     0.00  tinyxml2::XMLNode::FirstChildElement(char const*) const
+  0.00      0.03     0.00       43     0.00     0.00  tinyxml2::XMLAttribute::ParseDeep(char*, bool)
+  0.00      0.03     0.00       43     0.00     0.00  tinyxml2::MemPoolT<72>::Free(void*)
+  0.00      0.03     0.00       42     0.00     0.00  tinyxml2::XMLNode::~XMLNode()
+  0.00      0.03     0.00       41     0.00     0.00  tinyxml2::XMLElement::ParseAttributes(char*)
+  0.00      0.03     0.00       41     0.00     0.00  tinyxml2::XMLElement::ParseDeep(char*, tinyxml2::StrPair*)
+  0.00      0.03     0.00       41     0.00     0.00  tinyxml2::XMLElement::~XMLElement()
+  0.00      0.03     0.00       41     0.00     0.00  tinyxml2::MemPoolT<104>::SetTracked()
+  0.00      0.03     0.00       41     0.00     0.00  tinyxml2::MemPoolT<104>::Free(void*)
+  0.00      0.03     0.00       41     0.00     0.00  tinyxml2::XMLElement::FindAttribute(char const*) const
+  0.00      0.03     0.00       33     0.00     0.00  tinyxml2::XMLAttribute::QueryDoubleValue(double*) const
+  0.00      0.03     0.00       24     0.00     0.00  tinyxml2::XMLNode::ToElement()
+  0.00      0.03     0.00       16     0.00     0.00  tinyxml2::XMLText::ToText() const
+  0.00      0.03     0.00        8     0.00     0.00  tinyxml2::XMLElement::GetText() const
+  0.00      0.03     0.00        7     0.00     0.00  tinyxml2::XMLAttribute::QueryIntValue(int*) const
+  0.00      0.03     0.00        6     0.00     0.00  NSEOF::readWall(tinyxml2::XMLElement*, double*, double&)
+  0.00      0.03     0.00        4     0.00     0.00  NSEOF::readStringMandatory(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, tinyxml2::XMLElement*)
+  0.00      0.03     0.00        4     0.00     0.00  tinyxml2::XMLText::ParseDeep(char*, tinyxml2::StrPair*)
+  0.00      0.03     0.00        4     0.00     0.00  tinyxml2::XMLText::~XMLText()
+  0.00      0.03     0.00        4     0.00     0.00  tinyxml2::MemPoolT<96>::SetTracked()
+  0.00      0.03     0.00        4     0.00     0.00  tinyxml2::MemPoolT<96>::Free(void*)
+  0.00      0.03     0.00        3     0.00     0.00  NSEOF::broadcastString(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, ompi_communicator_t* const&, int)
+  0.00      0.03     0.00        2     0.00     0.00  NSEOF::ScalarField::ScalarField(int, int)
+  0.00      0.03     0.00        2     0.00     0.00  NSEOF::VectorField::VectorField(int, int)
+  0.00      0.03     0.00        2     0.00     0.00  tinyxml2::MemPoolT<88>::SetTracked()
+  0.00      0.03     0.00        2     0.00     0.00  tinyxml2::MemPoolT<88>::Free(void*)
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::IntScalarField::IntScalarField(int, int)
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::UniformMeshsize::UniformMeshsize(NSEOF::Parameters const&)
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::UniformMeshsize::~UniformMeshsize()
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::ParallelManagers::PetscParallelConfiguration::computeSizes()
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::ParallelManagers::PetscParallelConfiguration::locateNeighbors()
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::GlobalBoundaryFactory::getGlobalBoundaryFGHIterator(NSEOF::FlowField&)
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::GlobalBoundaryFactory::getGlobalBoundaryVelocityIterator(NSEOF::FlowField&)
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::GlobalBoundaryFactory::GlobalBoundaryFactory(NSEOF::Parameters&)
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::GlobalBoundaryFactory::~GlobalBoundaryFactory()
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::Solvers::PetscSolver::PetscSolver(NSEOF::FlowField&, NSEOF::Parameters&)
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::Solvers::LinearSolver::LinearSolver(NSEOF::FlowField&, NSEOF::Parameters const&)
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::Solvers::createLimits(NSEOF::Parameters&, _p_DM*&, int*, int*, int*)
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::Stencils::FGHStencil::FGHStencil(NSEOF::Parameters const&)
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::Stencils::RHSStencil::RHSStencil(NSEOF::Parameters const&)
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::Stencils::MaxUStencil::MaxUStencil(NSEOF::Parameters const&)
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::Stencils::ObstacleStencil::ObstacleStencil(NSEOF::Parameters const&)
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::Stencils::VelocityStencil::VelocityStencil(NSEOF::Parameters const&)
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::Stencils::BFInputFGHStencil::BFInputFGHStencil(NSEOF::Parameters const&)
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::Stencils::BFInputFGHStencil::~BFInputFGHStencil()
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::Stencils::BFStepInitStencil::BFStepInitStencil(NSEOF::Parameters const&)
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::Stencils::MovingWallFGHStencil::MovingWallFGHStencil(NSEOF::Parameters const&)
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::Stencils::MovingWallFGHStencil::~MovingWallFGHStencil()
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::Stencils::BFInputVelocityStencil::BFInputVelocityStencil(NSEOF::Parameters const&)
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::Stencils::BFInputVelocityStencil::~BFInputVelocityStencil()
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::Stencils::MovingWallVelocityStencil::MovingWallVelocityStencil(NSEOF::Parameters const&)
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::Stencils::MovingWallVelocityStencil::~MovingWallVelocityStencil()
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::Stencils::NeumannFGHBoundaryStencil::NeumannFGHBoundaryStencil(NSEOF::Parameters const&)
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::Stencils::NeumannFGHBoundaryStencil::~NeumannFGHBoundaryStencil()
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::Stencils::PeriodicBoundaryFGHStencil::PeriodicBoundaryFGHStencil(NSEOF::Parameters const&)
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::Stencils::PeriodicBoundaryFGHStencil::~PeriodicBoundaryFGHStencil()
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::Stencils::NeumannVelocityBoundaryStencil::NeumannVelocityBoundaryStencil(NSEOF::Parameters const&)
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::Stencils::NeumannVelocityBoundaryStencil::~NeumannVelocityBoundaryStencil()
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::Stencils::PeriodicBoundaryVelocityStencil::PeriodicBoundaryVelocityStencil(NSEOF::Parameters const&)
+  0.00      0.03     0.00        1     0.00     0.00  NSEOF::Stencils::PeriodicBoundaryVelocityStencil::~PeriodicBoundaryVelocityStencil()
+  0.00      0.03     0.00        1     0.00     0.00  tinyxml2::XMLComment::~XMLComment()
+  0.00      0.03     0.00        1     0.00     0.00  tinyxml2::XMLDocument::LoadFile(_IO_FILE*)
+  0.00      0.03     0.00        1     0.00     0.00  tinyxml2::XMLDocument::LoadFile(char const*)
+  0.00      0.03     0.00        1     0.00     0.00  tinyxml2::XMLDocument::XMLDocument(bool, tinyxml2::Whitespace)
+  0.00      0.03     0.00        1     0.00     0.00  tinyxml2::XMLDocument::~XMLDocument()
+  0.00      0.03     0.00        1     0.00     0.00  tinyxml2::XMLDeclaration::ParseDeep(char*, tinyxml2::StrPair*)
+  0.00      0.03     0.00        1     0.00     0.00  tinyxml2::XMLDeclaration::~XMLDeclaration()
+  0.00      0.03     0.00        1     0.00     0.00  tinyxml2::XMLNode::ParseDeep(char*, tinyxml2::StrPair*)
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
+
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
+
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
+
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this
+	   function is profiled, else blank.
+
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+Copyright (C) 2012-2021 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+		     Call graph (explanation follows)
+
+
+granularity: each sample hit covers 4 byte(s) for 33.33% of 0.03 seconds
+
+index % time    self  children    called     name
+                                                 <spontaneous>
+[1]     86.4    0.01    0.02                 NSEOF::Simulation::solveTimestep() [1]
+                0.00    0.01     328/495         NSEOF::FieldIterator<NSEOF::FlowField>::iterate() [2]
+                0.00    0.00      82/82          NSEOF::Simulation::setTimeStep() [7]
+                0.00    0.00      82/82          NSEOF::Solvers::PetscSolver::solve() [8]
+                0.00    0.00      82/165         NSEOF::GlobalBoundaryIterator<NSEOF::FlowField>::iterate() [58]
+-----------------------------------------------
+                0.00    0.00       1/495         NSEOF::Simulation::initializeFlowField() [13]
+                0.00    0.00      82/495         NSEOF::Simulation::setTimeStep() [7]
+                0.00    0.00      84/495         NSEOF::Simulation::plotVTK(int) [6]
+                0.00    0.01     328/495         NSEOF::Simulation::solveTimestep() [1]
+[2]     58.0    0.00    0.02     495         NSEOF::FieldIterator<NSEOF::FlowField>::iterate() [2]
+                0.01    0.00   18942/18942       NSEOF::Stencils::FGHStencil::apply(NSEOF::FlowField&, int, int) [4]
+                0.00    0.00   18942/18942       NSEOF::Stencils::VelocityStencil::apply(NSEOF::FlowField&, int, int) [5]
+                0.00    0.00   18942/18942       NSEOF::Stencils::RHSStencil::apply(NSEOF::FlowField&, int, int) [9]
+                0.00    0.00   16800/16800       NSEOF::Stencils::VTKStencil::apply(NSEOF::FlowField&, int, int) [10]
+                0.00    0.00   18942/18942       NSEOF::Stencils::ObstacleStencil::apply(NSEOF::FlowField&, int, int) [33]
+                0.00    0.00   18942/18942       NSEOF::Stencils::MaxUStencil::applyTopWall(NSEOF::FlowField&, int, int) [32]
+                0.00    0.00     495/12597       NSEOF::FlowField::getCellsX() const [35]
+                0.00    0.00     495/495         NSEOF::FlowField::getCellsZ() const [52]
+                0.00    0.00     495/15067       NSEOF::FlowField::getCellsY() const [34]
+                0.00    0.00     264/264         NSEOF::Stencils::BFStepInitStencil::apply(NSEOF::FlowField&, int, int) [55]
+-----------------------------------------------
+                0.00    0.00   15744/143982      NSEOF::Solvers::computeRHS2D(_p_KSP*, _p_Vec*, void*) [12]
+                0.00    0.00   16800/143982      NSEOF::FlowField::getPressureAndVelocity(double&, double*, int, int) [11]
+                0.00    0.00   18942/143982      NSEOF::Stencils::RHSStencil::apply(NSEOF::FlowField&, int, int) [9]
+                0.00    0.00   21648/143982      NSEOF::Solvers::PetscSolver::solve() [8]
+                0.00    0.00   70848/143982      NSEOF::Stencils::VelocityStencil::apply(NSEOF::FlowField&, int, int) [5]
+[3]     33.3    0.01    0.00  143982         NSEOF::ScalarField::getScalar(int, int, int) [3]
+-----------------------------------------------
+                0.01    0.00   18942/18942       NSEOF::FieldIterator<NSEOF::FlowField>::iterate() [2]
+[4]     33.3    0.01    0.00   18942         NSEOF::Stencils::FGHStencil::apply(NSEOF::FlowField&, int, int) [4]
+                0.00    0.00  189420/435780      NSEOF::VectorField::getVector(int, int, int) [22]
+                0.00    0.00  170478/251966      NSEOF::FlowField::getVelocity() [25]
+                0.00    0.00  170478/299134      NSEOF::UniformMeshsize::getDx(int, int) const [24]
+                0.00    0.00  170478/302450      NSEOF::UniformMeshsize::getDy(int, int) const [23]
+                0.00    0.00   18942/133906      NSEOF::FlowField::getFGH() [26]
+-----------------------------------------------
+                0.00    0.00   18942/18942       NSEOF::FieldIterator<NSEOF::FlowField>::iterate() [2]
+[5]     16.4    0.00    0.00   18942         NSEOF::Stencils::VelocityStencil::apply(NSEOF::FlowField&, int, int) [5]
+                0.00    0.00   70848/143982      NSEOF::ScalarField::getScalar(int, int, int) [3]
+                0.00    0.00   70848/435780      NSEOF::VectorField::getVector(int, int, int) [22]
+                0.00    0.00   70848/70930       NSEOF::FlowField::getPressure() [28]
+                0.00    0.00   35424/299134      NSEOF::UniformMeshsize::getDx(int, int) const [24]
+                0.00    0.00   35424/133906      NSEOF::FlowField::getFGH() [26]
+                0.00    0.00   35424/302450      NSEOF::UniformMeshsize::getDy(int, int) const [23]
+                0.00    0.00   18942/38313       NSEOF::FlowField::getFlags() [29]
+                0.00    0.00   18942/70959       NSEOF::IntScalarField::getValue(int, int, int) [27]
+                0.00    0.00   18942/251966      NSEOF::FlowField::getVelocity() [25]
+-----------------------------------------------
+                                                 <spontaneous>
+[6]      9.8    0.00    0.00                 NSEOF::Simulation::plotVTK(int) [6]
+                0.00    0.00      84/495         NSEOF::FieldIterator<NSEOF::FlowField>::iterate() [2]
+                0.00    0.00      84/84          NSEOF::Stencils::VTKStencil::VTKStencil(NSEOF::Parameters const&) [65]
+                0.00    0.00      84/84          NSEOF::Stencils::VTKStencil::write(int) [64]
+-----------------------------------------------
+                0.00    0.00      82/82          NSEOF::Simulation::solveTimestep() [1]
+[7]      9.6    0.00    0.00      82         NSEOF::Simulation::setTimeStep() [7]
+                0.00    0.00      82/495         NSEOF::FieldIterator<NSEOF::FlowField>::iterate() [2]
+                0.00    0.00     246/246         NSEOF::Stencils::MaxUStencil::getMaxValues() const [56]
+                0.00    0.00     164/164         NSEOF::UniformMeshsize::getDxMin() const [59]
+                0.00    0.00     164/164         NSEOF::UniformMeshsize::getDyMin() const [60]
+                0.00    0.00      82/82          NSEOF::Stencils::MaxUStencil::reset() [67]
+                0.00    0.00      82/165         NSEOF::GlobalBoundaryIterator<NSEOF::FlowField>::iterate() [58]
+-----------------------------------------------
+                0.00    0.00      82/82          NSEOF::Simulation::solveTimestep() [1]
+[8]      5.0    0.00    0.00      82         NSEOF::Solvers::PetscSolver::solve() [8]
+                0.00    0.00   21648/143982      NSEOF::ScalarField::getScalar(int, int, int) [3]
+                0.00    0.00      82/70930       NSEOF::FlowField::getPressure() [28]
+-----------------------------------------------
+                0.00    0.00   18942/18942       NSEOF::FieldIterator<NSEOF::FlowField>::iterate() [2]
+[9]      4.4    0.00    0.00   18942         NSEOF::Stencils::RHSStencil::apply(NSEOF::FlowField&, int, int) [9]
+                0.00    0.00   18942/143982      NSEOF::ScalarField::getScalar(int, int, int) [3]
+                0.00    0.00   75768/133906      NSEOF::FlowField::getFGH() [26]
+                0.00    0.00   75768/435780      NSEOF::VectorField::getVector(int, int, int) [22]
+                0.00    0.00   18942/299134      NSEOF::UniformMeshsize::getDx(int, int) const [24]
+                0.00    0.00   18942/302450      NSEOF::UniformMeshsize::getDy(int, int) const [23]
+                0.00    0.00   18942/19024       NSEOF::FlowField::getRHS() [31]
+-----------------------------------------------
+                0.00    0.00   16800/16800       NSEOF::FieldIterator<NSEOF::FlowField>::iterate() [2]
+[10]     3.9    0.00    0.00   16800         NSEOF::Stencils::VTKStencil::apply(NSEOF::FlowField&, int, int) [10]
+                0.00    0.00   16800/16800       NSEOF::FlowField::getPressureAndVelocity(double&, double*, int, int) [11]
+                0.00    0.00     756/756         void std::vector<double, std::allocator<double> >::_M_realloc_insert<double const&>(__gnu_cxx::__normal_iterator<double*, std::vector<double, std::allocator<double> > >, double const&) [51]
+                0.00    0.00     756/756         void std::vector<double*, std::allocator<double*> >::_M_realloc_insert<double* const&>(__gnu_cxx::__normal_iterator<double**, std::vector<double*, std::allocator<double*> > >, double* const&) [50]
+                0.00    0.00      84/84          NSEOF::Stencils::VTKStencil::setFirstCorner_(int, int, int) [62]
+-----------------------------------------------
+                0.00    0.00   16800/16800       NSEOF::Stencils::VTKStencil::apply(NSEOF::FlowField&, int, int) [10]
+[11]     3.9    0.00    0.00   16800         NSEOF::FlowField::getPressureAndVelocity(double&, double*, int, int) [11]
+                0.00    0.00   16800/143982      NSEOF::ScalarField::getScalar(int, int, int) [3]
+                0.00    0.00   50400/435780      NSEOF::VectorField::getVector(int, int, int) [22]
+-----------------------------------------------
+                                                 <spontaneous>
+[12]     3.6    0.00    0.00                 NSEOF::Solvers::computeRHS2D(_p_KSP*, _p_Vec*, void*) [12]
+                0.00    0.00   15744/143982      NSEOF::ScalarField::getScalar(int, int, int) [3]
+                0.00    0.00   16400/70959       NSEOF::IntScalarField::getValue(int, int, int) [27]
+                0.00    0.00      82/19024       NSEOF::FlowField::getRHS() [31]
+                0.00    0.00      82/38313       NSEOF::FlowField::getFlags() [29]
+-----------------------------------------------
+                                                 <spontaneous>
+[13]     0.1    0.00    0.00                 NSEOF::Simulation::initializeFlowField() [13]
+                0.00    0.00       1/495         NSEOF::FieldIterator<NSEOF::FlowField>::iterate() [2]
+                0.00    0.00       1/1           NSEOF::Stencils::BFStepInitStencil::BFStepInitStencil(NSEOF::Parameters const&) [115]
+                0.00    0.00       1/165         NSEOF::GlobalBoundaryIterator<NSEOF::FlowField>::iterate() [58]
+-----------------------------------------------
+[14]     0.0    0.00    0.00      18+81      <cycle 1 as a whole> [14]
+                0.00    0.00      51             tinyxml2::XMLNode::DeleteChildren() <cycle 1> [68]
+                0.00    0.00      42             tinyxml2::XMLNode::~XMLNode() <cycle 1> [73]
+                0.00    0.00       4             tinyxml2::XMLText::~XMLText() <cycle 1> [88]
+                0.00    0.00       1             tinyxml2::XMLDeclaration::~XMLDeclaration() <cycle 1> [136]
+                0.00    0.00       1             tinyxml2::XMLComment::~XMLComment() <cycle 1> [130]
+-----------------------------------------------
+                0.00    0.00     984/435780      NSEOF::Stencils::MovingWallFGHStencil::applyBottomWall(NSEOF::FlowField&, int, int) [49]
+                0.00    0.00     984/435780      NSEOF::Stencils::MovingWallFGHStencil::applyTopWall(NSEOF::FlowField&, int, int) [48]
+                0.00    0.00    1066/435780      non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyTopWall(NSEOF::FlowField&, int, int) [44]
+                0.00    0.00    1066/435780      non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyBottomWall(NSEOF::FlowField&, int, int) [45]
+                0.00    0.00    1804/435780      NSEOF::Stencils::BFInputFGHStencil::applyLeftWall(NSEOF::FlowField&, int, int) [41]
+                0.00    0.00    1886/435780      non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyLeftWall(NSEOF::FlowField&, int, int) [37]
+                0.00    0.00    1886/435780      non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyRightWall(NSEOF::FlowField&, int, int) [38]
+                0.00    0.00    1968/435780      NSEOF::Stencils::ObstacleStencil::apply(NSEOF::FlowField&, int, int) [33]
+                0.00    0.00    2988/435780      NSEOF::Stencils::MovingWallVelocityStencil::applyBottomWall(NSEOF::FlowField&, int, int) [47]
+                0.00    0.00    2988/435780      NSEOF::Stencils::MovingWallVelocityStencil::applyTopWall(NSEOF::FlowField&, int, int) [46]
+                0.00    0.00    5478/435780      NSEOF::Stencils::BFInputVelocityStencil::applyLeftWall(NSEOF::FlowField&, int, int) [39]
+                0.00    0.00    7304/435780      NSEOF::Stencils::NeumannVelocityBoundaryStencil::applyRightWall(NSEOF::FlowField&, int, int) [40]
+                0.00    0.00   18942/435780      NSEOF::Stencils::MaxUStencil::applyTopWall(NSEOF::FlowField&, int, int) [32]
+                0.00    0.00   50400/435780      NSEOF::FlowField::getPressureAndVelocity(double&, double*, int, int) [11]
+                0.00    0.00   70848/435780      NSEOF::Stencils::VelocityStencil::apply(NSEOF::FlowField&, int, int) [5]
+                0.00    0.00   75768/435780      NSEOF::Stencils::RHSStencil::apply(NSEOF::FlowField&, int, int) [9]
+                0.00    0.00  189420/435780      NSEOF::Stencils::FGHStencil::apply(NSEOF::FlowField&, int, int) [4]
+[22]     0.0    0.00    0.00  435780         NSEOF::VectorField::getVector(int, int, int) [22]
+-----------------------------------------------
+                0.00    0.00      14/302450      NSEOF::Stencils::BFInputVelocityStencil::BFInputVelocityStencil(NSEOF::Parameters const&) [118]
+                0.00    0.00     492/302450      NSEOF::Stencils::ObstacleStencil::apply(NSEOF::FlowField&, int, int) [33]
+                0.00    0.00     792/302450      NSEOF::Stencils::BFStepInitStencil::apply(NSEOF::FlowField&, int, int) [55]
+                0.00    0.00    1066/302450      non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyTopWall(NSEOF::FlowField&, int, int) [44]
+                0.00    0.00    1066/302450      non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyBottomWall(NSEOF::FlowField&, int, int) [45]
+                0.00    0.00    1804/302450      NSEOF::Stencils::BFInputFGHStencil::applyLeftWall(NSEOF::FlowField&, int, int) [41]
+                0.00    0.00    1826/302450      NSEOF::Stencils::BFInputVelocityStencil::applyLeftWall(NSEOF::FlowField&, int, int) [39]
+                0.00    0.00    1886/302450      non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyLeftWall(NSEOF::FlowField&, int, int) [37]
+                0.00    0.00    1886/302450      non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyRightWall(NSEOF::FlowField&, int, int) [38]
+                0.00    0.00   18942/302450      NSEOF::Stencils::MaxUStencil::applyTopWall(NSEOF::FlowField&, int, int) [32]
+                0.00    0.00   18942/302450      NSEOF::Stencils::RHSStencil::apply(NSEOF::FlowField&, int, int) [9]
+                0.00    0.00   35424/302450      NSEOF::Stencils::VelocityStencil::apply(NSEOF::FlowField&, int, int) [5]
+                0.00    0.00   47832/302450      NSEOF::Solvers::computeMatrix2D(_p_KSP*, _p_Mat*, _p_Mat*, void*) [287]
+                0.00    0.00  170478/302450      NSEOF::Stencils::FGHStencil::apply(NSEOF::FlowField&, int, int) [4]
+[23]     0.0    0.00    0.00  302450         NSEOF::UniformMeshsize::getDy(int, int) const [23]
+-----------------------------------------------
+                0.00    0.00     792/299134      NSEOF::Stencils::BFStepInitStencil::apply(NSEOF::FlowField&, int, int) [55]
+                0.00    0.00     820/299134      NSEOF::Stencils::ObstacleStencil::apply(NSEOF::FlowField&, int, int) [33]
+                0.00    0.00    1066/299134      non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyTopWall(NSEOF::FlowField&, int, int) [44]
+                0.00    0.00    1066/299134      non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyBottomWall(NSEOF::FlowField&, int, int) [45]
+                0.00    0.00    1886/299134      non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyLeftWall(NSEOF::FlowField&, int, int) [37]
+                0.00    0.00    1886/299134      non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyRightWall(NSEOF::FlowField&, int, int) [38]
+                0.00    0.00   18942/299134      NSEOF::Stencils::MaxUStencil::applyTopWall(NSEOF::FlowField&, int, int) [32]
+                0.00    0.00   18942/299134      NSEOF::Stencils::RHSStencil::apply(NSEOF::FlowField&, int, int) [9]
+                0.00    0.00   35424/299134      NSEOF::Stencils::VelocityStencil::apply(NSEOF::FlowField&, int, int) [5]
+                0.00    0.00   47832/299134      NSEOF::Solvers::computeMatrix2D(_p_KSP*, _p_Mat*, _p_Mat*, void*) [287]
+                0.00    0.00  170478/299134      NSEOF::Stencils::FGHStencil::apply(NSEOF::FlowField&, int, int) [4]
+[24]     0.0    0.00    0.00  299134         NSEOF::UniformMeshsize::getDx(int, int) const [24]
+-----------------------------------------------
+                0.00    0.00    1066/251966      non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyTopWall(NSEOF::FlowField&, int, int) [44]
+                0.00    0.00    1066/251966      non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyBottomWall(NSEOF::FlowField&, int, int) [45]
+                0.00    0.00    1886/251966      non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyLeftWall(NSEOF::FlowField&, int, int) [37]
+                0.00    0.00    1886/251966      non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyRightWall(NSEOF::FlowField&, int, int) [38]
+                0.00    0.00    2988/251966      NSEOF::Stencils::MovingWallVelocityStencil::applyBottomWall(NSEOF::FlowField&, int, int) [47]
+                0.00    0.00    2988/251966      NSEOF::Stencils::MovingWallVelocityStencil::applyTopWall(NSEOF::FlowField&, int, int) [46]
+                0.00    0.00    5478/251966      NSEOF::Stencils::BFInputVelocityStencil::applyLeftWall(NSEOF::FlowField&, int, int) [39]
+                0.00    0.00    7304/251966      NSEOF::Stencils::NeumannVelocityBoundaryStencil::applyRightWall(NSEOF::FlowField&, int, int) [40]
+                0.00    0.00   18942/251966      NSEOF::Stencils::MaxUStencil::applyTopWall(NSEOF::FlowField&, int, int) [32]
+                0.00    0.00   18942/251966      NSEOF::Stencils::ObstacleStencil::apply(NSEOF::FlowField&, int, int) [33]
+                0.00    0.00   18942/251966      NSEOF::Stencils::VelocityStencil::apply(NSEOF::FlowField&, int, int) [5]
+                0.00    0.00  170478/251966      NSEOF::Stencils::FGHStencil::apply(NSEOF::FlowField&, int, int) [4]
+[25]     0.0    0.00    0.00  251966         NSEOF::FlowField::getVelocity() [25]
+-----------------------------------------------
+                0.00    0.00     984/133906      NSEOF::Stencils::MovingWallFGHStencil::applyBottomWall(NSEOF::FlowField&, int, int) [49]
+                0.00    0.00     984/133906      NSEOF::Stencils::MovingWallFGHStencil::applyTopWall(NSEOF::FlowField&, int, int) [48]
+                0.00    0.00    1804/133906      NSEOF::Stencils::BFInputFGHStencil::applyLeftWall(NSEOF::FlowField&, int, int) [41]
+                0.00    0.00   18942/133906      NSEOF::Stencils::FGHStencil::apply(NSEOF::FlowField&, int, int) [4]
+                0.00    0.00   35424/133906      NSEOF::Stencils::VelocityStencil::apply(NSEOF::FlowField&, int, int) [5]
+                0.00    0.00   75768/133906      NSEOF::Stencils::RHSStencil::apply(NSEOF::FlowField&, int, int) [9]
+[26]     0.0    0.00    0.00  133906         NSEOF::FlowField::getFGH() [26]
+-----------------------------------------------
+                0.00    0.00      75/70959       NSEOF::Stencils::BFStepInitStencil::apply(NSEOF::FlowField&, int, int) [55]
+                0.00    0.00   16400/70959       NSEOF::Solvers::computeRHS2D(_p_KSP*, _p_Vec*, void*) [12]
+                0.00    0.00   16600/70959       NSEOF::Solvers::computeMatrix2D(_p_KSP*, _p_Mat*, _p_Mat*, void*) [287]
+                0.00    0.00   18942/70959       NSEOF::Stencils::ObstacleStencil::apply(NSEOF::FlowField&, int, int) [33]
+                0.00    0.00   18942/70959       NSEOF::Stencils::VelocityStencil::apply(NSEOF::FlowField&, int, int) [5]
+[27]     0.0    0.00    0.00   70959         NSEOF::IntScalarField::getValue(int, int, int) [27]
+-----------------------------------------------
+                0.00    0.00      82/70930       NSEOF::Solvers::PetscSolver::solve() [8]
+                0.00    0.00   70848/70930       NSEOF::Stencils::VelocityStencil::apply(NSEOF::FlowField&, int, int) [5]
+[28]     0.0    0.00    0.00   70930         NSEOF::FlowField::getPressure() [28]
+-----------------------------------------------
+                0.00    0.00      82/38313       NSEOF::Solvers::computeRHS2D(_p_KSP*, _p_Vec*, void*) [12]
+                0.00    0.00      83/38313       NSEOF::Solvers::computeMatrix2D(_p_KSP*, _p_Mat*, _p_Mat*, void*) [287]
+                0.00    0.00     264/38313       NSEOF::Stencils::BFStepInitStencil::apply(NSEOF::FlowField&, int, int) [55]
+                0.00    0.00   18942/38313       NSEOF::Stencils::ObstacleStencil::apply(NSEOF::FlowField&, int, int) [33]
+                0.00    0.00   18942/38313       NSEOF::Stencils::VelocityStencil::apply(NSEOF::FlowField&, int, int) [5]
+[29]     0.0    0.00    0.00   38313         NSEOF::FlowField::getFlags() [29]
+-----------------------------------------------
+                0.00    0.00   19404/19404       NSEOF::Stencils::VTKStencil::writePositions_(_IO_FILE*) [63]
+[30]     0.0    0.00    0.00   19404         NSEOF::UniformMeshsize::getDx(int, int, int) const [30]
+-----------------------------------------------
+                0.00    0.00      82/19024       NSEOF::Solvers::computeRHS2D(_p_KSP*, _p_Vec*, void*) [12]
+                0.00    0.00   18942/19024       NSEOF::Stencils::RHSStencil::apply(NSEOF::FlowField&, int, int) [9]
+[31]     0.0    0.00    0.00   19024         NSEOF::FlowField::getRHS() [31]
+-----------------------------------------------
+                0.00    0.00   18942/18942       NSEOF::FieldIterator<NSEOF::FlowField>::iterate() [2]
+[32]     0.0    0.00    0.00   18942         NSEOF::Stencils::MaxUStencil::applyTopWall(NSEOF::FlowField&, int, int) [32]
+                0.00    0.00   18942/251966      NSEOF::FlowField::getVelocity() [25]
+                0.00    0.00   18942/435780      NSEOF::VectorField::getVector(int, int, int) [22]
+                0.00    0.00   18942/299134      NSEOF::UniformMeshsize::getDx(int, int) const [24]
+                0.00    0.00   18942/302450      NSEOF::UniformMeshsize::getDy(int, int) const [23]
+-----------------------------------------------
+                0.00    0.00   18942/18942       NSEOF::FieldIterator<NSEOF::FlowField>::iterate() [2]
+[33]     0.0    0.00    0.00   18942         NSEOF::Stencils::ObstacleStencil::apply(NSEOF::FlowField&, int, int) [33]
+                0.00    0.00   18942/38313       NSEOF::FlowField::getFlags() [29]
+                0.00    0.00   18942/70959       NSEOF::IntScalarField::getValue(int, int, int) [27]
+                0.00    0.00   18942/251966      NSEOF::FlowField::getVelocity() [25]
+                0.00    0.00    1968/435780      NSEOF::VectorField::getVector(int, int, int) [22]
+                0.00    0.00     820/299134      NSEOF::UniformMeshsize::getDx(int, int) const [24]
+                0.00    0.00     492/302450      NSEOF::UniformMeshsize::getDy(int, int) const [23]
+-----------------------------------------------
+                0.00    0.00     495/15067       NSEOF::FieldIterator<NSEOF::FlowField>::iterate() [2]
+                0.00    0.00   14572/15067       NSEOF::GlobalBoundaryIterator<NSEOF::FlowField>::iterate() [58]
+[34]     0.0    0.00    0.00   15067         NSEOF::FlowField::getCellsY() const [34]
+-----------------------------------------------
+                0.00    0.00     495/12597       NSEOF::FieldIterator<NSEOF::FlowField>::iterate() [2]
+                0.00    0.00   12102/12597       NSEOF::GlobalBoundaryIterator<NSEOF::FlowField>::iterate() [58]
+[35]     0.0    0.00    0.00   12597         NSEOF::FlowField::getCellsX() const [35]
+-----------------------------------------------
+                0.00    0.00       7/3985        NSEOF::Stencils::BFInputVelocityStencil::BFInputVelocityStencil(NSEOF::Parameters const&) [118]
+                0.00    0.00      84/3985        NSEOF::Stencils::VTKStencil::setFirstCorner_(int, int, int) [62]
+                0.00    0.00     264/3985        NSEOF::Stencils::BFStepInitStencil::apply(NSEOF::FlowField&, int, int) [55]
+                0.00    0.00    1804/3985        NSEOF::Stencils::BFInputFGHStencil::applyLeftWall(NSEOF::FlowField&, int, int) [41]
+                0.00    0.00    1826/3985        NSEOF::Stencils::BFInputVelocityStencil::applyLeftWall(NSEOF::FlowField&, int, int) [39]
+[36]     0.0    0.00    0.00    3985         NSEOF::UniformMeshsize::getPosY(int, int) const [36]
+-----------------------------------------------
+                0.00    0.00    1886/1886        NSEOF::GlobalBoundaryIterator<NSEOF::FlowField>::iterate() [58]
+[37]     0.0    0.00    0.00    1886         non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyLeftWall(NSEOF::FlowField&, int, int) [37]
+                0.00    0.00    1886/251966      NSEOF::FlowField::getVelocity() [25]
+                0.00    0.00    1886/435780      NSEOF::VectorField::getVector(int, int, int) [22]
+                0.00    0.00    1886/299134      NSEOF::UniformMeshsize::getDx(int, int) const [24]
+                0.00    0.00    1886/302450      NSEOF::UniformMeshsize::getDy(int, int) const [23]
+-----------------------------------------------
+                0.00    0.00    1886/1886        NSEOF::GlobalBoundaryIterator<NSEOF::FlowField>::iterate() [58]
+[38]     0.0    0.00    0.00    1886         non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyRightWall(NSEOF::FlowField&, int, int) [38]
+                0.00    0.00    1886/251966      NSEOF::FlowField::getVelocity() [25]
+                0.00    0.00    1886/435780      NSEOF::VectorField::getVector(int, int, int) [22]
+                0.00    0.00    1886/299134      NSEOF::UniformMeshsize::getDx(int, int) const [24]
+                0.00    0.00    1886/302450      NSEOF::UniformMeshsize::getDy(int, int) const [23]
+-----------------------------------------------
+                0.00    0.00    1826/1826        NSEOF::GlobalBoundaryIterator<NSEOF::FlowField>::iterate() [58]
+[39]     0.0    0.00    0.00    1826         NSEOF::Stencils::BFInputVelocityStencil::applyLeftWall(NSEOF::FlowField&, int, int) [39]
+                0.00    0.00    5478/251966      NSEOF::FlowField::getVelocity() [25]
+                0.00    0.00    5478/435780      NSEOF::VectorField::getVector(int, int, int) [22]
+                0.00    0.00    1826/3985        NSEOF::UniformMeshsize::getPosY(int, int) const [36]
+                0.00    0.00    1826/302450      NSEOF::UniformMeshsize::getDy(int, int) const [23]
+-----------------------------------------------
+                0.00    0.00    1826/1826        NSEOF::GlobalBoundaryIterator<NSEOF::FlowField>::iterate() [58]
+[40]     0.0    0.00    0.00    1826         NSEOF::Stencils::NeumannVelocityBoundaryStencil::applyRightWall(NSEOF::FlowField&, int, int) [40]
+                0.00    0.00    7304/251966      NSEOF::FlowField::getVelocity() [25]
+                0.00    0.00    7304/435780      NSEOF::VectorField::getVector(int, int, int) [22]
+-----------------------------------------------
+                0.00    0.00    1804/1804        NSEOF::GlobalBoundaryIterator<NSEOF::FlowField>::iterate() [58]
+[41]     0.0    0.00    0.00    1804         NSEOF::Stencils::BFInputFGHStencil::applyLeftWall(NSEOF::FlowField&, int, int) [41]
+                0.00    0.00    1804/3985        NSEOF::UniformMeshsize::getPosY(int, int) const [36]
+                0.00    0.00    1804/302450      NSEOF::UniformMeshsize::getDy(int, int) const [23]
+                0.00    0.00    1804/133906      NSEOF::FlowField::getFGH() [26]
+                0.00    0.00    1804/435780      NSEOF::VectorField::getVector(int, int, int) [22]
+-----------------------------------------------
+                0.00    0.00    1804/1804        NSEOF::GlobalBoundaryIterator<NSEOF::FlowField>::iterate() [58]
+[42]     0.0    0.00    0.00    1804         NSEOF::Stencils::NeumannFGHBoundaryStencil::applyTopWall(NSEOF::FlowField&, int, int) [42]
+-----------------------------------------------
+                0.00    0.00    1764/1764        NSEOF::Stencils::VTKStencil::writePositions_(_IO_FILE*) [63]
+[43]     0.0    0.00    0.00    1764         NSEOF::UniformMeshsize::getDy(int, int, int) const [43]
+-----------------------------------------------
+                0.00    0.00    1066/1066        NSEOF::GlobalBoundaryIterator<NSEOF::FlowField>::iterate() [58]
+[44]     0.0    0.00    0.00    1066         non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyTopWall(NSEOF::FlowField&, int, int) [44]
+                0.00    0.00    1066/251966      NSEOF::FlowField::getVelocity() [25]
+                0.00    0.00    1066/435780      NSEOF::VectorField::getVector(int, int, int) [22]
+                0.00    0.00    1066/299134      NSEOF::UniformMeshsize::getDx(int, int) const [24]
+                0.00    0.00    1066/302450      NSEOF::UniformMeshsize::getDy(int, int) const [23]
+-----------------------------------------------
+                0.00    0.00    1066/1066        NSEOF::GlobalBoundaryIterator<NSEOF::FlowField>::iterate() [58]
+[45]     0.0    0.00    0.00    1066         non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyBottomWall(NSEOF::FlowField&, int, int) [45]
+                0.00    0.00    1066/251966      NSEOF::FlowField::getVelocity() [25]
+                0.00    0.00    1066/435780      NSEOF::VectorField::getVector(int, int, int) [22]
+                0.00    0.00    1066/299134      NSEOF::UniformMeshsize::getDx(int, int) const [24]
+                0.00    0.00    1066/302450      NSEOF::UniformMeshsize::getDy(int, int) const [23]
+-----------------------------------------------
+                0.00    0.00     996/996         NSEOF::GlobalBoundaryIterator<NSEOF::FlowField>::iterate() [58]
+[46]     0.0    0.00    0.00     996         NSEOF::Stencils::MovingWallVelocityStencil::applyTopWall(NSEOF::FlowField&, int, int) [46]
+                0.00    0.00    2988/251966      NSEOF::FlowField::getVelocity() [25]
+                0.00    0.00    2988/435780      NSEOF::VectorField::getVector(int, int, int) [22]
+-----------------------------------------------
+                0.00    0.00     996/996         NSEOF::GlobalBoundaryIterator<NSEOF::FlowField>::iterate() [58]
+[47]     0.0    0.00    0.00     996         NSEOF::Stencils::MovingWallVelocityStencil::applyBottomWall(NSEOF::FlowField&, int, int) [47]
+                0.00    0.00    2988/251966      NSEOF::FlowField::getVelocity() [25]
+                0.00    0.00    2988/435780      NSEOF::VectorField::getVector(int, int, int) [22]
+-----------------------------------------------
+                0.00    0.00     984/984         NSEOF::GlobalBoundaryIterator<NSEOF::FlowField>::iterate() [58]
+[48]     0.0    0.00    0.00     984         NSEOF::Stencils::MovingWallFGHStencil::applyTopWall(NSEOF::FlowField&, int, int) [48]
+                0.00    0.00     984/133906      NSEOF::FlowField::getFGH() [26]
+                0.00    0.00     984/435780      NSEOF::VectorField::getVector(int, int, int) [22]
+-----------------------------------------------
+                0.00    0.00     984/984         NSEOF::GlobalBoundaryIterator<NSEOF::FlowField>::iterate() [58]
+[49]     0.0    0.00    0.00     984         NSEOF::Stencils::MovingWallFGHStencil::applyBottomWall(NSEOF::FlowField&, int, int) [49]
+                0.00    0.00     984/133906      NSEOF::FlowField::getFGH() [26]
+                0.00    0.00     984/435780      NSEOF::VectorField::getVector(int, int, int) [22]
+-----------------------------------------------
+                0.00    0.00     756/756         NSEOF::Stencils::VTKStencil::apply(NSEOF::FlowField&, int, int) [10]
+[50]     0.0    0.00    0.00     756         void std::vector<double*, std::allocator<double*> >::_M_realloc_insert<double* const&>(__gnu_cxx::__normal_iterator<double**, std::vector<double*, std::allocator<double*> > >, double* const&) [50]
+-----------------------------------------------
+                0.00    0.00     756/756         NSEOF::Stencils::VTKStencil::apply(NSEOF::FlowField&, int, int) [10]
+[51]     0.0    0.00    0.00     756         void std::vector<double, std::allocator<double> >::_M_realloc_insert<double const&>(__gnu_cxx::__normal_iterator<double*, std::vector<double, std::allocator<double> > >, double const&) [51]
+-----------------------------------------------
+                0.00    0.00     495/495         NSEOF::FieldIterator<NSEOF::FlowField>::iterate() [2]
+[52]     0.0    0.00    0.00     495         NSEOF::FlowField::getCellsZ() const [52]
+-----------------------------------------------
+                0.00    0.00      84/348         NSEOF::Stencils::VTKStencil::setFirstCorner_(int, int, int) [62]
+                0.00    0.00     264/348         NSEOF::Stencils::BFStepInitStencil::apply(NSEOF::FlowField&, int, int) [55]
+[53]     0.0    0.00    0.00     348         NSEOF::UniformMeshsize::getPosX(int, int) const [53]
+-----------------------------------------------
+                0.00    0.00       8/341         NSEOF::readStringMandatory(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, tinyxml2::XMLElement*) [86]
+                0.00    0.00      28/341         tinyxml2::XMLNode::ParseDeep(char*, tinyxml2::StrPair*) [137]
+                0.00    0.00      88/341         tinyxml2::XMLElement::FindAttribute(char const*) const [79]
+                0.00    0.00     103/341         tinyxml2::XMLNode::FirstChildElement(char const*) const [70]
+                0.00    0.00     114/341         tinyxml2::XMLElement::ParseAttributes(char*) [74]
+[54]     0.0    0.00    0.00     341         tinyxml2::StrPair::GetStr() [54]
+-----------------------------------------------
+                0.00    0.00     264/264         NSEOF::FieldIterator<NSEOF::FlowField>::iterate() [2]
+[55]     0.0    0.00    0.00     264         NSEOF::Stencils::BFStepInitStencil::apply(NSEOF::FlowField&, int, int) [55]
+                0.00    0.00     792/299134      NSEOF::UniformMeshsize::getDx(int, int) const [24]
+                0.00    0.00     792/302450      NSEOF::UniformMeshsize::getDy(int, int) const [23]
+                0.00    0.00     264/38313       NSEOF::FlowField::getFlags() [29]
+                0.00    0.00     264/348         NSEOF::UniformMeshsize::getPosX(int, int) const [53]
+                0.00    0.00     264/3985        NSEOF::UniformMeshsize::getPosY(int, int) const [36]
+                0.00    0.00      75/70959       NSEOF::IntScalarField::getValue(int, int, int) [27]
+-----------------------------------------------
+                0.00    0.00     246/246         NSEOF::Simulation::setTimeStep() [7]
+[56]     0.0    0.00    0.00     246         NSEOF::Stencils::MaxUStencil::getMaxValues() const [56]
+-----------------------------------------------
+                0.00    0.00     109/224         tinyxml2::XMLNode::ParseDeep(char*, tinyxml2::StrPair*) [137]
+                0.00    0.00     115/224         tinyxml2::XMLNode::FirstChildElement(char const*) const [70]
+[57]     0.0    0.00    0.00     224         tinyxml2::XMLElement::ToElement() [57]
+-----------------------------------------------
+                0.00    0.00       1/165         NSEOF::Simulation::initializeFlowField() [13]
+                0.00    0.00      82/165         NSEOF::Simulation::solveTimestep() [1]
+                0.00    0.00      82/165         NSEOF::Simulation::setTimeStep() [7]
+[58]     0.0    0.00    0.00     165         NSEOF::GlobalBoundaryIterator<NSEOF::FlowField>::iterate() [58]
+                0.00    0.00   14572/15067       NSEOF::FlowField::getCellsY() const [34]
+                0.00    0.00   12102/12597       NSEOF::FlowField::getCellsX() const [35]
+                0.00    0.00    1886/1886        non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyRightWall(NSEOF::FlowField&, int, int) [38]
+                0.00    0.00    1886/1886        non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyLeftWall(NSEOF::FlowField&, int, int) [37]
+                0.00    0.00    1826/1826        NSEOF::Stencils::NeumannVelocityBoundaryStencil::applyRightWall(NSEOF::FlowField&, int, int) [40]
+                0.00    0.00    1826/1826        NSEOF::Stencils::BFInputVelocityStencil::applyLeftWall(NSEOF::FlowField&, int, int) [39]
+                0.00    0.00    1804/1804        NSEOF::Stencils::NeumannFGHBoundaryStencil::applyTopWall(NSEOF::FlowField&, int, int) [42]
+                0.00    0.00    1804/1804        NSEOF::Stencils::BFInputFGHStencil::applyLeftWall(NSEOF::FlowField&, int, int) [41]
+                0.00    0.00    1066/1066        non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyTopWall(NSEOF::FlowField&, int, int) [44]
+                0.00    0.00    1066/1066        non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyBottomWall(NSEOF::FlowField&, int, int) [45]
+                0.00    0.00     996/996         NSEOF::Stencils::MovingWallVelocityStencil::applyTopWall(NSEOF::FlowField&, int, int) [46]
+                0.00    0.00     996/996         NSEOF::Stencils::MovingWallVelocityStencil::applyBottomWall(NSEOF::FlowField&, int, int) [47]
+                0.00    0.00     984/984         NSEOF::Stencils::MovingWallFGHStencil::applyTopWall(NSEOF::FlowField&, int, int) [48]
+                0.00    0.00     984/984         NSEOF::Stencils::MovingWallFGHStencil::applyBottomWall(NSEOF::FlowField&, int, int) [49]
+-----------------------------------------------
+                0.00    0.00     164/164         NSEOF::Simulation::setTimeStep() [7]
+[59]     0.0    0.00    0.00     164         NSEOF::UniformMeshsize::getDxMin() const [59]
+-----------------------------------------------
+                0.00    0.00     164/164         NSEOF::Simulation::setTimeStep() [7]
+[60]     0.0    0.00    0.00     164         NSEOF::UniformMeshsize::getDyMin() const [60]
+-----------------------------------------------
+                0.00    0.00       1/85          tinyxml2::XMLNode::ParseDeep(char*, tinyxml2::StrPair*) [137]
+                0.00    0.00      41/85          tinyxml2::XMLElement::ParseDeep(char*, tinyxml2::StrPair*) [75]
+                0.00    0.00      43/85          tinyxml2::XMLAttribute::ParseDeep(char*, bool) [71]
+[61]     0.0    0.00    0.00      85         tinyxml2::XMLComment::ParseDeep(char*, tinyxml2::StrPair*) [61]
+-----------------------------------------------
+                0.00    0.00      84/84          NSEOF::Stencils::VTKStencil::apply(NSEOF::FlowField&, int, int) [10]
+[62]     0.0    0.00    0.00      84         NSEOF::Stencils::VTKStencil::setFirstCorner_(int, int, int) [62]
+                0.00    0.00      84/348         NSEOF::UniformMeshsize::getPosX(int, int) const [53]
+                0.00    0.00      84/3985        NSEOF::UniformMeshsize::getPosY(int, int) const [36]
+-----------------------------------------------
+                0.00    0.00      84/84          NSEOF::Stencils::VTKStencil::write(int) [64]
+[63]     0.0    0.00    0.00      84         NSEOF::Stencils::VTKStencil::writePositions_(_IO_FILE*) [63]
+                0.00    0.00   19404/19404       NSEOF::UniformMeshsize::getDx(int, int, int) const [30]
+                0.00    0.00    1764/1764        NSEOF::UniformMeshsize::getDy(int, int, int) const [43]
+                0.00    0.00      84/84          NSEOF::UniformMeshsize::getDz(int, int, int) const [66]
+-----------------------------------------------
+                0.00    0.00      84/84          NSEOF::Simulation::plotVTK(int) [6]
+[64]     0.0    0.00    0.00      84         NSEOF::Stencils::VTKStencil::write(int) [64]
+                0.00    0.00      84/84          NSEOF::Stencils::VTKStencil::writePositions_(_IO_FILE*) [63]
+-----------------------------------------------
+                0.00    0.00      84/84          NSEOF::Simulation::plotVTK(int) [6]
+[65]     0.0    0.00    0.00      84         NSEOF::Stencils::VTKStencil::VTKStencil(NSEOF::Parameters const&) [65]
+-----------------------------------------------
+                0.00    0.00      84/84          NSEOF::Stencils::VTKStencil::writePositions_(_IO_FILE*) [63]
+[66]     0.0    0.00    0.00      84         NSEOF::UniformMeshsize::getDz(int, int, int) const [66]
+-----------------------------------------------
+                0.00    0.00      82/82          NSEOF::Simulation::setTimeStep() [7]
+[67]     0.0    0.00    0.00      82         NSEOF::Stencils::MaxUStencil::reset() [67]
+-----------------------------------------------
+                                   1             tinyxml2::XMLComment::~XMLComment() <cycle 1> [130]
+                                   1             tinyxml2::XMLDeclaration::~XMLDeclaration() <cycle 1> [136]
+                                   4             tinyxml2::XMLText::~XMLText() <cycle 1> [88]
+                                  42             tinyxml2::XMLNode::~XMLNode() <cycle 1> [73]
+                0.00    0.00       1/18          tinyxml2::XMLDocument::~XMLDocument() [134]
+                0.00    0.00       1/18          tinyxml2::XMLDocument::LoadFile(_IO_FILE*) [131]
+                0.00    0.00       1/18          tinyxml2::XMLDocument::LoadFile(char const*) [132]
+[68]     0.0    0.00    0.00      51         tinyxml2::XMLNode::DeleteChildren() <cycle 1> [68]
+                0.00    0.00      27/41          tinyxml2::XMLElement::~XMLElement() [76]
+                0.00    0.00      27/41          tinyxml2::MemPoolT<104>::Free(void*) [78]
+                0.00    0.00       4/4           tinyxml2::MemPoolT<96>::Free(void*) [90]
+                0.00    0.00       2/2           tinyxml2::MemPoolT<88>::Free(void*) [95]
+                                  27             tinyxml2::XMLNode::~XMLNode() <cycle 1> [73]
+                                   4             tinyxml2::XMLText::~XMLText() <cycle 1> [88]
+                                   1             tinyxml2::XMLComment::~XMLComment() <cycle 1> [130]
+                                   1             tinyxml2::XMLDeclaration::~XMLDeclaration() <cycle 1> [136]
+-----------------------------------------------
+                0.00    0.00      48/48          tinyxml2::XMLNode::ParseDeep(char*, tinyxml2::StrPair*) [137]
+[69]     0.0    0.00    0.00      48         tinyxml2::XMLDocument::Identify(char*, tinyxml2::XMLNode**) [69]
+-----------------------------------------------
+                0.00    0.00      12/44          NSEOF::readWall(tinyxml2::XMLElement*, double*, double&) [85]
+                0.00    0.00      32/44          NSEOF::Configuration::loadParameters(NSEOF::Parameters&, ompi_communicator_t* const&) [243]
+[70]     0.0    0.00    0.00      44         tinyxml2::XMLNode::FirstChildElement(char const*) const [70]
+                0.00    0.00     115/224         tinyxml2::XMLElement::ToElement() [57]
+                0.00    0.00     103/341         tinyxml2::StrPair::GetStr() [54]
+                0.00    0.00      12/24          tinyxml2::XMLNode::ToElement() [81]
+-----------------------------------------------
+                0.00    0.00      43/43          tinyxml2::XMLElement::ParseAttributes(char*) [74]
+[71]     0.0    0.00    0.00      43         tinyxml2::XMLAttribute::ParseDeep(char*, bool) [71]
+                0.00    0.00      43/85          tinyxml2::XMLComment::ParseDeep(char*, tinyxml2::StrPair*) [61]
+-----------------------------------------------
+                0.00    0.00      43/43          tinyxml2::XMLElement::~XMLElement() [76]
+[72]     0.0    0.00    0.00      43         tinyxml2::MemPoolT<72>::Free(void*) [72]
+-----------------------------------------------
+                                  27             tinyxml2::XMLNode::DeleteChildren() <cycle 1> [68]
+                0.00    0.00       1/18          NSEOF::Configuration::loadParameters(NSEOF::Parameters&, ompi_communicator_t* const&) [243]
+                0.00    0.00      14/18          tinyxml2::XMLNode::ParseDeep(char*, tinyxml2::StrPair*) [137]
+[73]     0.0    0.00    0.00      42         tinyxml2::XMLNode::~XMLNode() <cycle 1> [73]
+                                  42             tinyxml2::XMLNode::DeleteChildren() <cycle 1> [68]
+-----------------------------------------------
+                0.00    0.00      41/41          tinyxml2::XMLElement::ParseDeep(char*, tinyxml2::StrPair*) [75]
+[74]     0.0    0.00    0.00      41         tinyxml2::XMLElement::ParseAttributes(char*) [74]
+                0.00    0.00     114/341         tinyxml2::StrPair::GetStr() [54]
+                0.00    0.00      43/43          tinyxml2::XMLAttribute::ParseDeep(char*, bool) [71]
+-----------------------------------------------
+                0.00    0.00      41/41          tinyxml2::XMLNode::ParseDeep(char*, tinyxml2::StrPair*) [137]
+[75]     0.0    0.00    0.00      41         tinyxml2::XMLElement::ParseDeep(char*, tinyxml2::StrPair*) [75]
+                0.00    0.00      41/85          tinyxml2::XMLComment::ParseDeep(char*, tinyxml2::StrPair*) [61]
+                0.00    0.00      41/41          tinyxml2::XMLElement::ParseAttributes(char*) [74]
+-----------------------------------------------
+                0.00    0.00      14/41          tinyxml2::XMLNode::ParseDeep(char*, tinyxml2::StrPair*) [137]
+                0.00    0.00      27/41          tinyxml2::XMLNode::DeleteChildren() <cycle 1> [68]
+[76]     0.0    0.00    0.00      41         tinyxml2::XMLElement::~XMLElement() [76]
+                0.00    0.00      43/43          tinyxml2::MemPoolT<72>::Free(void*) [72]
+-----------------------------------------------
+                0.00    0.00      41/41          tinyxml2::XMLNode::ParseDeep(char*, tinyxml2::StrPair*) [137]
+[77]     0.0    0.00    0.00      41         tinyxml2::MemPoolT<104>::SetTracked() [77]
+-----------------------------------------------
+                0.00    0.00      14/41          tinyxml2::XMLNode::ParseDeep(char*, tinyxml2::StrPair*) [137]
+                0.00    0.00      27/41          tinyxml2::XMLNode::DeleteChildren() <cycle 1> [68]
+[78]     0.0    0.00    0.00      41         tinyxml2::MemPoolT<104>::Free(void*) [78]
+-----------------------------------------------
+                0.00    0.00      18/41          NSEOF::readWall(tinyxml2::XMLElement*, double*, double&) [85]
+                0.00    0.00      23/41          NSEOF::Configuration::loadParameters(NSEOF::Parameters&, ompi_communicator_t* const&) [243]
+[79]     0.0    0.00    0.00      41         tinyxml2::XMLElement::FindAttribute(char const*) const [79]
+                0.00    0.00      88/341         tinyxml2::StrPair::GetStr() [54]
+-----------------------------------------------
+                0.00    0.00      15/33          NSEOF::Configuration::loadParameters(NSEOF::Parameters&, ompi_communicator_t* const&) [243]
+                0.00    0.00      18/33          NSEOF::readWall(tinyxml2::XMLElement*, double*, double&) [85]
+[80]     0.0    0.00    0.00      33         tinyxml2::XMLAttribute::QueryDoubleValue(double*) const [80]
+-----------------------------------------------
+                0.00    0.00      12/24          tinyxml2::XMLNode::ParseDeep(char*, tinyxml2::StrPair*) [137]
+                0.00    0.00      12/24          tinyxml2::XMLNode::FirstChildElement(char const*) const [70]
+[81]     0.0    0.00    0.00      24         tinyxml2::XMLNode::ToElement() [81]
+-----------------------------------------------
+                0.00    0.00      16/16          tinyxml2::XMLElement::GetText() const [83]
+[82]     0.0    0.00    0.00      16         tinyxml2::XMLText::ToText() const [82]
+-----------------------------------------------
+                0.00    0.00       8/8           NSEOF::readStringMandatory(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, tinyxml2::XMLElement*) [86]
+[83]     0.0    0.00    0.00       8         tinyxml2::XMLElement::GetText() const [83]
+                0.00    0.00      16/16          tinyxml2::XMLText::ToText() const [82]
+-----------------------------------------------
+                0.00    0.00       7/7           NSEOF::Configuration::loadParameters(NSEOF::Parameters&, ompi_communicator_t* const&) [243]
+[84]     0.0    0.00    0.00       7         tinyxml2::XMLAttribute::QueryIntValue(int*) const [84]
+-----------------------------------------------
+                0.00    0.00       6/6           NSEOF::Configuration::loadParameters(NSEOF::Parameters&, ompi_communicator_t* const&) [243]
+[85]     0.0    0.00    0.00       6         NSEOF::readWall(tinyxml2::XMLElement*, double*, double&) [85]
+                0.00    0.00      18/41          tinyxml2::XMLElement::FindAttribute(char const*) const [79]
+                0.00    0.00      18/33          tinyxml2::XMLAttribute::QueryDoubleValue(double*) const [80]
+                0.00    0.00      12/44          tinyxml2::XMLNode::FirstChildElement(char const*) const [70]
+-----------------------------------------------
+                0.00    0.00       4/4           NSEOF::Configuration::loadParameters(NSEOF::Parameters&, ompi_communicator_t* const&) [243]
+[86]     0.0    0.00    0.00       4         NSEOF::readStringMandatory(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, tinyxml2::XMLElement*) [86]
+                0.00    0.00       8/341         tinyxml2::StrPair::GetStr() [54]
+                0.00    0.00       8/8           tinyxml2::XMLElement::GetText() const [83]
+-----------------------------------------------
+                0.00    0.00       4/4           tinyxml2::XMLNode::ParseDeep(char*, tinyxml2::StrPair*) [137]
+[87]     0.0    0.00    0.00       4         tinyxml2::XMLText::ParseDeep(char*, tinyxml2::StrPair*) [87]
+-----------------------------------------------
+                                   4             tinyxml2::XMLNode::DeleteChildren() <cycle 1> [68]
+[88]     0.0    0.00    0.00       4         tinyxml2::XMLText::~XMLText() <cycle 1> [88]
+                                   4             tinyxml2::XMLNode::DeleteChildren() <cycle 1> [68]
+-----------------------------------------------
+                0.00    0.00       4/4           tinyxml2::XMLNode::ParseDeep(char*, tinyxml2::StrPair*) [137]
+[89]     0.0    0.00    0.00       4         tinyxml2::MemPoolT<96>::SetTracked() [89]
+-----------------------------------------------
+                0.00    0.00       4/4           tinyxml2::XMLNode::DeleteChildren() <cycle 1> [68]
+[90]     0.0    0.00    0.00       4         tinyxml2::MemPoolT<96>::Free(void*) [90]
+-----------------------------------------------
+                0.00    0.00       3/3           NSEOF::Configuration::loadParameters(NSEOF::Parameters&, ompi_communicator_t* const&) [243]
+[91]     0.0    0.00    0.00       3         NSEOF::broadcastString(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, ompi_communicator_t* const&, int) [91]
+-----------------------------------------------
+                0.00    0.00       2/2           NSEOF::FlowField::FlowField(NSEOF::Parameters const&) [377]
+[92]     0.0    0.00    0.00       2         NSEOF::ScalarField::ScalarField(int, int) [92]
+-----------------------------------------------
+                0.00    0.00       2/2           NSEOF::FlowField::FlowField(NSEOF::Parameters const&) [377]
+[93]     0.0    0.00    0.00       2         NSEOF::VectorField::VectorField(int, int) [93]
+-----------------------------------------------
+                0.00    0.00       2/2           tinyxml2::XMLNode::ParseDeep(char*, tinyxml2::StrPair*) [137]
+[94]     0.0    0.00    0.00       2         tinyxml2::MemPoolT<88>::SetTracked() [94]
+-----------------------------------------------
+                0.00    0.00       2/2           tinyxml2::XMLNode::DeleteChildren() <cycle 1> [68]
+[95]     0.0    0.00    0.00       2         tinyxml2::MemPoolT<88>::Free(void*) [95]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::FlowField::FlowField(NSEOF::Parameters const&) [377]
+[96]     0.0    0.00    0.00       1         NSEOF::IntScalarField::IntScalarField(int, int) [96]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::MeshsizeFactory::initMeshsize(NSEOF::Parameters&) [255]
+[97]     0.0    0.00    0.00       1         NSEOF::UniformMeshsize::UniformMeshsize(NSEOF::Parameters const&) [97]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::Parameters::~Parameters() [225]
+[98]     0.0    0.00    0.00       1         NSEOF::UniformMeshsize::~UniformMeshsize() [98]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::ParallelManagers::PetscParallelConfiguration::PetscParallelConfiguration(NSEOF::Parameters&) [260]
+[99]     0.0    0.00    0.00       1         NSEOF::ParallelManagers::PetscParallelConfiguration::computeSizes() [99]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::ParallelManagers::PetscParallelConfiguration::PetscParallelConfiguration(NSEOF::Parameters&) [260]
+[100]    0.0    0.00    0.00       1         NSEOF::ParallelManagers::PetscParallelConfiguration::locateNeighbors() [100]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::Simulation::Simulation(NSEOF::Parameters&, NSEOF::FlowField&) [226]
+[101]    0.0    0.00    0.00       1         NSEOF::GlobalBoundaryFactory::getGlobalBoundaryFGHIterator(NSEOF::FlowField&) [101]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::Simulation::Simulation(NSEOF::Parameters&, NSEOF::FlowField&) [226]
+[102]    0.0    0.00    0.00       1         NSEOF::GlobalBoundaryFactory::getGlobalBoundaryVelocityIterator(NSEOF::FlowField&) [102]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::Simulation::Simulation(NSEOF::Parameters&, NSEOF::FlowField&) [226]
+[103]    0.0    0.00    0.00       1         NSEOF::GlobalBoundaryFactory::GlobalBoundaryFactory(NSEOF::Parameters&) [103]
+                0.00    0.00       1/1           NSEOF::Stencils::PeriodicBoundaryVelocityStencil::PeriodicBoundaryVelocityStencil(NSEOF::Parameters const&) [128]
+                0.00    0.00       1/1           NSEOF::Stencils::PeriodicBoundaryFGHStencil::PeriodicBoundaryFGHStencil(NSEOF::Parameters const&) [124]
+                0.00    0.00       1/1           NSEOF::Stencils::MovingWallVelocityStencil::MovingWallVelocityStencil(NSEOF::Parameters const&) [120]
+                0.00    0.00       1/1           NSEOF::Stencils::MovingWallFGHStencil::MovingWallFGHStencil(NSEOF::Parameters const&) [116]
+                0.00    0.00       1/1           NSEOF::Stencils::NeumannVelocityBoundaryStencil::NeumannVelocityBoundaryStencil(NSEOF::Parameters const&) [126]
+                0.00    0.00       1/1           NSEOF::Stencils::NeumannFGHBoundaryStencil::NeumannFGHBoundaryStencil(NSEOF::Parameters const&) [122]
+                0.00    0.00       1/1           NSEOF::Stencils::BFInputVelocityStencil::BFInputVelocityStencil(NSEOF::Parameters const&) [118]
+                0.00    0.00       1/1           NSEOF::Stencils::BFInputFGHStencil::BFInputFGHStencil(NSEOF::Parameters const&) [113]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::Simulation::~Simulation() [227]
+[104]    0.0    0.00    0.00       1         NSEOF::GlobalBoundaryFactory::~GlobalBoundaryFactory() [104]
+                0.00    0.00       1/1           NSEOF::Stencils::MovingWallVelocityStencil::~MovingWallVelocityStencil() [121]
+                0.00    0.00       1/1           NSEOF::Stencils::MovingWallFGHStencil::~MovingWallFGHStencil() [117]
+                0.00    0.00       1/1           NSEOF::Stencils::PeriodicBoundaryVelocityStencil::~PeriodicBoundaryVelocityStencil() [129]
+                0.00    0.00       1/1           NSEOF::Stencils::PeriodicBoundaryFGHStencil::~PeriodicBoundaryFGHStencil() [125]
+                0.00    0.00       1/1           NSEOF::Stencils::NeumannVelocityBoundaryStencil::~NeumannVelocityBoundaryStencil() [127]
+                0.00    0.00       1/1           NSEOF::Stencils::NeumannFGHBoundaryStencil::~NeumannFGHBoundaryStencil() [123]
+                0.00    0.00       1/1           NSEOF::Stencils::BFInputVelocityStencil::~BFInputVelocityStencil() [119]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::Simulation::Simulation(NSEOF::Parameters&, NSEOF::FlowField&) [226]
+[105]    0.0    0.00    0.00       1         NSEOF::Solvers::PetscSolver::PetscSolver(NSEOF::FlowField&, NSEOF::Parameters&) [105]
+                0.00    0.00       1/1           NSEOF::Solvers::LinearSolver::LinearSolver(NSEOF::FlowField&, NSEOF::Parameters const&) [106]
+                0.00    0.00       1/1           NSEOF::Solvers::createLimits(NSEOF::Parameters&, _p_DM*&, int*, int*, int*) [107]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::Solvers::PetscSolver::PetscSolver(NSEOF::FlowField&, NSEOF::Parameters&) [105]
+[106]    0.0    0.00    0.00       1         NSEOF::Solvers::LinearSolver::LinearSolver(NSEOF::FlowField&, NSEOF::Parameters const&) [106]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::Solvers::PetscSolver::PetscSolver(NSEOF::FlowField&, NSEOF::Parameters&) [105]
+[107]    0.0    0.00    0.00       1         NSEOF::Solvers::createLimits(NSEOF::Parameters&, _p_DM*&, int*, int*, int*) [107]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::Simulation::Simulation(NSEOF::Parameters&, NSEOF::FlowField&) [226]
+[108]    0.0    0.00    0.00       1         NSEOF::Stencils::FGHStencil::FGHStencil(NSEOF::Parameters const&) [108]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::Simulation::Simulation(NSEOF::Parameters&, NSEOF::FlowField&) [226]
+[109]    0.0    0.00    0.00       1         NSEOF::Stencils::RHSStencil::RHSStencil(NSEOF::Parameters const&) [109]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::Simulation::Simulation(NSEOF::Parameters&, NSEOF::FlowField&) [226]
+[110]    0.0    0.00    0.00       1         NSEOF::Stencils::MaxUStencil::MaxUStencil(NSEOF::Parameters const&) [110]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::Simulation::Simulation(NSEOF::Parameters&, NSEOF::FlowField&) [226]
+[111]    0.0    0.00    0.00       1         NSEOF::Stencils::ObstacleStencil::ObstacleStencil(NSEOF::Parameters const&) [111]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::Simulation::Simulation(NSEOF::Parameters&, NSEOF::FlowField&) [226]
+[112]    0.0    0.00    0.00       1         NSEOF::Stencils::VelocityStencil::VelocityStencil(NSEOF::Parameters const&) [112]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::GlobalBoundaryFactory::GlobalBoundaryFactory(NSEOF::Parameters&) [103]
+[113]    0.0    0.00    0.00       1         NSEOF::Stencils::BFInputFGHStencil::BFInputFGHStencil(NSEOF::Parameters const&) [113]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::Simulation::~Simulation() [227]
+[114]    0.0    0.00    0.00       1         NSEOF::Stencils::BFInputFGHStencil::~BFInputFGHStencil() [114]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::Simulation::initializeFlowField() [13]
+[115]    0.0    0.00    0.00       1         NSEOF::Stencils::BFStepInitStencil::BFStepInitStencil(NSEOF::Parameters const&) [115]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::GlobalBoundaryFactory::GlobalBoundaryFactory(NSEOF::Parameters&) [103]
+[116]    0.0    0.00    0.00       1         NSEOF::Stencils::MovingWallFGHStencil::MovingWallFGHStencil(NSEOF::Parameters const&) [116]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::GlobalBoundaryFactory::~GlobalBoundaryFactory() [104]
+[117]    0.0    0.00    0.00       1         NSEOF::Stencils::MovingWallFGHStencil::~MovingWallFGHStencil() [117]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::GlobalBoundaryFactory::GlobalBoundaryFactory(NSEOF::Parameters&) [103]
+[118]    0.0    0.00    0.00       1         NSEOF::Stencils::BFInputVelocityStencil::BFInputVelocityStencil(NSEOF::Parameters const&) [118]
+                0.00    0.00      14/302450      NSEOF::UniformMeshsize::getDy(int, int) const [23]
+                0.00    0.00       7/3985        NSEOF::UniformMeshsize::getPosY(int, int) const [36]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::GlobalBoundaryFactory::~GlobalBoundaryFactory() [104]
+[119]    0.0    0.00    0.00       1         NSEOF::Stencils::BFInputVelocityStencil::~BFInputVelocityStencil() [119]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::GlobalBoundaryFactory::GlobalBoundaryFactory(NSEOF::Parameters&) [103]
+[120]    0.0    0.00    0.00       1         NSEOF::Stencils::MovingWallVelocityStencil::MovingWallVelocityStencil(NSEOF::Parameters const&) [120]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::GlobalBoundaryFactory::~GlobalBoundaryFactory() [104]
+[121]    0.0    0.00    0.00       1         NSEOF::Stencils::MovingWallVelocityStencil::~MovingWallVelocityStencil() [121]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::GlobalBoundaryFactory::GlobalBoundaryFactory(NSEOF::Parameters&) [103]
+[122]    0.0    0.00    0.00       1         NSEOF::Stencils::NeumannFGHBoundaryStencil::NeumannFGHBoundaryStencil(NSEOF::Parameters const&) [122]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::GlobalBoundaryFactory::~GlobalBoundaryFactory() [104]
+[123]    0.0    0.00    0.00       1         NSEOF::Stencils::NeumannFGHBoundaryStencil::~NeumannFGHBoundaryStencil() [123]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::GlobalBoundaryFactory::GlobalBoundaryFactory(NSEOF::Parameters&) [103]
+[124]    0.0    0.00    0.00       1         NSEOF::Stencils::PeriodicBoundaryFGHStencil::PeriodicBoundaryFGHStencil(NSEOF::Parameters const&) [124]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::GlobalBoundaryFactory::~GlobalBoundaryFactory() [104]
+[125]    0.0    0.00    0.00       1         NSEOF::Stencils::PeriodicBoundaryFGHStencil::~PeriodicBoundaryFGHStencil() [125]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::GlobalBoundaryFactory::GlobalBoundaryFactory(NSEOF::Parameters&) [103]
+[126]    0.0    0.00    0.00       1         NSEOF::Stencils::NeumannVelocityBoundaryStencil::NeumannVelocityBoundaryStencil(NSEOF::Parameters const&) [126]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::GlobalBoundaryFactory::~GlobalBoundaryFactory() [104]
+[127]    0.0    0.00    0.00       1         NSEOF::Stencils::NeumannVelocityBoundaryStencil::~NeumannVelocityBoundaryStencil() [127]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::GlobalBoundaryFactory::GlobalBoundaryFactory(NSEOF::Parameters&) [103]
+[128]    0.0    0.00    0.00       1         NSEOF::Stencils::PeriodicBoundaryVelocityStencil::PeriodicBoundaryVelocityStencil(NSEOF::Parameters const&) [128]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::GlobalBoundaryFactory::~GlobalBoundaryFactory() [104]
+[129]    0.0    0.00    0.00       1         NSEOF::Stencils::PeriodicBoundaryVelocityStencil::~PeriodicBoundaryVelocityStencil() [129]
+-----------------------------------------------
+                                   1             tinyxml2::XMLNode::DeleteChildren() <cycle 1> [68]
+[130]    0.0    0.00    0.00       1         tinyxml2::XMLComment::~XMLComment() <cycle 1> [130]
+                                   1             tinyxml2::XMLNode::DeleteChildren() <cycle 1> [68]
+-----------------------------------------------
+                0.00    0.00       1/1           tinyxml2::XMLDocument::LoadFile(char const*) [132]
+[131]    0.0    0.00    0.00       1         tinyxml2::XMLDocument::LoadFile(_IO_FILE*) [131]
+                0.00    0.00       1/18          tinyxml2::XMLNode::DeleteChildren() <cycle 1> [68]
+                0.00    0.00       1/1           tinyxml2::XMLNode::ParseDeep(char*, tinyxml2::StrPair*) [137]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::Configuration::loadParameters(NSEOF::Parameters&, ompi_communicator_t* const&) [243]
+[132]    0.0    0.00    0.00       1         tinyxml2::XMLDocument::LoadFile(char const*) [132]
+                0.00    0.00       1/18          tinyxml2::XMLNode::DeleteChildren() <cycle 1> [68]
+                0.00    0.00       1/1           tinyxml2::XMLDocument::LoadFile(_IO_FILE*) [131]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::Configuration::loadParameters(NSEOF::Parameters&, ompi_communicator_t* const&) [243]
+[133]    0.0    0.00    0.00       1         tinyxml2::XMLDocument::XMLDocument(bool, tinyxml2::Whitespace) [133]
+-----------------------------------------------
+                0.00    0.00       1/1           NSEOF::Configuration::loadParameters(NSEOF::Parameters&, ompi_communicator_t* const&) [243]
+[134]    0.0    0.00    0.00       1         tinyxml2::XMLDocument::~XMLDocument() [134]
+                0.00    0.00       1/18          tinyxml2::XMLNode::DeleteChildren() <cycle 1> [68]
+-----------------------------------------------
+                0.00    0.00       1/1           tinyxml2::XMLNode::ParseDeep(char*, tinyxml2::StrPair*) [137]
+[135]    0.0    0.00    0.00       1         tinyxml2::XMLDeclaration::ParseDeep(char*, tinyxml2::StrPair*) [135]
+-----------------------------------------------
+                                   1             tinyxml2::XMLNode::DeleteChildren() <cycle 1> [68]
+[136]    0.0    0.00    0.00       1         tinyxml2::XMLDeclaration::~XMLDeclaration() <cycle 1> [136]
+                                   1             tinyxml2::XMLNode::DeleteChildren() <cycle 1> [68]
+-----------------------------------------------
+                                  14             tinyxml2::XMLNode::ParseDeep(char*, tinyxml2::StrPair*) [137]
+                0.00    0.00       1/1           tinyxml2::XMLDocument::LoadFile(_IO_FILE*) [131]
+[137]    0.0    0.00    0.00       1+14      tinyxml2::XMLNode::ParseDeep(char*, tinyxml2::StrPair*) [137]
+                0.00    0.00     109/224         tinyxml2::XMLElement::ToElement() [57]
+                0.00    0.00      48/48          tinyxml2::XMLDocument::Identify(char*, tinyxml2::XMLNode**) [69]
+                0.00    0.00      41/41          tinyxml2::XMLElement::ParseDeep(char*, tinyxml2::StrPair*) [75]
+                0.00    0.00      41/41          tinyxml2::MemPoolT<104>::SetTracked() [77]
+                0.00    0.00      28/341         tinyxml2::StrPair::GetStr() [54]
+                0.00    0.00      14/18          tinyxml2::XMLNode::~XMLNode() <cycle 1> [73]
+                0.00    0.00      14/41          tinyxml2::XMLElement::~XMLElement() [76]
+                0.00    0.00      14/41          tinyxml2::MemPoolT<104>::Free(void*) [78]
+                0.00    0.00      12/24          tinyxml2::XMLNode::ToElement() [81]
+                0.00    0.00       4/4           tinyxml2::XMLText::ParseDeep(char*, tinyxml2::StrPair*) [87]
+                0.00    0.00       4/4           tinyxml2::MemPoolT<96>::SetTracked() [89]
+                0.00    0.00       2/2           tinyxml2::MemPoolT<88>::SetTracked() [94]
+                0.00    0.00       1/85          tinyxml2::XMLComment::ParseDeep(char*, tinyxml2::StrPair*) [61]
+                0.00    0.00       1/1           tinyxml2::XMLDeclaration::ParseDeep(char*, tinyxml2::StrPair*) [135]
+                                  14             tinyxml2::XMLNode::ParseDeep(char*, tinyxml2::StrPair*) [137]
+-----------------------------------------------
+
+ This table describes the call tree of the program, and was sorted by
+ the total amount of time spent in each function and its children.
+
+ Each entry in this table consists of several lines.  The line with the
+ index number at the left hand margin lists the current function.
+ The lines above it list the functions that called this function,
+ and the lines below it list the functions this one called.
+ This line lists:
+     index	A unique number given to each element of the table.
+		Index numbers are sorted numerically.
+		The index number is printed next to every function name so
+		it is easier to look up where the function is in the table.
+
+     % time	This is the percentage of the `total' time that was spent
+		in this function and its children.  Note that due to
+		different viewpoints, functions excluded by options, etc,
+		these numbers will NOT add up to 100%.
+
+     self	This is the total amount of time spent in this function.
+
+     children	This is the total amount of time propagated into this
+		function by its children.
+
+     called	This is the number of times the function was called.
+		If the function called itself recursively, the number
+		only includes non-recursive calls, and is followed by
+		a `+' and the number of recursive calls.
+
+     name	The name of the current function.  The index number is
+		printed after it.  If the function is a member of a
+		cycle, the cycle number is printed between the
+		function's name and the index number.
+
+
+ For the function's parents, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the function into this parent.
+
+     children	This is the amount of time that was propagated from
+		the function's children into this parent.
+
+     called	This is the number of times this parent called the
+		function `/' the total number of times the function
+		was called.  Recursive calls to the function are not
+		included in the number after the `/'.
+
+     name	This is the name of the parent.  The parent's index
+		number is printed after it.  If the parent is a
+		member of a cycle, the cycle number is printed between
+		the name and the index number.
+
+ If the parents of the function cannot be determined, the word
+ `<spontaneous>' is printed in the `name' field, and all the other
+ fields are blank.
+
+ For the function's children, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the child into the function.
+
+     children	This is the amount of time that was propagated from the
+		child's children to the function.
+
+     called	This is the number of times the function called
+		this child `/' the total number of times the child
+		was called.  Recursive calls by the child are not
+		listed in the number after the `/'.
+
+     name	This is the name of the child.  The child's index
+		number is printed after it.  If the child is a
+		member of a cycle, the cycle number is printed
+		between the name and the index number.
+
+ If there are any cycles (circles) in the call graph, there is an
+ entry for the cycle-as-a-whole.  This entry shows who called the
+ cycle (as parents) and the members of the cycle (as children.)
+ The `+' recursive calls entry shows the number of function calls that
+ were internal to the cycle, and the calls entry for each member shows,
+ for that member, how many times it was called from other members of
+ the cycle.
+
+Copyright (C) 2012-2021 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+Index by function name
+
+   [7] NSEOF::Simulation::setTimeStep() [55] NSEOF::Stencils::BFStepInitStencil::apply(NSEOF::FlowField&, int, int) [136] tinyxml2::XMLDeclaration::~XMLDeclaration()
+   [1] NSEOF::Simulation::solveTimestep() [115] NSEOF::Stencils::BFStepInitStencil::BFStepInitStencil(NSEOF::Parameters const&) [54] tinyxml2::StrPair::GetStr()
+   [3] NSEOF::ScalarField::getScalar(int, int, int) [48] NSEOF::Stencils::MovingWallFGHStencil::applyTopWall(NSEOF::FlowField&, int, int) [68] tinyxml2::XMLNode::DeleteChildren()
+  [92] NSEOF::ScalarField::ScalarField(int, int) [49] NSEOF::Stencils::MovingWallFGHStencil::applyBottomWall(NSEOF::FlowField&, int, int) [137] tinyxml2::XMLNode::ParseDeep(char*, tinyxml2::StrPair*)
+  [22] NSEOF::VectorField::getVector(int, int, int) [116] NSEOF::Stencils::MovingWallFGHStencil::MovingWallFGHStencil(NSEOF::Parameters const&) [81] tinyxml2::XMLNode::ToElement()
+  [93] NSEOF::VectorField::VectorField(int, int) [117] NSEOF::Stencils::MovingWallFGHStencil::~MovingWallFGHStencil() [73] tinyxml2::XMLNode::~XMLNode()
+   [2] NSEOF::FieldIterator<NSEOF::FlowField>::iterate() [39] NSEOF::Stencils::BFInputVelocityStencil::applyLeftWall(NSEOF::FlowField&, int, int) [87] tinyxml2::XMLText::ParseDeep(char*, tinyxml2::StrPair*)
+  [27] NSEOF::IntScalarField::getValue(int, int, int) [118] NSEOF::Stencils::BFInputVelocityStencil::BFInputVelocityStencil(NSEOF::Parameters const&) [88] tinyxml2::XMLText::~XMLText()
+  [96] NSEOF::IntScalarField::IntScalarField(int, int) [119] NSEOF::Stencils::BFInputVelocityStencil::~BFInputVelocityStencil() [77] tinyxml2::MemPoolT<104>::SetTracked()
+  [97] NSEOF::UniformMeshsize::UniformMeshsize(NSEOF::Parameters const&) [46] NSEOF::Stencils::MovingWallVelocityStencil::applyTopWall(NSEOF::FlowField&, int, int) [78] tinyxml2::MemPoolT<104>::Free(void*)
+  [98] NSEOF::UniformMeshsize::~UniformMeshsize() [47] NSEOF::Stencils::MovingWallVelocityStencil::applyBottomWall(NSEOF::FlowField&, int, int) [72] tinyxml2::MemPoolT<72>::Free(void*)
+  [91] NSEOF::broadcastString(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, ompi_communicator_t* const&, int) [120] NSEOF::Stencils::MovingWallVelocityStencil::MovingWallVelocityStencil(NSEOF::Parameters const&) [94] tinyxml2::MemPoolT<88>::SetTracked()
+  [99] NSEOF::ParallelManagers::PetscParallelConfiguration::computeSizes() [121] NSEOF::Stencils::MovingWallVelocityStencil::~MovingWallVelocityStencil() [95] tinyxml2::MemPoolT<88>::Free(void*)
+ [100] NSEOF::ParallelManagers::PetscParallelConfiguration::locateNeighbors() [42] NSEOF::Stencils::NeumannFGHBoundaryStencil::applyTopWall(NSEOF::FlowField&, int, int) [89] tinyxml2::MemPoolT<96>::SetTracked()
+  [86] NSEOF::readStringMandatory(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, tinyxml2::XMLElement*) [122] NSEOF::Stencils::NeumannFGHBoundaryStencil::NeumannFGHBoundaryStencil(NSEOF::Parameters const&) [90] tinyxml2::MemPoolT<96>::Free(void*)
+ [101] NSEOF::GlobalBoundaryFactory::getGlobalBoundaryFGHIterator(NSEOF::FlowField&) [123] NSEOF::Stencils::NeumannFGHBoundaryStencil::~NeumannFGHBoundaryStencil() [24] NSEOF::UniformMeshsize::getDx(int, int) const
+ [102] NSEOF::GlobalBoundaryFactory::getGlobalBoundaryVelocityIterator(NSEOF::FlowField&) [124] NSEOF::Stencils::PeriodicBoundaryFGHStencil::PeriodicBoundaryFGHStencil(NSEOF::Parameters const&) [30] NSEOF::UniformMeshsize::getDx(int, int, int) const
+ [103] NSEOF::GlobalBoundaryFactory::GlobalBoundaryFactory(NSEOF::Parameters&) [125] NSEOF::Stencils::PeriodicBoundaryFGHStencil::~PeriodicBoundaryFGHStencil() [23] NSEOF::UniformMeshsize::getDy(int, int) const
+ [104] NSEOF::GlobalBoundaryFactory::~GlobalBoundaryFactory() [40] NSEOF::Stencils::NeumannVelocityBoundaryStencil::applyRightWall(NSEOF::FlowField&, int, int) [43] NSEOF::UniformMeshsize::getDy(int, int, int) const
+  [58] NSEOF::GlobalBoundaryIterator<NSEOF::FlowField>::iterate() [126] NSEOF::Stencils::NeumannVelocityBoundaryStencil::NeumannVelocityBoundaryStencil(NSEOF::Parameters const&) [66] NSEOF::UniformMeshsize::getDz(int, int, int) const
+   [8] NSEOF::Solvers::PetscSolver::solve() [127] NSEOF::Stencils::NeumannVelocityBoundaryStencil::~NeumannVelocityBoundaryStencil() [53] NSEOF::UniformMeshsize::getPosX(int, int) const
+ [105] NSEOF::Solvers::PetscSolver::PetscSolver(NSEOF::FlowField&, NSEOF::Parameters&) [128] NSEOF::Stencils::PeriodicBoundaryVelocityStencil::PeriodicBoundaryVelocityStencil(NSEOF::Parameters const&) [36] NSEOF::UniformMeshsize::getPosY(int, int) const
+ [106] NSEOF::Solvers::LinearSolver::LinearSolver(NSEOF::FlowField&, NSEOF::Parameters const&) [129] NSEOF::Stencils::PeriodicBoundaryVelocityStencil::~PeriodicBoundaryVelocityStencil() [59] NSEOF::UniformMeshsize::getDxMin() const
+ [107] NSEOF::Solvers::createLimits(NSEOF::Parameters&, _p_DM*&, int*, int*, int*) [85] NSEOF::readWall(tinyxml2::XMLElement*, double*, double&) [60] NSEOF::UniformMeshsize::getDyMin() const
+   [4] NSEOF::Stencils::FGHStencil::apply(NSEOF::FlowField&, int, int) [28] NSEOF::FlowField::getPressure() [56] NSEOF::Stencils::MaxUStencil::getMaxValues() const
+ [108] NSEOF::Stencils::FGHStencil::FGHStencil(NSEOF::Parameters const&) [25] NSEOF::FlowField::getVelocity() [35] NSEOF::FlowField::getCellsX() const
+   [9] NSEOF::Stencils::RHSStencil::apply(NSEOF::FlowField&, int, int) [11] NSEOF::FlowField::getPressureAndVelocity(double&, double*, int, int) [34] NSEOF::FlowField::getCellsY() const
+ [109] NSEOF::Stencils::RHSStencil::RHSStencil(NSEOF::Parameters const&) [26] NSEOF::FlowField::getFGH() [52] NSEOF::FlowField::getCellsZ() const
+  [62] NSEOF::Stencils::VTKStencil::setFirstCorner_(int, int, int) [31] NSEOF::FlowField::getRHS() [79] tinyxml2::XMLElement::FindAttribute(char const*) const
+  [63] NSEOF::Stencils::VTKStencil::writePositions_(_IO_FILE*) [29] NSEOF::FlowField::getFlags() [83] tinyxml2::XMLElement::GetText() const
+  [10] NSEOF::Stencils::VTKStencil::apply(NSEOF::FlowField&, int, int) [61] tinyxml2::XMLComment::ParseDeep(char*, tinyxml2::StrPair*) [84] tinyxml2::XMLAttribute::QueryIntValue(int*) const
+  [64] NSEOF::Stencils::VTKStencil::write(int) [130] tinyxml2::XMLComment::~XMLComment() [80] tinyxml2::XMLAttribute::QueryDoubleValue(double*) const
+  [65] NSEOF::Stencils::VTKStencil::VTKStencil(NSEOF::Parameters const&) [74] tinyxml2::XMLElement::ParseAttributes(char*) [70] tinyxml2::XMLNode::FirstChildElement(char const*) const
+  [32] NSEOF::Stencils::MaxUStencil::applyTopWall(NSEOF::FlowField&, int, int) [75] tinyxml2::XMLElement::ParseDeep(char*, tinyxml2::StrPair*) [82] tinyxml2::XMLText::ToText() const
+  [67] NSEOF::Stencils::MaxUStencil::reset() [57] tinyxml2::XMLElement::ToElement() [50] void std::vector<double*, std::allocator<double*> >::_M_realloc_insert<double* const&>(__gnu_cxx::__normal_iterator<double**, std::vector<double*, std::allocator<double*> > >, double* const&)
+ [110] NSEOF::Stencils::MaxUStencil::MaxUStencil(NSEOF::Parameters const&) [76] tinyxml2::XMLElement::~XMLElement() [51] void std::vector<double, std::allocator<double> >::_M_realloc_insert<double const&>(__gnu_cxx::__normal_iterator<double*, std::vector<double, std::allocator<double> > >, double const&)
+  [33] NSEOF::Stencils::ObstacleStencil::apply(NSEOF::FlowField&, int, int) [69] tinyxml2::XMLDocument::Identify(char*, tinyxml2::XMLNode**) [44] non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyTopWall(NSEOF::FlowField&, int, int)
+ [111] NSEOF::Stencils::ObstacleStencil::ObstacleStencil(NSEOF::Parameters const&) [131] tinyxml2::XMLDocument::LoadFile(_IO_FILE*) [37] non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyLeftWall(NSEOF::FlowField&, int, int)
+   [5] NSEOF::Stencils::VelocityStencil::apply(NSEOF::FlowField&, int, int) [132] tinyxml2::XMLDocument::LoadFile(char const*) [38] non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyRightWall(NSEOF::FlowField&, int, int)
+ [112] NSEOF::Stencils::VelocityStencil::VelocityStencil(NSEOF::Parameters const&) [133] tinyxml2::XMLDocument::XMLDocument(bool, tinyxml2::Whitespace) [45] non-virtual thunk to NSEOF::Stencils::MaxUStencil::applyBottomWall(NSEOF::FlowField&, int, int)
+  [41] NSEOF::Stencils::BFInputFGHStencil::applyLeftWall(NSEOF::FlowField&, int, int) [134] tinyxml2::XMLDocument::~XMLDocument() [14] <cycle 1>
+ [113] NSEOF::Stencils::BFInputFGHStencil::BFInputFGHStencil(NSEOF::Parameters const&) [71] tinyxml2::XMLAttribute::ParseDeep(char*, bool)
+ [114] NSEOF::Stencils::BFInputFGHStencil::~BFInputFGHStencil() [135] tinyxml2::XMLDeclaration::ParseDeep(char*, tinyxml2::StrPair*)

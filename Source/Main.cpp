@@ -2,13 +2,13 @@
 #include "Configuration.hpp"
 #include "MeshsizeFactory.hpp"
 
-
 #include "ParallelManagers/PetscParallelConfiguration.hpp"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
 #include <iomanip>
+#include <sys/stat.h>
 
 
 int main(int argc, char *argv[]) {
@@ -89,32 +89,43 @@ int main(int argc, char *argv[]) {
     }
     simulation->initializeFlowField();
 
-    //flowField->getFlags().show();
+    // flowField->getFlags().show();
+
+    // Create output directory (Master)
+    if (rank == 0) {
+        mkdir(parameters.vtk.outDir.c_str(), 0777);
+    }
 
     FLOAT time = 0.0;
-    FLOAT timeVtk = parameters.vtk.interval;
     FLOAT timeStdOut = parameters.stdOut.interval;
+    FLOAT timeVtk = parameters.vtk.interval;
     int timeSteps = 0;
 
     // TODO WS1: plot initial state
+    simulation->plotVTK(timeSteps++);
 
     // Time loop
     while (time < parameters.simulation.finalTime) {
         simulation->solveTimestep();
 
-        time += parameters.timestep.dt;
+        do {
+            // If dt > intervalVtk, then dt = intervalVtk!
+            time += std::min(parameters.timestep.dt, parameters.vtk.interval);
 
-        if ((rank == 0) && (timeStdOut <= time)) {
-            std::cout << "Current time: " << time << "\tTimestep: " << parameters.timestep.dt << std::endl;
-            timeStdOut += parameters.stdOut.interval;
-        }
+            // Log the time (Master)
+            if (rank == 0 && timeStdOut <= time) {
+                std::cout << "Current time: " << time << "\tTimestep: " << parameters.timestep.dt << std::endl;
+                timeStdOut += parameters.stdOut.interval;
+            }
+        } while (time < timeVtk); // time < timeVtk, then wait for the right time to plot!
 
         // TODO WS1: trigger VTK output
-
-        timeSteps++;
+        simulation->plotVTK(timeSteps++);
+        timeVtk += parameters.vtk.interval;
     }
 
     // TODO WS1: plot final output
+    simulation->plotVTK(timeSteps);
 
     delete simulation;
     simulation = NULL;

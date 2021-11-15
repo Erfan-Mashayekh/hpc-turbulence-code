@@ -1,5 +1,7 @@
 #include "Simulation.hpp"
 
+#include "Stencils/VTKStencil.hpp"
+
 #include "Solvers/SORSolver.hpp"
 #include "Solvers/PetscSolver.hpp"
 
@@ -92,6 +94,12 @@ void Simulation::solveTimestep() {
 void Simulation::plotVTK(int timeStep) {
     // TODO WS1: create VTKStencil and respective iterator; iterate stencil
     //           over flowField_ and write flow field information to VTK file.
+    Stencils::VTKStencil vtkStencil_(parameters_);
+    FieldIterator<FlowField> vtkIterator_(flowField_, parameters_, vtkStencil_,
+                                          parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset);
+
+    vtkIterator_.iterate();
+    vtkStencil_.write(timeStep);
 }
 
 void Simulation::setTimeStep() {

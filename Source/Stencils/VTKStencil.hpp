@@ -9,9 +9,9 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <vector>
 
-namespace NSEOF {
-namespace Stencils {
+namespace NSEOF::Stencils {
 
 /** TODO WS1: Stencil for writting VTK files
  *
@@ -19,17 +19,29 @@ namespace Stencils {
  */
 class VTKStencil : public FieldStencil<FlowField> {
 
+private:
+    int firstCornerInd_[3]{ -1, -1, -1 };
+    FLOAT firstCornerPos_[3]{ -1, -1, -1 };
+
+    std::vector<FLOAT> pressures_;
+    std::vector<FLOAT*> velocities_;
+
+    void setFirstCorner_(int, int, int);
+
+    void writePositions_(FILE *filePtr);
+    void writePressures_(FILE*);
+    void writeVelocities_(FILE*);
+
 public:
-    VTKStencil(const Parameters& parameters);
-    ~VTKStencil() override = default;
+    explicit VTKStencil(const Parameters &parameters);
+    ~VTKStencil() override;
 
-    void apply(FlowField& flowField, int i, int j) override;
     void apply(FlowField& flowField, int i, int j, int k) override;
+    void apply(FlowField& flowField, int i, int j) override;
 
-    void write(FlowField& flowField, int timeStep);
+    void write(int timeStep);
 };
 
-} // namespace Stencils
-} // namespace NSEOF
+} // namespace NSEOF::Stencils
 
 #endif // __STENCILS_VTK_STENCIL_HPP__
