@@ -1,19 +1,18 @@
 #include "VTKStencil.hpp"
 #include "StencilFunctions.hpp"
 #include "Definitions.hpp"
-#include "assert.h"
 
 namespace NSEOF::Stencils {
-    VTKStencil::VTKStencil(const Parameters& parameters)
-            : FieldStencil<FlowField>(parameters) {
-        firstCornerInd_ = nullptr;
-        firstCornerPos_ = nullptr;
+
+    VTKStencil::VTKStencil(const Parameters &parameters)
+            : FieldStencil<FlowField>(parameters) {}
+
+    VTKStencil::~VTKStencil() {
+        pressures_.clear();
+        velocities_.clear();
     }
 
     void VTKStencil::setFirstCorner_(int i, int j, int k = 0) {
-        firstCornerInd_ = (int*) malloc(3 * sizeof(int));
-        firstCornerPos_ = (FLOAT*) malloc(3 * sizeof(FLOAT));
-
         firstCornerInd_[0] = i;
         firstCornerInd_[1] = j;
         firstCornerInd_[2] = k;
@@ -29,10 +28,10 @@ namespace NSEOF::Stencils {
     void VTKStencil::apply(FlowField& flowField, int i, int j, int k) {
         // Init data structures
         FLOAT pressure;
-        auto* velocity = (FLOAT*) malloc(3 * sizeof(FLOAT));
+        FLOAT velocity[3];
 
-        // Set the starting position, the first corner!
-        if (firstCornerInd_ == nullptr) {
+        // Set the starting position, the first corner, if it has not been set already!
+        if (firstCornerInd_[0] == -1) {
             setFirstCorner_(i, j, k);
         }
 

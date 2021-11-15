@@ -20,8 +20,8 @@ namespace NSEOF::Stencils {
 class VTKStencil : public FieldStencil<FlowField> {
 
 private:
-    int* firstCornerInd_;
-    FLOAT* firstCornerPos_;
+    int firstCornerInd_[3]{ -1, -1, -1 };
+    FLOAT firstCornerPos_[3]{ -1, -1, -1 };
 
     std::vector<FLOAT> pressures_;
     std::vector<FLOAT*> velocities_;
@@ -33,8 +33,8 @@ private:
     void writeVelocities_(FILE*);
 
 public:
-    VTKStencil(const Parameters& parameters);
-    ~VTKStencil() override = default;
+    explicit VTKStencil(const Parameters &parameters);
+    ~VTKStencil() override;
 
     void apply(FlowField& flowField, int i, int j, int k) override;
     void apply(FlowField& flowField, int i, int j) override;
