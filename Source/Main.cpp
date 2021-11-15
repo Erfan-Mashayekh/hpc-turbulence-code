@@ -108,22 +108,20 @@ int main(int argc, char *argv[]) {
     while (time < parameters.simulation.finalTime) {
         simulation->solveTimestep();
 
-        // time step
-        time += parameters.timestep.dt;
+        do {
+            // If dt > intervalVtk, then dt = intervalVtk!
+            time += std::min(parameters.timestep.dt, parameters.vtk.interval);
 
-        // Log the time (Master)
-        if (rank == 0 && timeStdOut <= time) {
-            std::cout << "Current time: " << time << "\tTimestep: " << parameters.timestep.dt << std::endl;
-            timeStdOut += parameters.stdOut.interval;
-        }
+            // Log the time (Master)
+            if (rank == 0 && timeStdOut <= time) {
+                std::cout << "Current time: " << time << "\tTimestep: " << parameters.timestep.dt << std::endl;
+                timeStdOut += parameters.stdOut.interval;
+            }
+        } while (time < timeVtk); // time < timeVtk, then wait for the right time to plot!
 
         // TODO WS1: trigger VTK output
-        if (timeVtk <= time) {
-            simulation->plotVTK(timeSteps);
-            timeVtk += parameters.vtk.interval;
-        }
-
-        timeSteps++;
+        simulation->plotVTK(timeSteps++);
+        timeVtk += parameters.vtk.interval;
     }
 
     // TODO WS1: plot final output
