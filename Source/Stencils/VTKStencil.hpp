@@ -18,18 +18,18 @@ namespace NSEOF::Stencils {
  * When iterated with, creates a VTK file.
  */
 
-struct PositionIdx {
+struct CellIndex {
 
 public:
     int i, j, k;
 
-    PositionIdx(int, int, int);
+    CellIndex(int, int, int);
 };
 
 class VTKStencil : public FieldStencil<FlowField> {
 
 private:
-    std::vector<PositionIdx> positionIdxList_;
+    std::vector<CellIndex> cellIndices_;
     ScalarField pressure_;
     VectorField velocity_;
 

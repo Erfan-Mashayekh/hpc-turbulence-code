@@ -4,7 +4,7 @@
 
 namespace NSEOF::Stencils {
 
-    PositionIdx::PositionIdx(int i, int j, int k) : i(i), j(j), k(k) {}
+    CellIndex::CellIndex(int i, int j, int k) : i(i), j(j), k(k) {}
 
     VTKStencil::VTKStencil(const Parameters &parameters, int Nx, int Ny, int Nz)
             : FieldStencil<FlowField>(parameters)
@@ -12,13 +12,13 @@ namespace NSEOF::Stencils {
             , velocity_(VectorField(Nx, Ny, parameters.geometry.dim == 3 ? Nz : 1)) {}
 
     VTKStencil::~VTKStencil() {
-        positionIdxList_.clear();
+        cellIndices_.clear();
     }
 
     // TODO: Include obstacles?? Erfan
     void VTKStencil::apply(FlowField& flowField, int i, int j, int k) {
-        // Store the position indices
-        positionIdxList_.emplace_back(i, j, k);
+        // Store the cell indices
+        cellIndices_.emplace_back(i, j, k);
 
         // Get data structures stored
         FLOAT& pressure = pressure_.getScalar(i, j, k);
@@ -40,44 +40,53 @@ namespace NSEOF::Stencils {
     }
 
     void VTKStencil::writePositions_(FILE* filePtr) {
-        const int numPointsX = parameters_.geometry.sizeX + 1;
-        const int numPointsY = parameters_.geometry.sizeY + 1;
-        const int numPointsZ = parameters_.geometry.dim == 2 ? 1 : parameters_.geometry.sizeZ + 1;
+        const int sizeX = parameters_.geometry.sizeX;
+        const int sizeY = parameters_.geometry.sizeY;
+        const int sizeZ = parameters_.geometry.dim == 3 ? parameters_.geometry.sizeZ : 0;
 
         fprintf(filePtr, "DATASET %s\n", parameters_.vtk.datasetName.c_str());
-        fprintf(filePtr, "DIMENSIONS %d %d %d\n", numPointsX, numPointsY, numPointsZ);
-        fprintf(filePtr, "POINTS %d float\n", numPointsX * numPointsY * numPointsZ);
+        fprintf(filePtr, "DIMENSIONS %d %d %d\n", (sizeX + 1), (sizeY + 1), (sizeZ + 1));
+        fprintf(filePtr, "POINTS %d float\n", (sizeX + 1) * (sizeY + 1) * (sizeZ + 1));
 
-        PositionIdx initPosIdx = positionIdxList_[0];
-        FLOAT posZ = parameters_.meshsize->getPosZ(initPosIdx.i, initPosIdx.j, initPosIdx.k);
+        auto cellIndexIterator = cellIndices_.begin();
+        CellIndex* cellIndex;
 
-        for (int k = initPosIdx.k; k < initPosIdx.k + numPointsZ; k++) {
-            FLOAT posY = parameters_.meshsize->getPosY(initPosIdx.i, initPosIdx.j, initPosIdx.k);
+        FLOAT posX, posY, posZ = parameters_.parallel.firstCorner[2];
 
-            for (int j = initPosIdx.j; j < initPosIdx.j + numPointsY; j++) {
-                FLOAT posX = parameters_.meshsize->getPosX(initPosIdx.i, initPosIdx.j, initPosIdx.k);
+        for (int k = 0; k <= sizeZ; k++) {
+            posY = parameters_.parallel.firstCorner[1];
 
-                for (int i = initPosIdx.i; i < initPosIdx.i + numPointsX; i++) {
-                    fprintf(filePtr, "%f %f %f\n", posX, posY, std::abs(posZ));
-                    posX += parameters_.meshsize->getDx(i, j, k);
+            for (int j = 0; j <= sizeY; j++) {
+                posX = parameters_.parallel.firstCorner[0];
+
+                for (int i = 0; i <= sizeX; i++) {
+                    cellIndex = &(*cellIndexIterator);
+
+                    fprintf(filePtr, "%f %f %f\n", posX, posY, posZ);
+                    posX += parameters_.meshsize->getDx(cellIndex->i, cellIndex->j, cellIndex->k);
+
+                    // Do not iterate on the bounds to take the other node of the cell!
+                    if (i != sizeX && j != sizeY && (parameters_.geometry.dim == 2 || k != sizeZ)) {
+                        cellIndexIterator++;
+                    }
                 }
 
-                posY += parameters_.meshsize->getDy(initPosIdx.i + numPointsX, j, k);
+                posY += parameters_.meshsize->getDy(cellIndex->i, cellIndex->j, cellIndex->k);
             }
 
-            posZ += parameters_.meshsize->getDz(initPosIdx.i + numPointsX, initPosIdx.j + numPointsY, k);
+            posZ += parameters_.meshsize->getDz(cellIndex->i, cellIndex->j, cellIndex->k);
         }
 
         fprintf(filePtr, "\n");
     }
 
     void VTKStencil::writePressures_(FILE* filePtr) {
-        fprintf(filePtr, "CELL_DATA %zu\n", positionIdxList_.size());
+        fprintf(filePtr, "CELL_DATA %zu\n", cellIndices_.size());
         fprintf(filePtr, "SCALARS pressure float 1\n");
         fprintf(filePtr, "LOOKUP_TABLE default\n");
 
-        for (auto& positionIdx : positionIdxList_) {
-            fprintf(filePtr, "%f\n", pressure_.getScalar(positionIdx.i, positionIdx.j, positionIdx.k));
+        for (auto& cellIndex : cellIndices_) {
+            fprintf(filePtr, "%f\n", pressure_.getScalar(cellIndex.i, cellIndex.j, cellIndex.k));
         }
 
         fprintf(filePtr, "\n");
@@ -87,8 +96,8 @@ namespace NSEOF::Stencils {
         fprintf(filePtr, "VECTORS velocity float\n");
 
         FLOAT* velocity;
-        for (auto& positionIdx : positionIdxList_) {
-            velocity = velocity_.getVector(positionIdx.i, positionIdx.j, positionIdx.k);
+        for (auto& cellIndex : cellIndices_) {
+            velocity = velocity_.getVector(cellIndex.i, cellIndex.j, cellIndex.k);
             fprintf(filePtr, "%f %f %f\n", velocity[0], velocity[1], velocity[2]);
         }
 
