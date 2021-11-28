@@ -38,13 +38,13 @@ private:
     void writeVelocities_(FILE*);
 
 public:
-    explicit VTKStencil(const Parameters &parameters);
+    explicit VTKStencil(const Parameters&, int, int, int);
     ~VTKStencil() override;
 
-    void apply(FlowField& flowField, int i, int j, int k) override;
-    void apply(FlowField& flowField, int i, int j) override;
+    void apply(FlowField&, int, int, int) override;
+    void apply(FlowField&, int, int) override;
 
-    void write(int timeStep);
+    void write(int);
 };
 
 } // namespace NSEOF::Stencils

@@ -6,15 +6,16 @@ namespace NSEOF::Stencils {
 
     PositionIdx::PositionIdx(int i, int j, int k) : i(i), j(j), k(k) {}
 
-    VTKStencil::VTKStencil(const Parameters &parameters)
+    VTKStencil::VTKStencil(const Parameters &parameters, int Nx, int Ny, int Nz)
             : FieldStencil<FlowField>(parameters)
-            , pressure_(ScalarField(parameters_.geometry.sizeX, parameters_.geometry.sizeY, parameters_.geometry.sizeZ))
-            , velocity_(VectorField(parameters_.geometry.sizeX, parameters_.geometry.sizeY, parameters_.geometry.sizeZ)) {}
+            , pressure_(ScalarField(Nx, Ny, parameters.geometry.dim == 3 ? Nz : 1))
+            , velocity_(VectorField(Nx, Ny, parameters.geometry.dim == 3 ? Nz : 1)) {}
 
     VTKStencil::~VTKStencil() {
         positionsIdxList_.clear();
     }
 
+    // TODO: Include obstacles?? Erfan
     void VTKStencil::apply(FlowField& flowField, int i, int j, int k) {
         // Store the position indices
         positionsIdxList_.emplace_back(i, j, k);
@@ -27,9 +28,7 @@ namespace NSEOF::Stencils {
         if (parameters_.geometry.dim == 2) { // 2D
             flowField.getPressureAndVelocity(pressure, velocity, i, j);
         } else if (parameters_.geometry.dim == 3) { // 3D
-            std::cout << i << "," << j << "," << k << std::endl;
             flowField.getPressureAndVelocity(pressure, velocity, i, j, k);
-            std::cout << i << "," << j << "," << k << std::endl;
         } else {
             std::cerr << "This app only supports 2D and 3D geometry" << std::endl;
             exit(1);

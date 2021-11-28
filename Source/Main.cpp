@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
 
     // Create output directory (Master)
     if (rank == 0) {
-        mkdir(parameters.vtk.outDir.c_str(), 0777);
+        mkdir(parameters.vtk.outDir.c_str(), 0777); // TODO: Filesystem!
     }
 
     FLOAT time = 0.0;
