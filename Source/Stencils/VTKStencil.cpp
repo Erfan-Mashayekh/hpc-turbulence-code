@@ -4,57 +4,36 @@
 
 namespace NSEOF::Stencils {
 
+    PositionIdx::PositionIdx(int i, int j, int k) : i(i), j(j), k(k) {}
+
     VTKStencil::VTKStencil(const Parameters &parameters)
-            : FieldStencil<FlowField>(parameters) {}
+            : FieldStencil<FlowField>(parameters)
+            , pressure_(ScalarField(parameters_.geometry.sizeX, parameters_.geometry.sizeY, parameters_.geometry.sizeZ))
+            , velocity_(VectorField(parameters_.geometry.sizeX, parameters_.geometry.sizeY, parameters_.geometry.sizeZ)) {}
 
     VTKStencil::~VTKStencil() {
-        for (FLOAT* velocity : velocities_) {
-            delete velocity;
-        }
-
-        pressures_.clear();
-        velocities_.clear();
-    }
-
-    void VTKStencil::setFirstCorner_(int i, int j, int k = 0) {
-        firstCornerInd_[0] = i;
-        firstCornerInd_[1] = j;
-        firstCornerInd_[2] = k;
-
-        firstCornerPos_[0] = (parameters_.geometry.dim == 2)
-                ? parameters_.meshsize->getPosX(i, j) : parameters_.meshsize->getPosX(i, j, k);
-        firstCornerPos_[1] = (parameters_.geometry.dim == 2)
-                ? parameters_.meshsize->getPosY(i, j) : parameters_.meshsize->getPosY(i, j, k);
-        firstCornerPos_[2] = (parameters_.geometry.dim == 2)
-                ? 0 : parameters_.meshsize->getPosZ(i, j, k);
+        positionsIdxList_.clear();
     }
 
     void VTKStencil::apply(FlowField& flowField, int i, int j, int k) {
-        // Init data structures
-        FLOAT pressure;
-        auto* velocity = (FLOAT*) malloc(3 * sizeof(FLOAT));
+        // Store the position indices
+        positionsIdxList_.emplace_back(i, j, k);
 
-        // Set the starting position, the first corner, if it has not been set already!
-        if (firstCornerInd_[0] == -1) {
-            setFirstCorner_(i, j, k);
-        }
+        // Get data structures stored
+        FLOAT& pressure = pressure_.getScalar(i, j, k);
+        FLOAT* velocity = velocity_.getVector(i, j, k);
 
         // Get the pressure and velocity
         if (parameters_.geometry.dim == 2) { // 2D
             flowField.getPressureAndVelocity(pressure, velocity, i, j);
-
-            // Set z-velocity to 0!
-            velocity[2] = 0.0;
         } else if (parameters_.geometry.dim == 3) { // 3D
+            std::cout << i << "," << j << "," << k << std::endl;
             flowField.getPressureAndVelocity(pressure, velocity, i, j, k);
+            std::cout << i << "," << j << "," << k << std::endl;
         } else {
             std::cerr << "This app only supports 2D and 3D geometry" << std::endl;
             exit(1);
         }
-
-        // Store the data
-        pressures_.push_back(pressure);
-        velocities_.push_back(velocity);
     }
 
     void VTKStencil::apply(FlowField& flowField, int i, int j) {
@@ -70,35 +49,36 @@ namespace NSEOF::Stencils {
         fprintf(filePtr, "DIMENSIONS %d %d %d\n", numPointsX, numPointsY, numPointsZ);
         fprintf(filePtr, "POINTS %d float\n", numPointsX * numPointsY * numPointsZ);
 
-        FLOAT posZ = firstCornerPos_[2];
+        PositionIdx initPosIdx = positionsIdxList_[0];
+        FLOAT posZ = parameters_.meshsize->getPosZ(initPosIdx.i, initPosIdx.j, initPosIdx.k);
 
-        for (int i = -1, j = -1, k = firstCornerInd_[2]; k < firstCornerInd_[2] + numPointsZ; k++) {
-            FLOAT posY = firstCornerPos_[1];
+        for (int k = initPosIdx.k; k < initPosIdx.k + numPointsZ; k++) {
+            FLOAT posY = parameters_.meshsize->getPosY(initPosIdx.i, initPosIdx.j, initPosIdx.k);
 
-            for (j = firstCornerInd_[1]; j < firstCornerInd_[1] + numPointsY; j++) {
-                FLOAT posX = firstCornerPos_[0];
+            for (int j = initPosIdx.j; j < initPosIdx.j + numPointsY; j++) {
+                FLOAT posX = parameters_.meshsize->getPosX(initPosIdx.i, initPosIdx.j, initPosIdx.k);
 
-                for (i = firstCornerInd_[0]; i < firstCornerInd_[0] + numPointsX; i++) {
-                    fprintf(filePtr, "%f %f %f\n", posX, posY, posZ);
+                for (int i = initPosIdx.i; i < initPosIdx.i + numPointsX; i++) {
+                    fprintf(filePtr, "%f %f %f\n", posX, posY, std::abs(posZ));
                     posX += parameters_.meshsize->getDx(i, j, k);
                 }
 
-                posY += parameters_.meshsize->getDy(i, j, k);
+                posY += parameters_.meshsize->getDy(initPosIdx.i + numPointsX, j, k);
             }
 
-            posZ += parameters_.meshsize->getDz(i, j, k);
+            posZ += parameters_.meshsize->getDz(initPosIdx.i + numPointsX, initPosIdx.j + numPointsY, k);
         }
 
         fprintf(filePtr, "\n");
     }
 
     void VTKStencil::writePressures_(FILE* filePtr) {
-        fprintf(filePtr, "CELL_DATA %zu\n", pressures_.size());
+        fprintf(filePtr, "CELL_DATA %zu\n", positionsIdxList_.size());
         fprintf(filePtr, "SCALARS pressure float 1\n");
         fprintf(filePtr, "LOOKUP_TABLE default\n");
 
-        for (auto& pressure : pressures_) {
-            fprintf(filePtr, "%f\n", pressure);
+        for (auto& positionIdx : positionsIdxList_) {
+            fprintf(filePtr, "%f\n", pressure_.getScalar(positionIdx.i, positionIdx.j, positionIdx.k));
         }
 
         fprintf(filePtr, "\n");
@@ -107,7 +87,9 @@ namespace NSEOF::Stencils {
     void VTKStencil::writeVelocities_(FILE* filePtr) {
         fprintf(filePtr, "VECTORS velocity float\n");
 
-        for (auto& velocity : velocities_) {
+        FLOAT* velocity;
+        for (auto& positionIdx : positionsIdxList_) {
+            velocity = velocity_.getVector(positionIdx.i, positionIdx.j, positionIdx.k);
             fprintf(filePtr, "%f %f %f\n", velocity[0], velocity[1], velocity[2]);
         }
 

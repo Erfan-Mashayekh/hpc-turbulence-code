@@ -17,18 +17,23 @@ namespace NSEOF::Stencils {
  *
  * When iterated with, creates a VTK file.
  */
+
+struct PositionIdx {
+
+public:
+    int i, j, k;
+
+    PositionIdx(int, int, int);
+};
+
 class VTKStencil : public FieldStencil<FlowField> {
 
 private:
-    int firstCornerInd_[3]{ -1, -1, -1 };
-    FLOAT firstCornerPos_[3]{ -1, -1, -1 };
+    std::vector<PositionIdx> positionsIdxList_;
+    ScalarField pressure_;
+    VectorField velocity_;
 
-    std::vector<FLOAT> pressures_;
-    std::vector<FLOAT*> velocities_;
-
-    void setFirstCorner_(int, int, int);
-
-    void writePositions_(FILE* filePtr);
+    void writePositions_(FILE*);
     void writePressures_(FILE*);
     void writeVelocities_(FILE*);
 
