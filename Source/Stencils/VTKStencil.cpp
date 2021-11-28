@@ -12,13 +12,13 @@ namespace NSEOF::Stencils {
             , velocity_(VectorField(Nx, Ny, parameters.geometry.dim == 3 ? Nz : 1)) {}
 
     VTKStencil::~VTKStencil() {
-        positionsIdxList_.clear();
+        positionIdxList_.clear();
     }
 
     // TODO: Include obstacles?? Erfan
     void VTKStencil::apply(FlowField& flowField, int i, int j, int k) {
         // Store the position indices
-        positionsIdxList_.emplace_back(i, j, k);
+        positionIdxList_.emplace_back(i, j, k);
 
         // Get data structures stored
         FLOAT& pressure = pressure_.getScalar(i, j, k);
@@ -48,7 +48,7 @@ namespace NSEOF::Stencils {
         fprintf(filePtr, "DIMENSIONS %d %d %d\n", numPointsX, numPointsY, numPointsZ);
         fprintf(filePtr, "POINTS %d float\n", numPointsX * numPointsY * numPointsZ);
 
-        PositionIdx initPosIdx = positionsIdxList_[0];
+        PositionIdx initPosIdx = positionIdxList_[0];
         FLOAT posZ = parameters_.meshsize->getPosZ(initPosIdx.i, initPosIdx.j, initPosIdx.k);
 
         for (int k = initPosIdx.k; k < initPosIdx.k + numPointsZ; k++) {
@@ -72,11 +72,11 @@ namespace NSEOF::Stencils {
     }
 
     void VTKStencil::writePressures_(FILE* filePtr) {
-        fprintf(filePtr, "CELL_DATA %zu\n", positionsIdxList_.size());
+        fprintf(filePtr, "CELL_DATA %zu\n", positionIdxList_.size());
         fprintf(filePtr, "SCALARS pressure float 1\n");
         fprintf(filePtr, "LOOKUP_TABLE default\n");
 
-        for (auto& positionIdx : positionsIdxList_) {
+        for (auto& positionIdx : positionIdxList_) {
             fprintf(filePtr, "%f\n", pressure_.getScalar(positionIdx.i, positionIdx.j, positionIdx.k));
         }
 
@@ -87,7 +87,7 @@ namespace NSEOF::Stencils {
         fprintf(filePtr, "VECTORS velocity float\n");
 
         FLOAT* velocity;
-        for (auto& positionIdx : positionsIdxList_) {
+        for (auto& positionIdx : positionIdxList_) {
             velocity = velocity_.getVector(positionIdx.i, positionIdx.j, positionIdx.k);
             fprintf(filePtr, "%f %f %f\n", velocity[0], velocity[1], velocity[2]);
         }

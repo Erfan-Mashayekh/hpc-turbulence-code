@@ -29,7 +29,7 @@ public:
 class VTKStencil : public FieldStencil<FlowField> {
 
 private:
-    std::vector<PositionIdx> positionsIdxList_;
+    std::vector<PositionIdx> positionIdxList_;
     ScalarField pressure_;
     VectorField velocity_;
 
