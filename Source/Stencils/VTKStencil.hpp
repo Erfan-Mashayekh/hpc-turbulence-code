@@ -28,7 +28,7 @@ private:
 
     void setFirstCorner_(int, int, int);
 
-    void writePositions_(FILE *filePtr);
+    void writePositions_(FILE* filePtr);
     void writePressures_(FILE*);
     void writeVelocities_(FILE*);
 
