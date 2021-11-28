@@ -118,9 +118,11 @@ int main(int argc, char *argv[]) {
 
         // TODO WS1: trigger VTK output
         if (timeVtk <= time) {
-            simulation->plotVTK(timeSteps++);
+            simulation->plotVTK(timeSteps);
             timeVtk += parameters.vtk.interval;
         }
+
+        timeSteps++;
     }
 
     // TODO WS1: plot final output
