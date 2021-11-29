@@ -44,14 +44,14 @@ namespace NSEOF::Stencils {
         }
 
         // Get the data structures stored
-        FLOAT& pressure = pressure_.getScalar(i, j, k);
-        FLOAT* velocity = velocity_.getVector(i, j, k);
+        FLOAT& cellPressure = pressure_.getScalar(i, j, k);
+        FLOAT* cellVelocity = velocity_.getVector(i, j, k);
 
         // Get the pressure and velocity
         if (parameters_.geometry.dim == 2) { // 2D
-            flowField.getPressureAndVelocity(pressure, velocity, i, j);
+            flowField.getPressureAndVelocity(cellPressure, cellVelocity, i, j);
         } else { // 3D
-            flowField.getPressureAndVelocity(pressure, velocity, i, j, k);
+            flowField.getPressureAndVelocity(cellPressure, cellVelocity, i, j, k);
         }
     }
 
@@ -106,8 +106,10 @@ namespace NSEOF::Stencils {
         fprintf(filePtr, "SCALARS pressure float 1\n");
         fprintf(filePtr, "LOOKUP_TABLE default\n");
 
+        FLOAT cellPressure;
         for (auto& cellIndex : cellIndices_) {
-            fprintf(filePtr, "%f\n", pressure_.getScalar(cellIndex.i, cellIndex.j, cellIndex.k));
+            cellPressure = pressure_.getScalar(cellIndex.i, cellIndex.j, cellIndex.k);
+            fprintf(filePtr, "%f\n", cellPressure);
         }
 
         fprintf(filePtr, "\n");
@@ -116,10 +118,10 @@ namespace NSEOF::Stencils {
     void VTKStencil::writeVelocities_(FILE* filePtr) {
         fprintf(filePtr, "VECTORS velocity float\n");
 
-        FLOAT* velocity;
+        FLOAT* cellVelocity;
         for (auto& cellIndex : cellIndices_) {
-            velocity = velocity_.getVector(cellIndex.i, cellIndex.j, cellIndex.k);
-            fprintf(filePtr, "%f %f %f\n", velocity[0], velocity[1], velocity[2]);
+            cellVelocity = velocity_.getVector(cellIndex.i, cellIndex.j, cellIndex.k);
+            fprintf(filePtr, "%f %f %f\n", cellVelocity[0], cellVelocity[1], cellVelocity[2]);
         }
 
         fprintf(filePtr, "\n");
