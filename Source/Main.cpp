@@ -91,9 +91,13 @@ int main(int argc, char *argv[]) {
 
     // flowField->getFlags().show();
 
-    // Create output directory (Master)
+    // Create the output directory (Master)
     if (rank == 0) {
-        mkdir(parameters.vtk.outDir.c_str(), 0777); // TODO: Filesystem!
+        // Check if the directory already exists, and if it is not, create it!
+        if (!std::filesystem::is_directory(parameters.vtk.outDir.c_str()) ||
+            !std::filesystem::exists(parameters.vtk.outDir.c_str())) {
+            std::filesystem::create_directory(parameters.vtk.outDir.c_str());
+        }
     }
 
     FLOAT time = 0.0;

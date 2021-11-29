@@ -6,32 +6,52 @@ namespace NSEOF::Stencils {
 
     CellIndex::CellIndex(int i, int j, int k) : i(i), j(j), k(k) {}
 
+    static int getNumCellsExpected(const Parameters &parameters) {
+        int numCellsExpected = parameters.geometry.sizeX * parameters.geometry.sizeY;
+
+        if (parameters.geometry.dim == 3) { // 3D
+            numCellsExpected *= parameters.geometry.sizeZ;
+        }
+
+        return numCellsExpected;
+    }
+
     VTKStencil::VTKStencil(const Parameters &parameters, int Nx, int Ny, int Nz)
             : FieldStencil<FlowField>(parameters)
             , pressure_(ScalarField(Nx, Ny, parameters.geometry.dim == 3 ? Nz : 1))
-            , velocity_(VectorField(Nx, Ny, parameters.geometry.dim == 3 ? Nz : 1)) {}
+            , velocity_(VectorField(Nx, Ny, parameters.geometry.dim == 3 ? Nz : 1)) {
+        // Check if the dimensions are valid!
+        if (parameters_.geometry.dim != 2 && parameters_.geometry.dim != 3) { // If not 2D or 3D
+            std::cerr << "This app only supports 2D and 3D geometry" << std::endl;
+            exit(1);
+        }
+
+        // Pre-allocate the space needed for storing the cell indices!
+        cellIndices_.reserve(getNumCellsExpected(parameters));
+    }
 
     VTKStencil::~VTKStencil() {
         cellIndices_.clear();
     }
 
-    // TODO: Include obstacles?? Erfan
     void VTKStencil::apply(FlowField& flowField, int i, int j, int k) {
         // Store the cell indices
         cellIndices_.emplace_back(i, j, k);
 
-        // Get data structures stored
+        // Make sure that it is a fluid cell, and if it is not, stop the computation and store 0s instead!
+        if ((flowField.getFlags().getValue(i, j, k) & OBSTACLE_SELF) != 0) {
+            return;
+        }
+
+        // Get the data structures stored
         FLOAT& pressure = pressure_.getScalar(i, j, k);
         FLOAT* velocity = velocity_.getVector(i, j, k);
 
         // Get the pressure and velocity
         if (parameters_.geometry.dim == 2) { // 2D
             flowField.getPressureAndVelocity(pressure, velocity, i, j);
-        } else if (parameters_.geometry.dim == 3) { // 3D
+        } else { // 3D
             flowField.getPressureAndVelocity(pressure, velocity, i, j, k);
-        } else {
-            std::cerr << "This app only supports 2D and 3D geometry" << std::endl;
-            exit(1);
         }
     }
 
@@ -66,6 +86,7 @@ namespace NSEOF::Stencils {
                     posX += parameters_.meshsize->getDx(cellIndex->i, cellIndex->j, cellIndex->k);
 
                     // Do not iterate on the bounds to take the other node of the cell!
+                    // The z-axis is only taken into account in a 3D simulation!
                     if (i != sizeX && j != sizeY && (parameters_.geometry.dim == 2 || k != sizeZ)) {
                         cellIndexIterator++;
                     }
