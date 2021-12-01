@@ -18,6 +18,16 @@ void FGHStencil::apply(FlowField& flowField, int i, int j) {
     // Now the localVelocity array should contain lexicographically ordered elements around the given index
     values[0] = computeF2D(localVelocity_, localMeshsize_, parameters_, parameters_.timestep.dt);
     values[1] = computeG2D(localVelocity_, localMeshsize_, parameters_, parameters_.timestep.dt);
+
+    //TODO
+    //if else loop?
+    //loadLocalVelocity2D(flowField, localVelocity_1, i, j);
+    //loadLocalVelocity2D(flowField, localVelocity_2, i+1, j);
+    //loadLocalVelocity2D(flowField, localVelocity_3, i, j+1);
+    //loadLocalVelocity2D(flowField, localVelocity_4, i, j-1);
+    //loadLocalVelocity2D(flowField, localVelocity_5, i+1, j-1);
+    //loadlocalMeshsize
+    // values[0] = computeF2D_turb(localVelocity_1234, localMeshsize_1234, parameters_, parameters_.timestep.dt);
 }
 
 void FGHStencil::apply(FlowField& flowField, int i, int j, int k) {
