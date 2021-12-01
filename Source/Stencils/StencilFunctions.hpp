@@ -638,6 +638,48 @@ inline FLOAT computeF2D(const FLOAT* const localVelocity, const FLOAT* const loc
             - duvdy(localVelocity, parameters, localMeshsize) + parameters.environment.gx);
 }
 
+
+
+//*************Turbulence model start******************
+
+// dudy <-> first derivative of u-component of velocity field w.r.t. y-direction.
+inline FLOAT dudy(const FLOAT* const lv, const FLOAT* const lm) {
+    // Evaluate dudy in the cell center by a central difference
+    const int index0 = mapd(0, 0, 0, 0);
+    const int index1 = mapd(-1, 0, 0, 0);
+    return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 1)];
+}
+
+// dvdx <-> first derivative of v-component of velocity field w.r.t. x-direction.
+inline FLOAT dvdx(const FLOAT* const lv, const FLOAT* const lm) {
+    const int index0 = mapd(0, 0, 0, 1);
+    const int index1 = mapd(0, -1, 0, 1);
+    return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 0)];
+}
+
+inline FLOAT computeF2D(const FLOAT* const localVelocity, const FLOAT* const localMeshsize, const Parameters& parameters, FLOAT dt) {
+    //let kinmatic viscosity be:
+    v = 1/parameters.flow.Re;
+    
+    //shear strain tensor
+    sij = 0.5 * (dudy + dvdx);
+    //**distance to nearest wall (*dummy value*)
+    h = 0.01;
+    //value of k given in worksheet as:
+    k = 0.41;
+    //***test lm
+    lm = k*h;
+    //let eddy viscosity be:
+    vt = lm*lm*sqrt(2*sij*sij);
+    
+    return localVelocity[mapd(0, 0, 0, 0)]
+        + dt * (2*(v+vt)*dudx(localVelocity, localMeshsize)/localMeshsize[mapd(0, 0, 0, 0)]
+               + (v+vt)*(dudy(localVelocity, localMeshsize) + dvdx(localVelocity, localMeshsize))/localMeshsize[mapd(0, 0, 0, 1)]);
+}
+//*************Turbulence model end******************
+
+
+
 inline FLOAT computeG2D(const FLOAT* const localVelocity, const FLOAT* const localMeshsize, const Parameters& parameters, FLOAT dt) {
     return localVelocity[mapd(0, 0, 0, 1)]
         + dt * (1 / parameters.flow.Re * (d2vdx2(localVelocity, localMeshsize)
