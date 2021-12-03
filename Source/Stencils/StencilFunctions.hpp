@@ -657,6 +657,44 @@ inline FLOAT dvdx(const FLOAT* const lv, const FLOAT* const lm) {
     return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 0)];
 }
 
+//returns (d/dx)(v*(du/dx))
+inline FLOAT dxvdudx(const FLOAT* const lv, const FLOAT* const lm, const FLOAT* const vij, const FLOAT* const vi1j) {
+    // Evaluate dudx in the cell center by a central difference
+    const int index0 = mapd(0, 0, 0, 0);
+    const int index1 = mapd(-1, 0, 0, 0);
+    const int index2 = mapd(1, 0, 0, 0);
+    
+    //vuij gives vij(uij - ui-1,j), where vij is total viscosity(v*) at i,j
+    FLOAT vuij = vij*(lv[index0] - lv[index1]) / lm[index0];
+    
+    //vui1j gives vi1j(ui1j - ui,j), where vi1j is total viscosity(v*) at i+1,j
+    FLOAT vui1j = vi1j*(lv[index2] - lv[index0]) / lm[index2];
+    
+    return (vui1j-vuij)/ lm[index0];
+}
+
+//returns (d/dy)(v*(du/dy + dv/dx))
+inline FLOAT dyvdudydvdx(const FLOAT* const lv, const FLOAT* const lm, const FLOAT* const vtr, const FLOAT* const vbr) {
+    // Evaluate dudx in the cell center by a central difference
+    const int index0 = mapd(0, 0, 0, 0); //u[i,j,k]
+    const int index1 = mapd(0, 1, 0, 0); //u[i,j+1,k]
+    const int index2 = mapd(0, -1, 0, 0); //u[i,j-1,k]
+    const int index3 = mapd(0, 0, 0, 1); //v[i,j,k]
+    const int index4 = mapd(1, 0, 0, 1);//v[i+1,j,k]
+    const int index5 = mapd(0, -1, 0, 1);//v[i,j-1,k]
+    const int index6 = mapd(1, -1, 0, 1);//v[i+1,j-1,k]
+    
+    //vuij gives vij(uij - ui-1,j), where vij is total viscosity(v*) at i,j
+    FLOAT vuij = vij * (lv[index0] - lv[index1]) / lm[index0];
+    
+    //vui1j gives vi1j(ui1j - ui,j), where vi1j is total viscosity(v*) at i+1,j
+    FLOAT vui1j = vi1j*(lv[index2] - lv[index0]) / lm[index2];
+    
+    return (vui1j-vuij)/ lm[index0];
+}
+
+
+
 inline FLOAT computeF2D(const FLOAT* const localVelocity, const FLOAT* const localMeshsize, const Parameters& parameters, FLOAT dt) {
     //let kinmatic viscosity be:
     v = 1/parameters.flow.Re;
@@ -673,7 +711,7 @@ inline FLOAT computeF2D(const FLOAT* const localVelocity, const FLOAT* const loc
     vt = lm*lm*sqrt(2*sij*sij);
     
     return localVelocity[mapd(0, 0, 0, 0)]
-        + dt * (2*(v+vt)*dudx(localVelocity, localMeshsize)/localMeshsize[mapd(0, 0, 0, 0)]
+        + dt * (2*dxvdudx(localVelocity, localMeshsize, vij, vi1j)
                + (v+vt)*(dudy(localVelocity, localMeshsize) + dvdx(localVelocity, localMeshsize))/localMeshsize[mapd(0, 0, 0, 1)]);
 }
 //*************Turbulence model end******************
