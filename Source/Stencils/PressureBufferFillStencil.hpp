@@ -16,16 +16,23 @@ namespace NSEOF::Stencils {
 class PressureBufferFillStencil : public BoundaryStencil<FlowField> {
 
 private:
-    std::vector<FLOAT> pressuresLeft_;
-    std::vector<FLOAT> pressuresRight_;
-    std::vector<FLOAT> pressuresBottom_;
-    std::vector<FLOAT> pressuresTop_;
-    std::vector<FLOAT> pressuresFront_;
-    std::vector<FLOAT> pressuresBack_;
+    std::vector<FLOAT> pressureBufferLeft_;
+    std::vector<FLOAT> pressureBufferRight_;
+    std::vector<FLOAT> pressureBufferBottom_;
+    std::vector<FLOAT> pressureBufferTop_;
+    std::vector<FLOAT> pressureBufferFront_;
+    std::vector<FLOAT> pressureBufferBack_;
 
 public:
     explicit PressureBufferFillStencil(const Parameters&);
     ~PressureBufferFillStencil() override;
+
+    /**
+     * Returns the pressure buffers filled for sending
+     */
+    void getPressureBuffers(std::vector<FLOAT>&, std::vector<FLOAT>&,
+                            std::vector<FLOAT>&, std::vector<FLOAT>&,
+                            std::vector<FLOAT>&, std::vector<FLOAT>&);
 
     /**
      * Functions for 3D

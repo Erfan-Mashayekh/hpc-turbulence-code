@@ -19,6 +19,13 @@
 #include "Stencils/BFInputStencils.hpp"
 #include "Stencils/InitTaylorGreenFlowFieldStencil.hpp"
 
+#include "ParallelManagers/PetscParallelManager.hpp"
+
+#include "Stencils/PressureBufferFillStencil.hpp"
+#include "Stencils/PressureBufferReadStencil.hpp"
+#include "Stencils/VelocityBufferFillStencil.hpp"
+#include "Stencils/VelocityBufferReadStencil.hpp"
+
 #include "Solvers/LinearSolver.hpp"
 
 
@@ -51,6 +58,16 @@ protected:
     Stencils::ObstacleStencil obstacleStencil_;
     FieldIterator<FlowField> velocityIterator_;
     FieldIterator<FlowField> obstacleIterator_;
+
+    Stencils::PressureBufferFillStencil pressureBufferFillStencil_;
+    Stencils::PressureBufferReadStencil pressureBufferReadStencil_;
+    Stencils::PressureBufferFillStencil velocityBufferFillStencil_;
+    Stencils::PressureBufferReadStencil velocityBufferReadStencil_;
+
+    ParallelBoundaryIterator<FlowField> pressureBufferFillIterator_;
+    ParallelBoundaryIterator<FlowField> pressureBufferReadIterator_;
+    ParallelBoundaryIterator<FlowField> velocityBufferFillIterator_;
+    ParallelBoundaryIterator<FlowField> velocityBufferReadIterator_;
 
     std::unique_ptr<Solvers::LinearSolver> solver_;
 

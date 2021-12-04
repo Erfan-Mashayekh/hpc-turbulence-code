@@ -24,6 +24,18 @@ Simulation::Simulation(Parameters& parameters, FlowField& flowField)
     , obstacleStencil_(parameters)
     , velocityIterator_(flowField_, parameters, velocityStencil_)
     , obstacleIterator_(flowField_, parameters, obstacleStencil_)
+    , pressureBufferFillStencil_(parameters)
+    , pressureBufferReadStencil_(parameters)
+    , velocityBufferFillStencil_(parameters)
+    , velocityBufferReadStencil_(parameters)
+    , pressureBufferFillIterator_(flowField_, parameters, pressureBufferFillStencil_,
+                                  parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
+    , pressureBufferReadIterator_(flowField_, parameters, pressureBufferReadStencil_,
+                                  parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
+    , velocityBufferFillIterator_(flowField_, parameters, velocityBufferReadStencil_,
+                                  parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
+    , velocityBufferReadIterator_(flowField_, parameters, velocityBufferReadStencil_,
+                                  parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
 #ifdef BUILD_WITH_PETSC
     , solver_(std::make_unique<Solvers::PetscSolver>(flowField_, parameters))
 #else
@@ -39,7 +51,9 @@ void Simulation::initializeFlowField() {
         iterator.iterate();
     } else if (parameters_.simulation.scenario == "channel") {
         Stencils::BFStepInitStencil stencil(parameters_);
-        FieldIterator<FlowField> iterator(flowField_, parameters_, stencil, 0, 1);
+        FieldIterator<FlowField> iterator(flowField_, parameters_, stencil,
+                                          parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset);
+
         iterator.iterate();
         wallVelocityIterator_.iterate();
     } else if (parameters_.simulation.scenario == "pressure-channel") {
@@ -64,7 +78,9 @@ void Simulation::initializeFlowField() {
 
         // Do same procedure for domain flagging as for regular channel
         Stencils::BFStepInitStencil stencil(parameters_);
-        FieldIterator<FlowField> iterator(flowField_, parameters_, stencil, 0, 1);
+        FieldIterator<FlowField> iterator(flowField_, parameters_, stencil,
+                                          parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset);
+
         iterator.iterate();
     }
 
@@ -74,19 +90,28 @@ void Simulation::initializeFlowField() {
 void Simulation::solveTimestep() {
     // Determine and set max. timestep which is allowed in this simulation
     setTimeStep();
-    // Compute FGH
-    fghIterator_.iterate();
-    // Set global boundary values
-    wallFGHIterator_.iterate();
-    // Compute the right hand side (RHS)
-    rhsIterator_.iterate();
-    // Solve for pressure 
+
+    fghIterator_.iterate(); // Compute FGH
+    wallFGHIterator_.iterate(); // Set global boundary values
+    rhsIterator_.iterate(); // Compute the right hand side (RHS)
+
+    // Solve for pressure
     solver_->solve();
+
+    pressureBufferFillIterator_.iterate();
+
     // TODO WS2: communicate pressure values
+    ParallelManagers::PetscParallelManager::communicatePressure(pressureBufferFillStencil_,
+                                                                pressureBufferReadStencil_);
+
+    pressureBufferReadIterator_.iterate();
+
     // Compute velocity
     velocityIterator_.iterate();
     obstacleIterator_.iterate();
+
     // TODO WS2: communicate velocity values
+
     // Iterate for velocities on the boundary
     wallVelocityIterator_.iterate();
 }

@@ -2,47 +2,61 @@
 
 namespace NSEOF::Stencils {
 
-    PressureBufferReadStencil::PressureBufferReadStencil(
-            const Parameters& parameters,
-            std::vector<FLOAT>& pressuresLeft, std::vector<FLOAT>& pressuresRight,
-            std::vector<FLOAT>& pressuresBottom, std::vector<FLOAT>& pressuresTop,
-            std::vector<FLOAT>& pressuresFront, std::vector<FLOAT>& pressuresBack)
-            : BoundaryStencil<FlowField>(parameters)
-            , pressuresLeft_(pressuresLeft), pressuresRight_(pressuresRight)
-            , pressuresBottom_(pressuresBottom), pressuresTop_(pressuresTop)
-            , pressuresFront_(pressuresFront), pressuresBack_(pressuresBack) {}
+    PressureBufferReadStencil::PressureBufferReadStencil(const Parameters& parameters)
+            : BoundaryStencil<FlowField>(parameters) {}
+
+    PressureBufferReadStencil::~PressureBufferReadStencil() {
+        pressureBufferLeft_.clear();
+        pressureBufferRight_.clear();
+        pressureBufferBottom_.clear();
+        pressureBufferTop_.clear();
+        pressureBufferFront_.clear();
+        pressureBufferBack_.clear();
+    }
+
+    void PressureBufferReadStencil::setPressureBuffers(
+            std::vector<FLOAT>& pressureBufferLeft, std::vector<FLOAT>& pressureBufferRight,
+            std::vector<FLOAT>& pressureBufferBottom, std::vector<FLOAT>& pressureBufferTop,
+            std::vector<FLOAT>& pressureBufferFront, std::vector<FLOAT>& pressureBufferBack) {
+        pressureBufferLeft_   = std::move(pressureBufferLeft);
+        pressureBufferRight_  = std::move(pressureBufferRight);
+        pressureBufferBottom_ = std::move(pressureBufferBottom);
+        pressureBufferTop_    = std::move(pressureBufferTop);
+        pressureBufferFront_  = std::move(pressureBufferFront);
+        pressureBufferBack_   = std::move(pressureBufferBack);
+    }
 
     /**
      * Functions for 3D
      */
 
-    static void applyWall(FlowField& flowField, int i, int j, int k, std::vector<FLOAT>& pressures) {
+    static void applyWall(FlowField& flowField, int i, int j, int k, std::vector<FLOAT>& pressureBuffer) {
         ScalarField& pressure = flowField.getPressure();
-        pressure.getScalar(i, j, k) = pressures[pressure.index2array(i, j, k)];
+        pressure.getScalar(i, j, k) = pressureBuffer[pressure.index2array(i, j, k)];
     }
 
     void PressureBufferReadStencil::applyLeftWall(FlowField& flowField, int i, int j, int k) {
-        applyWall(flowField, i, j, k, pressuresLeft_);
+        applyWall(flowField, i, j, k, pressureBufferLeft_);
     }
 
     void PressureBufferReadStencil::applyRightWall(FlowField& flowField, int i, int j, int k) {
-        applyWall(flowField, i, j, k, pressuresRight_);
+        applyWall(flowField, i, j, k, pressureBufferRight_);
     }
 
     void PressureBufferReadStencil::applyBottomWall(FlowField& flowField, int i, int j, int k) {
-        applyWall(flowField, i, j, k, pressuresBottom_);
+        applyWall(flowField, i, j, k, pressureBufferBottom_);
     }
 
     void PressureBufferReadStencil::applyTopWall(FlowField& flowField, int i, int j, int k) {
-        applyWall(flowField, i, j, k, pressuresTop_);
+        applyWall(flowField, i, j, k, pressureBufferTop_);
     }
 
     void PressureBufferReadStencil::applyFrontWall(FlowField& flowField, int i, int j, int k) {
-        applyWall(flowField, i, j, k, pressuresFront_);
+        applyWall(flowField, i, j, k, pressureBufferFront_);
     }
 
     void PressureBufferReadStencil::applyBackWall(FlowField& flowField, int i, int j, int k) {
-        applyWall(flowField, i, j, k, pressuresBack_);
+        applyWall(flowField, i, j, k, pressureBufferBack_);
     }
 
     /**
