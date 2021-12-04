@@ -93,7 +93,7 @@ void Simulation::solveTimestep() {
 
     fghIterator_.iterate(); // Compute FGH
     wallFGHIterator_.iterate(); // Set global boundary values
-    rhsIterator_.iterate(); // Compute the right hand side (RHS)
+    rhsIterator_.iterate(); // Compute the right-hand side (RHS)
 
     // Solve for pressure
     solver_->solve();

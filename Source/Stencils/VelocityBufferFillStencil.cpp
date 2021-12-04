@@ -5,24 +5,106 @@ namespace NSEOF::Stencils {
     VelocityBufferFillStencil::VelocityBufferFillStencil(const Parameters& parameters)
             : BoundaryStencil<FlowField>(parameters) {}
 
+    VelocityBufferFillStencil::~VelocityBufferFillStencil() {
+        velocityBufferLeft_.clear();
+        velocityBufferRight_.clear();
+        velocityBufferBottom_.clear();
+        velocityBufferTop_.clear();
+        velocityBufferFront_.clear();
+        velocityBufferBack_.clear();
+    }
+
+    void VelocityBufferFillStencil::getVelocityBuffers(
+            std::vector<FLOAT>& velocityBufferLeft, std::vector<FLOAT>& velocityBufferRight,
+            std::vector<FLOAT>& velocityBufferBottom, std::vector<FLOAT>& velocityBufferTop,
+            std::vector<FLOAT>& velocityBufferFront, std::vector<FLOAT>& velocityBufferBack) {
+        velocityBufferLeft_   = velocityBufferLeft;
+        velocityBufferRight_  = velocityBufferRight;
+        velocityBufferBottom_ = velocityBufferBottom;
+        velocityBufferTop_    = velocityBufferTop;
+        velocityBufferFront_  = velocityBufferFront;
+        velocityBufferBack_   = velocityBufferBack;
+    }
+
     /**
      * Functions for 3D
      */
 
-    void VelocityBufferFillStencil::applyLeftWall(FlowField& flowField, int i, int j, int k) {}
-    void VelocityBufferFillStencil::applyRightWall(FlowField& flowField, int i, int j, int k) {}
-    void VelocityBufferFillStencil::applyBottomWall(FlowField& flowField, int i, int j, int k) {}
-    void VelocityBufferFillStencil::applyTopWall(FlowField& flowField, int i, int j, int k) {}
-    void VelocityBufferFillStencil::applyFrontWall(FlowField& flowField, int i, int j, int k) {}
-    void VelocityBufferFillStencil::applyBackWall(FlowField& flowField, int i, int j, int k) {}
+    void VelocityBufferFillStencil::applyLeftWall(FlowField& flowField, int i, int j, int k) {
+        FLOAT* velocity = flowField.getVelocity().getVector(i + 1, j, k);
+
+        for (int d = 0; d < parameters_.geometry.dim; d++) { // "u", "v" and "w"
+            velocityBufferLeft_.push_back(velocity[d]);
+        }
+    }
+
+    void VelocityBufferFillStencil::applyRightWall(FlowField& flowField, int i, int j, int k) {
+        FLOAT* velocityLeft = flowField.getVelocity().getVector(i - 2, j, k);
+        FLOAT* velocityRight = flowField.getVelocity().getVector(i - 1, j, k);
+
+        for (int d = 0; d < parameters_.geometry.dim; d++) { // "u", "v" and "w"
+            velocityBufferRight_.push_back(velocityLeft[d]);
+        }
+
+        velocityBufferRight_.push_back(velocityRight[0]); // only "u"
+    }
+    
+    void VelocityBufferFillStencil::applyBottomWall(FlowField& flowField, int i, int j, int k) {
+        FLOAT* velocity = flowField.getVelocity().getVector(i, j + 1, k);
+
+        for (int d = 0; d < parameters_.geometry.dim; d++) { // "u", "v" and "w"
+            velocityBufferBottom_.push_back(velocity[d]);
+        }
+    }
+    
+    void VelocityBufferFillStencil::applyTopWall(FlowField& flowField, int i, int j, int k) {
+        FLOAT* velocityLeft = flowField.getVelocity().getVector(i, j - 2, k);
+        FLOAT* velocityRight = flowField.getVelocity().getVector(i, j - 1, k);
+
+        for (int d = 0; d < parameters_.geometry.dim; d++) { // "u", "v" and "w"
+            velocityBufferTop_.push_back(velocityLeft[d]);
+        }
+
+        velocityBufferTop_.push_back(velocityRight[1]); // only "v"
+    }
+
+    void VelocityBufferFillStencil::applyFrontWall(FlowField& flowField, int i, int j, int k) {
+        FLOAT* velocityLeft = flowField.getVelocity().getVector(i, j, k - 2);
+        FLOAT* velocityRight = flowField.getVelocity().getVector(i, j, k - 1);
+
+        for (int d = 0; d < parameters_.geometry.dim; d++) { // "u", "v" and "w"
+            velocityBufferFront_.push_back(velocityLeft[d]);
+        }
+
+        velocityBufferFront_.push_back(velocityRight[2]); // only "w"
+    }
+    
+    void VelocityBufferFillStencil::applyBackWall(FlowField& flowField, int i, int j, int k) {
+        FLOAT* velocity = flowField.getVelocity().getVector(i, j, k + 1);
+
+        for (int d = 0; d < parameters_.geometry.dim; d++) { // "u", "v" and "w"
+            velocityBufferBack_.push_back(velocity[d]);
+        }
+    }
 
     /**
      * Functions for 2D
      */
 
-    void VelocityBufferFillStencil::applyLeftWall(FlowField& flowField, int i, int j) {}
-    void VelocityBufferFillStencil::applyRightWall(FlowField& flowField, int i, int j) {}
-    void VelocityBufferFillStencil::applyBottomWall(FlowField& flowField, int i, int j) {}
-    void VelocityBufferFillStencil::applyTopWall(FlowField& flowField, int i, int j) {}
+    void VelocityBufferFillStencil::applyLeftWall(FlowField& flowField, int i, int j) {
+        applyLeftWall(flowField, i, j, 0);
+    }
+
+    void VelocityBufferFillStencil::applyRightWall(FlowField& flowField, int i, int j) {
+        applyRightWall(flowField, i, j, 0);
+    }
+
+    void VelocityBufferFillStencil::applyBottomWall(FlowField& flowField, int i, int j) {
+        applyBottomWall(flowField, i, j, 0);
+    }
+
+    void VelocityBufferFillStencil::applyTopWall(FlowField& flowField, int i, int j) {
+        applyTopWall(flowField, i, j, 0);
+    }
 
 } // namespace NSEOF::Stencils

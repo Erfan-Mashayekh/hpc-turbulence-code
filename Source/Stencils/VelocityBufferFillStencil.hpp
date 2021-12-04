@@ -15,9 +15,24 @@ namespace NSEOF::Stencils {
  */
 class VelocityBufferFillStencil : public BoundaryStencil<FlowField> {
 
+private:
+    std::vector<FLOAT> velocityBufferLeft_;
+    std::vector<FLOAT> velocityBufferRight_;
+    std::vector<FLOAT> velocityBufferBottom_;
+    std::vector<FLOAT> velocityBufferTop_;
+    std::vector<FLOAT> velocityBufferFront_;
+    std::vector<FLOAT> velocityBufferBack_;
+
 public:
     explicit VelocityBufferFillStencil(const Parameters&);
     ~VelocityBufferFillStencil() override = default;
+
+    /**
+     * Returns the velocity buffers filled for sending
+     */
+    void getVelocityBuffers(std::vector<FLOAT>&, std::vector<FLOAT>&,
+                            std::vector<FLOAT>&, std::vector<FLOAT>&,
+                            std::vector<FLOAT>&, std::vector<FLOAT>&);
 
     /**
      * Functions for 3D

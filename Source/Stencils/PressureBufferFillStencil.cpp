@@ -47,11 +47,11 @@ namespace NSEOF::Stencils {
     }
 
     void PressureBufferFillStencil::applyFrontWall(FlowField& flowField, int i, int j, int k) {
-        pressureBufferFront_.push_back(flowField.getPressure().getScalar(i, j, k + 1));
+        pressureBufferFront_.push_back(flowField.getPressure().getScalar(i, j, k - 1));
     }
 
     void PressureBufferFillStencil::applyBackWall(FlowField& flowField, int i, int j, int k) {
-        pressureBufferBack_.push_back(flowField.getPressure().getScalar(i, j, k - 1));
+        pressureBufferBack_.push_back(flowField.getPressure().getScalar(i, j, k + 1));
     }
 
     /**
