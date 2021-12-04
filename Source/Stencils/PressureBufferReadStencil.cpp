@@ -30,33 +30,34 @@ namespace NSEOF::Stencils {
      * Functions for 3D
      */
 
-    static void applyWall(FlowField& flowField, int i, int j, int k, std::vector<FLOAT>& pressureBuffer) {
-        ScalarField& pressure = flowField.getPressure();
-        pressure.getScalar(i, j, k) = pressureBuffer[pressure.index2array(i, j, k)];
-    }
-
     void PressureBufferReadStencil::applyLeftWall(FlowField& flowField, int i, int j, int k) {
-        applyWall(flowField, i, j, k, pressureBufferLeft_);
+        ScalarField& pressure = flowField.getPressure();
+        pressure.getScalar(i, j, k) = pressureBufferLeft_[pressure.index2array(i, j, k)];
     }
 
     void PressureBufferReadStencil::applyRightWall(FlowField& flowField, int i, int j, int k) {
-        applyWall(flowField, i, j, k, pressureBufferRight_);
+        ScalarField& pressure = flowField.getPressure();
+        pressure.getScalar(i, j, k) = pressureBufferRight_[pressure.index2array(i, j, k)];
     }
 
     void PressureBufferReadStencil::applyBottomWall(FlowField& flowField, int i, int j, int k) {
-        applyWall(flowField, i, j, k, pressureBufferBottom_);
+        ScalarField& pressure = flowField.getPressure();
+        pressure.getScalar(i, j, k) = pressureBufferBottom_[pressure.index2array(i, j, k)];
     }
 
     void PressureBufferReadStencil::applyTopWall(FlowField& flowField, int i, int j, int k) {
-        applyWall(flowField, i, j, k, pressureBufferTop_);
+        ScalarField& pressure = flowField.getPressure();
+        pressure.getScalar(i, j, k) = pressureBufferTop_[pressure.index2array(i, j, k)];
     }
 
     void PressureBufferReadStencil::applyFrontWall(FlowField& flowField, int i, int j, int k) {
-        applyWall(flowField, i, j, k, pressureBufferFront_);
+        ScalarField& pressure = flowField.getPressure();
+        pressure.getScalar(i, j, k) = pressureBufferFront_[pressure.index2array(i, j, k)];
     }
 
     void PressureBufferReadStencil::applyBackWall(FlowField& flowField, int i, int j, int k) {
-        applyWall(flowField, i, j, k, pressureBufferBack_);
+        ScalarField& pressure = flowField.getPressure();
+        pressure.getScalar(i, j, k) = pressureBufferBack_[pressure.index2array(i, j, k)];
     }
 
     /**
