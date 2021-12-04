@@ -31,33 +31,27 @@ namespace NSEOF::Stencils {
      */
 
     void PressureBufferReadStencil::applyLeftWall(FlowField& flowField, int i, int j, int k) {
-        ScalarField& pressure = flowField.getPressure();
-        pressure.getScalar(i, j, k) = pressureBufferLeft_[pressure.index2array(i, j, k)];
+        flowField.getPressure().getScalar(i, j, k) = pressureBufferLeft_[j];
     }
 
     void PressureBufferReadStencil::applyRightWall(FlowField& flowField, int i, int j, int k) {
-        ScalarField& pressure = flowField.getPressure();
-        pressure.getScalar(i, j, k) = pressureBufferRight_[pressure.index2array(i, j, k)];
+        flowField.getPressure().getScalar(i, j, k) = pressureBufferRight_[j];
     }
 
     void PressureBufferReadStencil::applyBottomWall(FlowField& flowField, int i, int j, int k) {
-        ScalarField& pressure = flowField.getPressure();
-        pressure.getScalar(i, j, k) = pressureBufferBottom_[pressure.index2array(i, j, k)];
+        flowField.getPressure().getScalar(i, j, k) = pressureBufferBottom_[i];
     }
 
     void PressureBufferReadStencil::applyTopWall(FlowField& flowField, int i, int j, int k) {
-        ScalarField& pressure = flowField.getPressure();
-        pressure.getScalar(i, j, k) = pressureBufferTop_[pressure.index2array(i, j, k)];
+        flowField.getPressure().getScalar(i, j, k) = pressureBufferTop_[i];
     }
 
     void PressureBufferReadStencil::applyFrontWall(FlowField& flowField, int i, int j, int k) {
-        ScalarField& pressure = flowField.getPressure();
-        pressure.getScalar(i, j, k) = pressureBufferFront_[pressure.index2array(i, j, k)];
+        flowField.getPressure().getScalar(i, j, k) = pressureBufferFront_[k];
     }
 
     void PressureBufferReadStencil::applyBackWall(FlowField& flowField, int i, int j, int k) {
-        ScalarField& pressure = flowField.getPressure();
-        pressure.getScalar(i, j, k) = pressureBufferBack_[pressure.index2array(i, j, k)];
+        flowField.getPressure().getScalar(i, j, k) = pressureBufferBack_[k];
     }
 
     /**
