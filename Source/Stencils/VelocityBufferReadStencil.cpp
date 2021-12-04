@@ -5,15 +5,24 @@ namespace NSEOF::Stencils {
     VelocityBufferReadStencil::VelocityBufferReadStencil(const Parameters& parameters)
             : BoundaryStencil<FlowField>(parameters) {}
 
-    void VelocityBufferReadStencil::applyLeftWall([[maybe_unused]] FlowField& flowField, [[maybe_unused]] int i, [[maybe_unused]] int j) {}
-    void VelocityBufferReadStencil::applyRightWall([[maybe_unused]] FlowField& flowField, [[maybe_unused]] int i, [[maybe_unused]] int j) {}
-    void VelocityBufferReadStencil::applyBottomWall([[maybe_unused]] FlowField& flowField, [[maybe_unused]] int i, [[maybe_unused]] int j) {}
-    void VelocityBufferReadStencil::applyTopWall([[maybe_unused]] FlowField& flowField, [[maybe_unused]] int i, [[maybe_unused]] int j) {}
+    /**
+     * Functions for 3D
+     */
 
-    void VelocityBufferReadStencil::applyLeftWall([[maybe_unused]] FlowField& flowField, [[maybe_unused]] int i, [[maybe_unused]] int j, [[maybe_unused]] int k) {}
-    void VelocityBufferReadStencil::applyRightWall([[maybe_unused]] FlowField& flowField, [[maybe_unused]] int i, [[maybe_unused]] int j, [[maybe_unused]] int k) {}
-    void VelocityBufferReadStencil::applyBottomWall([[maybe_unused]] FlowField& flowField, [[maybe_unused]] int i, [[maybe_unused]] int j, [[maybe_unused]] int k) {}
-    void VelocityBufferReadStencil::applyTopWall([[maybe_unused]] FlowField& flowField, [[maybe_unused]] int i, [[maybe_unused]] int j, [[maybe_unused]] int k) {}
-    void VelocityBufferReadStencil::applyFrontWall([[maybe_unused]] FlowField& flowField, [[maybe_unused]] int i, [[maybe_unused]] int j, [[maybe_unused]] int k) {}
-    void VelocityBufferReadStencil::applyBackWall([[maybe_unused]] FlowField& flowField, [[maybe_unused]] int i, [[maybe_unused]] int j, [[maybe_unused]] int k) {}
+    void PressureBufferReadStencil::applyLeftWall(FlowField& flowField, int i, int j, int k) {}
+    void PressureBufferReadStencil::applyRightWall(FlowField& flowField, int i, int j, int k) {}
+    void PressureBufferReadStencil::applyBottomWall(FlowField& flowField, int i, int j, int k) {}
+    void PressureBufferReadStencil::applyTopWall(FlowField& flowField, int i, int j, int k) {}
+    void PressureBufferReadStencil::applyFrontWall(FlowField& flowField, int i, int j, int k) {}
+    void PressureBufferReadStencil::applyBackWall(FlowField& flowField, int i, int j, int k) {}
+
+    /**
+     * Functions for 2D
+     */
+
+    void PressureBufferReadStencil::applyLeftWall(FlowField& flowField, int i, int j) {}
+    void PressureBufferReadStencil::applyRightWall(FlowField& flowField, int i, int j) {}
+    void PressureBufferReadStencil::applyBottomWall(FlowField& flowField, int i, int j) {}
+    void PressureBufferReadStencil::applyTopWall(FlowField& flowField, int i, int j) {}
+
 } // namespace NSEOF::Stencils

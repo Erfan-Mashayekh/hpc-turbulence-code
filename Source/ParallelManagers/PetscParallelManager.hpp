@@ -1,7 +1,6 @@
 #ifndef __PARALLEL_MANAGERS_PETSC_PARALLEL_MANAGER_HPP__
 #define __PARALLEL_MANAGERS_PETSC_PARALLEL_MANAGER_HPP__
 
-
 namespace NSEOF::ParallelManagers {
 
 class PetscParallelManager {

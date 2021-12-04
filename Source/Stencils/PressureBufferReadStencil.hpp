@@ -2,8 +2,11 @@
 #define __STENCILS_PRESSURE_BUFFER_READ_STENCIL_HPP__
 
 #include "Stencil.hpp"
-#include "Parameters.hpp"
 #include "FlowField.hpp"
+#include "Parameters.hpp"
+#include "Definitions.hpp"
+
+#include <vector>
 
 namespace NSEOF::Stencils {
 
@@ -12,21 +15,38 @@ namespace NSEOF::Stencils {
  */
 class PressureBufferReadStencil : public BoundaryStencil<FlowField> {
 
+private:
+    std::vector<FLOAT> pressuresLeft_;
+    std::vector<FLOAT> pressuresRight_;
+    std::vector<FLOAT> pressuresBottom_;
+    std::vector<FLOAT> pressuresTop_;
+    std::vector<FLOAT> pressuresFront_;
+    std::vector<FLOAT> pressuresBack_;
+
 public:
-    explicit PressureBufferReadStencil(const Parameters&);
+    PressureBufferReadStencil(const Parameters&,
+                              std::vector<FLOAT>&, std::vector<FLOAT>&,
+                              std::vector<FLOAT>&, std::vector<FLOAT>&,
+                              std::vector<FLOAT>&, std::vector<FLOAT>&);
     ~PressureBufferReadStencil() override = default;
 
-    void applyLeftWall   (FlowField&, int, int) override;
-    void applyRightWall  (FlowField&, int, int) override;
-    void applyBottomWall (FlowField&, int, int) override;
-    void applyTopWall    (FlowField&, int, int) override;
-
+    /**
+     * Functions for 3D
+     */
     void applyLeftWall   (FlowField&, int, int, int) override;
     void applyRightWall  (FlowField&, int, int, int) override;
     void applyBottomWall (FlowField&, int, int, int) override;
     void applyTopWall    (FlowField&, int, int, int) override;
     void applyFrontWall  (FlowField&, int, int, int) override;
     void applyBackWall   (FlowField&, int, int, int) override;
+
+    /**
+     * Functions for 2D
+     */
+    void applyLeftWall   (FlowField&, int, int) override;
+    void applyRightWall  (FlowField&, int, int) override;
+    void applyBottomWall (FlowField&, int, int) override;
+    void applyTopWall    (FlowField&, int, int) override;
 };
 
 } // namespace NSEOF::Stencils
