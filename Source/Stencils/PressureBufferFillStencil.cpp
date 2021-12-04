@@ -14,18 +14,6 @@ namespace NSEOF::Stencils {
         pressureBufferBack_.clear();
     }
 
-    void PressureBufferFillStencil::getPressureBuffers(
-            std::vector<FLOAT>& pressureBufferLeft, std::vector<FLOAT>& pressureBufferRight,
-            std::vector<FLOAT>& pressureBufferBottom, std::vector<FLOAT>& pressureBufferTop,
-            std::vector<FLOAT>& pressureBufferFront, std::vector<FLOAT>& pressureBufferBack) {
-        pressureBufferLeft_   = pressureBufferLeft;
-        pressureBufferRight_  = pressureBufferRight;
-        pressureBufferBottom_ = pressureBufferBottom;
-        pressureBufferTop_    = pressureBufferTop;
-        pressureBufferFront_  = pressureBufferFront;
-        pressureBufferBack_   = pressureBufferBack;
-    }
-
     /**
      * Functions for 3D
      */
@@ -72,6 +60,34 @@ namespace NSEOF::Stencils {
 
     void PressureBufferFillStencil::applyTopWall(FlowField& flowField, int i, int j) {
         applyTopWall(flowField, i, j, 0);
+    }
+
+    /**
+     * Getters for the pressure buffers
+     */
+
+    const std::vector<FLOAT>& PressureBufferFillStencil::getPressureBufferLeft() const {
+        return pressureBufferLeft_;
+    }
+
+    const std::vector<FLOAT>& PressureBufferFillStencil::getPressureBufferRight() const {
+        return pressureBufferRight_;
+    }
+
+    const std::vector<FLOAT>& PressureBufferFillStencil::getPressureBufferBottom() const {
+        return pressureBufferBottom_;
+    }
+
+    const std::vector<FLOAT>& PressureBufferFillStencil::getPressureBufferTop() const {
+        return pressureBufferTop_;
+    }
+
+    const std::vector<FLOAT>& PressureBufferFillStencil::getPressureBufferFront() const {
+        return pressureBufferFront_;
+    }
+
+    const std::vector<FLOAT>& PressureBufferFillStencil::getPressureBufferBack() const {
+        return pressureBufferBack_;
     }
 
 } // namespace NSEOF::Stencils

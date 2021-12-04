@@ -28,13 +28,6 @@ public:
     ~PressureBufferFillStencil() override;
 
     /**
-     * Returns the pressure buffers filled for sending
-     */
-    void getPressureBuffers(std::vector<FLOAT>&, std::vector<FLOAT>&,
-                            std::vector<FLOAT>&, std::vector<FLOAT>&,
-                            std::vector<FLOAT>&, std::vector<FLOAT>&);
-
-    /**
      * Functions for 3D
      */
     void applyLeftWall   (FlowField&, int, int, int) override;
@@ -51,6 +44,16 @@ public:
     void applyRightWall  (FlowField&, int, int) override;
     void applyBottomWall (FlowField&, int, int) override;
     void applyTopWall    (FlowField&, int, int) override;
+
+    /**
+     * Getters for the pressure buffers
+     */
+    const std::vector<FLOAT>& getPressureBufferLeft() const;
+    const std::vector<FLOAT>& getPressureBufferRight() const;
+    const std::vector<FLOAT>& getPressureBufferBottom() const;
+    const std::vector<FLOAT>& getPressureBufferTop() const;
+    const std::vector<FLOAT>& getPressureBufferFront() const;
+    const std::vector<FLOAT>& getPressureBufferBack() const;
 };
 
 } // namespace NSEOF::Stencils

@@ -5,44 +5,32 @@ namespace NSEOF::Stencils {
     PressureBufferReadStencil::PressureBufferReadStencil(const Parameters& parameters)
             : BoundaryStencil<FlowField>(parameters) {}
 
-    void PressureBufferReadStencil::setPressureBuffers(
-            std::vector<FLOAT>& pressureBufferLeft, std::vector<FLOAT>& pressureBufferRight,
-            std::vector<FLOAT>& pressureBufferBottom, std::vector<FLOAT>& pressureBufferTop,
-            std::vector<FLOAT>& pressureBufferFront, std::vector<FLOAT>& pressureBufferBack) {
-        pressureLeftIterator_   = std::move(pressureBufferLeft).begin();
-        pressureRightIterator_  = std::move(pressureBufferRight).begin();
-        pressureBottomIterator_ = std::move(pressureBufferBottom).begin();
-        pressureTopIterator_    = std::move(pressureBufferTop).begin();
-        pressureFrontIterator_  = std::move(pressureBufferFront).begin();
-        pressureBackIterator_   = std::move(pressureBufferBack).begin();
-    }
-
     /**
      * Functions for 3D
      */
 
     void PressureBufferReadStencil::applyLeftWall(FlowField& flowField, int i, int j, int k) {
-        flowField.getPressure().getScalar(i, j, k) = *(pressureLeftIterator_++);
+        flowField.getPressure().getScalar(i, j, k) = *(pressureBufferLeftIterator_++);
     }
 
     void PressureBufferReadStencil::applyRightWall(FlowField& flowField, int i, int j, int k) {
-        flowField.getPressure().getScalar(i, j, k) = *(pressureRightIterator_++);
+        flowField.getPressure().getScalar(i, j, k) = *(pressureBufferRightIterator_++);
     }
 
     void PressureBufferReadStencil::applyBottomWall(FlowField& flowField, int i, int j, int k) {
-        flowField.getPressure().getScalar(i, j, k) = *(pressureBottomIterator_++);
+        flowField.getPressure().getScalar(i, j, k) = *(pressureBufferBottomIterator_++);
     }
 
     void PressureBufferReadStencil::applyTopWall(FlowField& flowField, int i, int j, int k) {
-        flowField.getPressure().getScalar(i, j, k) = *(pressureTopIterator_++);
+        flowField.getPressure().getScalar(i, j, k) = *(pressureBufferTopIterator_++);
     }
 
     void PressureBufferReadStencil::applyFrontWall(FlowField& flowField, int i, int j, int k) {
-        flowField.getPressure().getScalar(i, j, k) = *(pressureFrontIterator_++);
+        flowField.getPressure().getScalar(i, j, k) = *(pressureBufferFrontIterator_++);
     }
 
     void PressureBufferReadStencil::applyBackWall(FlowField& flowField, int i, int j, int k) {
-        flowField.getPressure().getScalar(i, j, k) = *(pressureBackIterator_++);
+        flowField.getPressure().getScalar(i, j, k) = *(pressureBufferBackIterator_++);
     }
 
     /**
@@ -63,6 +51,34 @@ namespace NSEOF::Stencils {
 
     void PressureBufferReadStencil::applyTopWall(FlowField& flowField, int i, int j) {
         applyTopWall(flowField, i, j, 0);
+    }
+
+    /**
+     * Setters for the pressure buffer iterators
+     */
+
+    void PressureBufferReadStencil::setPressureBufferLeftIterator(std::vector<FLOAT>& pressureBufferLeft) {
+        pressureBufferLeftIterator_ = std::move(pressureBufferLeft).begin();
+    }
+
+    void PressureBufferReadStencil::setPressureBufferRightIterator(std::vector<FLOAT>& pressureBufferRight) {
+        pressureBufferRightIterator_ = std::move(pressureBufferRight).begin();
+    }
+
+    void PressureBufferReadStencil::setPressureBufferBottomIterator(std::vector<FLOAT>& pressureBufferBottom) {
+        pressureBufferBottomIterator_ = std::move(pressureBufferBottom).begin();
+    }
+
+    void PressureBufferReadStencil::setPressureBufferTopIterator(std::vector<FLOAT>& pressureBufferTop) {
+        pressureBufferTopIterator_ = std::move(pressureBufferTop).begin();
+    }
+
+    void PressureBufferReadStencil::setPressureBufferFrontIterator(std::vector<FLOAT>& pressureBufferFront) {
+        pressureBufferFrontIterator_ = std::move(pressureBufferFront).begin();
+    }
+
+    void PressureBufferReadStencil::setPressureBufferBackIterator(std::vector<FLOAT>& pressureBufferBack) {
+        pressureBufferBackIterator_ = std::move(pressureBufferBack).begin();
     }
 
 } // namespace NSEOF::Stencils

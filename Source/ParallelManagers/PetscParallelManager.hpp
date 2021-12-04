@@ -13,12 +13,15 @@ namespace NSEOF::ParallelManagers {
 
 class PetscParallelManager {
 
+private:
+    const Parameters& parameters_;
+
 public:
-    PetscParallelManager() = default;
+    explicit PetscParallelManager(const Parameters&);
     ~PetscParallelManager() = default;
 
-    static void communicatePressure(Stencils::PressureBufferFillStencil&, Stencils::PressureBufferReadStencil&);
-    static void communicateVelocity();
+    void communicatePressure(Stencils::PressureBufferFillStencil&, Stencils::PressureBufferReadStencil&) const;
+    void communicateVelocity() const;
 };
 
 } // namespace NSEOF::ParallelManagers

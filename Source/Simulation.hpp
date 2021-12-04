@@ -59,6 +59,8 @@ protected:
     FieldIterator<FlowField> velocityIterator_;
     FieldIterator<FlowField> obstacleIterator_;
 
+    ParallelManagers::PetscParallelManager petscParallelManager_;
+
     Stencils::PressureBufferFillStencil pressureBufferFillStencil_;
     Stencils::PressureBufferReadStencil pressureBufferReadStencil_;
     Stencils::PressureBufferFillStencil velocityBufferFillStencil_;

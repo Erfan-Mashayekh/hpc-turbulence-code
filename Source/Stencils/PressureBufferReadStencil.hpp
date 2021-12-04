@@ -17,23 +17,16 @@ namespace NSEOF::Stencils {
 class PressureBufferReadStencil : public BoundaryStencil<FlowField> {
 
 private:
-    std::vector<FLOAT>::iterator pressureLeftIterator_;
-    std::vector<FLOAT>::iterator pressureRightIterator_;
-    std::vector<FLOAT>::iterator pressureBottomIterator_;
-    std::vector<FLOAT>::iterator pressureTopIterator_;
-    std::vector<FLOAT>::iterator pressureFrontIterator_;
-    std::vector<FLOAT>::iterator pressureBackIterator_;
+    std::vector<FLOAT>::iterator pressureBufferLeftIterator_;
+    std::vector<FLOAT>::iterator pressureBufferRightIterator_;
+    std::vector<FLOAT>::iterator pressureBufferBottomIterator_;
+    std::vector<FLOAT>::iterator pressureBufferTopIterator_;
+    std::vector<FLOAT>::iterator pressureBufferFrontIterator_;
+    std::vector<FLOAT>::iterator pressureBufferBackIterator_;
 
 public:
     explicit PressureBufferReadStencil(const Parameters&);
     ~PressureBufferReadStencil() override = default;
-
-    /**
-     * Sets the pressure buffers received
-     */
-    void setPressureBuffers(std::vector<FLOAT>&, std::vector<FLOAT>&,
-                            std::vector<FLOAT>&, std::vector<FLOAT>&,
-                            std::vector<FLOAT>&, std::vector<FLOAT>&);
 
     /**
      * Functions for 3D
@@ -52,6 +45,16 @@ public:
     void applyRightWall  (FlowField&, int, int) override;
     void applyBottomWall (FlowField&, int, int) override;
     void applyTopWall    (FlowField&, int, int) override;
+
+    /**
+     * Setters for the pressure buffer iterators
+     */
+    void setPressureBufferLeftIterator(std::vector<FLOAT>&);
+    void setPressureBufferRightIterator(std::vector<FLOAT>&);
+    void setPressureBufferBottomIterator(std::vector<FLOAT>&);
+    void setPressureBufferTopIterator(std::vector<FLOAT>&);
+    void setPressureBufferFrontIterator(std::vector<FLOAT>&);
+    void setPressureBufferBackIterator(std::vector<FLOAT>&);
 };
 
 } // namespace NSEOF::Stencils

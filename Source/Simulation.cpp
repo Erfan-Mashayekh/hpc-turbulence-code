@@ -24,6 +24,7 @@ Simulation::Simulation(Parameters& parameters, FlowField& flowField)
     , obstacleStencil_(parameters)
     , velocityIterator_(flowField_, parameters, velocityStencil_)
     , obstacleIterator_(flowField_, parameters, obstacleStencil_)
+    , petscParallelManager_(parameters)
     , pressureBufferFillStencil_(parameters)
     , pressureBufferReadStencil_(parameters)
     , velocityBufferFillStencil_(parameters)
@@ -101,8 +102,7 @@ void Simulation::solveTimestep() {
     pressureBufferFillIterator_.iterate();
 
     // TODO WS2: communicate pressure values
-    ParallelManagers::PetscParallelManager::communicatePressure(pressureBufferFillStencil_,
-                                                                pressureBufferReadStencil_);
+    petscParallelManager_.communicatePressure(pressureBufferFillStencil_, pressureBufferReadStencil_);
 
     pressureBufferReadIterator_.iterate();
 
