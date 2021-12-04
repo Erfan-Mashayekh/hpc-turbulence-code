@@ -31,27 +31,27 @@ namespace NSEOF::Stencils {
      */
 
     void PressureBufferFillStencil::applyLeftWall(FlowField& flowField, int i, int j, int k) {
-        pressureBufferLeft_.push_back(flowField.getPressure().getScalar(i, j, k));
+        pressureBufferLeft_.push_back(flowField.getPressure().getScalar(i + 1, j, k));
     }
 
     void PressureBufferFillStencil::applyRightWall(FlowField& flowField, int i, int j, int k) {
-        pressureBufferRight_.push_back(flowField.getPressure().getScalar(i, j, k));
+        pressureBufferRight_.push_back(flowField.getPressure().getScalar(i - 1, j, k));
     }
 
     void PressureBufferFillStencil::applyBottomWall(FlowField& flowField, int i, int j, int k) {
-        pressureBufferBottom_.push_back(flowField.getPressure().getScalar(i, j, k));
+        pressureBufferBottom_.push_back(flowField.getPressure().getScalar(i, j + 1, k));
     }
 
     void PressureBufferFillStencil::applyTopWall(FlowField& flowField, int i, int j, int k) {
-        pressureBufferTop_.push_back(flowField.getPressure().getScalar(i, j, k));
+        pressureBufferTop_.push_back(flowField.getPressure().getScalar(i, j - 1, k));
     }
 
     void PressureBufferFillStencil::applyFrontWall(FlowField& flowField, int i, int j, int k) {
-        pressureBufferFront_.push_back(flowField.getPressure().getScalar(i, j, k));
+        pressureBufferFront_.push_back(flowField.getPressure().getScalar(i, j, k + 1));
     }
 
     void PressureBufferFillStencil::applyBackWall(FlowField& flowField, int i, int j, int k) {
-        pressureBufferBack_.push_back(flowField.getPressure().getScalar(i, j, k));
+        pressureBufferBack_.push_back(flowField.getPressure().getScalar(i, j, k - 1));
     }
 
     /**
