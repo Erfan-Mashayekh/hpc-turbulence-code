@@ -63,8 +63,8 @@ protected:
 
     Stencils::PressureBufferFillStencil pressureBufferFillStencil_;
     Stencils::PressureBufferReadStencil pressureBufferReadStencil_;
-    Stencils::PressureBufferFillStencil velocityBufferFillStencil_;
-    Stencils::PressureBufferReadStencil velocityBufferReadStencil_;
+    Stencils::VelocityBufferFillStencil velocityBufferFillStencil_;
+    Stencils::VelocityBufferReadStencil velocityBufferReadStencil_;
 
     ParallelBoundaryIterator<FlowField> pressureBufferFillIterator_;
     ParallelBoundaryIterator<FlowField> pressureBufferReadIterator_;

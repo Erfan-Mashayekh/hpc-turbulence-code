@@ -25,8 +25,8 @@ namespace NSEOF::ParallelManagers {
          * @brief Communication: send to left, receive from right
          */
 
-        std::vector<FLOAT> pressureBufferLeft = pressureBufferFillStencil.getPressureBufferLeft();
-        std::vector<FLOAT> pressureBufferRight = pressureBufferFillStencil.getPressureBufferRight();
+        pressureBufferLeft = pressureBufferFillStencil.getPressureBufferLeft();
+        pressureBufferRight = pressureBufferFillStencil.getPressureBufferRight();
 
         MPI_Sendrecv(&pressureBufferLeft[0], (int) pressureBufferLeft.size(), MY_MPI_FLOAT, parameters_.parallel.leftNb, 0,
                      &pressureBufferRight[0], (int) pressureBufferRight.size(), MY_MPI_FLOAT, parameters_.parallel.rightNb, 0,
@@ -51,8 +51,8 @@ namespace NSEOF::ParallelManagers {
          * @brief Communication: send to bottom, receive from top
          */
 
-        std::vector<FLOAT> pressureBufferTop = pressureBufferFillStencil.getPressureBufferTop();
-        std::vector<FLOAT> pressureBufferBottom = pressureBufferFillStencil.getPressureBufferBottom();
+        pressureBufferTop = pressureBufferFillStencil.getPressureBufferTop();
+        pressureBufferBottom = pressureBufferFillStencil.getPressureBufferBottom();
 
         MPI_Sendrecv(&pressureBufferBottom[0], (int) pressureBufferBottom.size(), MY_MPI_FLOAT, parameters_.parallel.bottomNb, 0,
                      &pressureBufferTop[0], (int) pressureBufferTop.size(), MY_MPI_FLOAT, parameters_.parallel.topNb, 0,
@@ -77,8 +77,8 @@ namespace NSEOF::ParallelManagers {
          * @brief Communication: send to back, receive from front
          */
 
-        std::vector<FLOAT> pressureBufferFront = pressureBufferFillStencil.getPressureBufferFront();
-        std::vector<FLOAT> pressureBufferBack = pressureBufferFillStencil.getPressureBufferBack();
+        pressureBufferFront = pressureBufferFillStencil.getPressureBufferFront();
+        pressureBufferBack = pressureBufferFillStencil.getPressureBufferBack();
 
         MPI_Sendrecv(&pressureBufferBack[0], (int) pressureBufferBack.size(), MY_MPI_FLOAT, parameters_.parallel.backNb, 0,
                      &pressureBufferFront[0], (int) pressureBufferFront.size(), MY_MPI_FLOAT, parameters_.parallel.frontNb, 0,
@@ -108,8 +108,8 @@ namespace NSEOF::ParallelManagers {
          * @brief Communication: send to left, receive from right
          */
 
-        std::vector<FLOAT> velocityBufferLeft = velocityBufferFillStencil.getVelocityBufferLeft();
-        std::vector<FLOAT> velocityBufferRight = velocityBufferFillStencil.getVelocityBufferRight();
+        velocityBufferLeft = velocityBufferFillStencil.getVelocityBufferLeft();
+        velocityBufferRight = velocityBufferFillStencil.getVelocityBufferRight();
 
         MPI_Sendrecv(&velocityBufferLeft[0], (int) velocityBufferLeft.size(), MY_MPI_FLOAT, parameters_.parallel.leftNb, 0,
                      &velocityBufferRight[0], (int) velocityBufferRight.size(), MY_MPI_FLOAT, parameters_.parallel.rightNb, 0,
@@ -134,8 +134,8 @@ namespace NSEOF::ParallelManagers {
          * @brief Communication: send to bottom, receive from top
          */
 
-        std::vector<FLOAT> velocityBufferTop = velocityBufferFillStencil.getVelocityBufferTop();
-        std::vector<FLOAT> velocityBufferBottom = velocityBufferFillStencil.getVelocityBufferBottom();
+        velocityBufferTop = velocityBufferFillStencil.getVelocityBufferTop();
+        velocityBufferBottom = velocityBufferFillStencil.getVelocityBufferBottom();
 
         MPI_Sendrecv(&velocityBufferBottom[0], (int) velocityBufferBottom.size(), MY_MPI_FLOAT, parameters_.parallel.bottomNb, 0,
                      &velocityBufferTop[0], (int) velocityBufferTop.size(), MY_MPI_FLOAT, parameters_.parallel.topNb, 0,
@@ -160,8 +160,8 @@ namespace NSEOF::ParallelManagers {
          * @brief Communication: send to back, receive from front
          */
 
-        std::vector<FLOAT> velocityBufferFront = velocityBufferFillStencil.getVelocityBufferFront();
-        std::vector<FLOAT> velocityBufferBack = velocityBufferFillStencil.getVelocityBufferBack();
+        velocityBufferFront = velocityBufferFillStencil.getVelocityBufferFront();
+        velocityBufferBack = velocityBufferFillStencil.getVelocityBufferBack();
 
         MPI_Sendrecv(&velocityBufferBack[0], (int) velocityBufferBack.size(), MY_MPI_FLOAT, parameters_.parallel.backNb, 0,
                      &velocityBufferFront[0], (int) velocityBufferFront.size(), MY_MPI_FLOAT, parameters_.parallel.frontNb, 0,

@@ -28,13 +28,6 @@ public:
     ~VelocityBufferReadStencil() override = default;
 
     /**
-     * Sets the velocity buffers received
-     */
-    void setVelocityBuffers(std::vector<FLOAT>&, std::vector<FLOAT>&,
-                            std::vector<FLOAT>&, std::vector<FLOAT>&,
-                            std::vector<FLOAT>&, std::vector<FLOAT>&);
-
-    /**
      * Functions for 3D
      */
     void applyLeftWall   (FlowField&, int, int, int) override;

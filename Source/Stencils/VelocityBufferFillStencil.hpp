@@ -25,14 +25,7 @@ private:
 
 public:
     explicit VelocityBufferFillStencil(const Parameters&);
-    ~VelocityBufferFillStencil() override = default;
-
-    /**
-     * Returns the velocity buffers filled for sending
-     */
-    void getVelocityBuffers(std::vector<FLOAT>&, std::vector<FLOAT>&,
-                            std::vector<FLOAT>&, std::vector<FLOAT>&,
-                            std::vector<FLOAT>&, std::vector<FLOAT>&);
+    ~VelocityBufferFillStencil() override;
 
     /**
      * Functions for 3D

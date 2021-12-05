@@ -99,11 +99,9 @@ void Simulation::solveTimestep() {
     // Solve for pressure
     solver_->solve();
 
-    pressureBufferFillIterator_.iterate();
-
     // TODO WS2: communicate pressure values
+    pressureBufferFillIterator_.iterate();
     petscParallelManager_.communicatePressure(pressureBufferFillStencil_, pressureBufferReadStencil_);
-
     pressureBufferReadIterator_.iterate();
 
     // Compute velocity
@@ -111,6 +109,9 @@ void Simulation::solveTimestep() {
     obstacleIterator_.iterate();
 
     // TODO WS2: communicate velocity values
+    velocityBufferFillIterator_.iterate();
+    petscParallelManager_.communicateVelocity(velocityBufferFillStencil_, velocityBufferReadStencil_);
+    velocityBufferReadIterator_.iterate();
 
     // Iterate for velocities on the boundary
     wallVelocityIterator_.iterate();
