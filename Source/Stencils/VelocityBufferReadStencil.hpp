@@ -16,12 +16,12 @@ namespace NSEOF::Stencils {
 class VelocityBufferReadStencil : public BoundaryStencil<FlowField> {
 
 private:
-    std::vector<FLOAT>::iterator velocityLeftIterator_;
-    std::vector<FLOAT>::iterator velocityRightIterator_;
-    std::vector<FLOAT>::iterator velocityBottomIterator_;
-    std::vector<FLOAT>::iterator velocityTopIterator_;
-    std::vector<FLOAT>::iterator velocityFrontIterator_;
-    std::vector<FLOAT>::iterator velocityBackIterator_;
+    std::vector<FLOAT>::iterator velocityBufferLeftIterator_;
+    std::vector<FLOAT>::iterator velocityBufferRightIterator_;
+    std::vector<FLOAT>::iterator velocityBufferBottomIterator_;
+    std::vector<FLOAT>::iterator velocityBufferTopIterator_;
+    std::vector<FLOAT>::iterator velocityBufferFrontIterator_;
+    std::vector<FLOAT>::iterator velocityBufferBackIterator_;
 
 public:
     explicit VelocityBufferReadStencil(const Parameters&);
@@ -51,6 +51,16 @@ public:
     void applyRightWall  (FlowField&, int, int) override;
     void applyBottomWall (FlowField&, int, int) override;
     void applyTopWall    (FlowField&, int, int) override;
+
+    /**
+     * Setters for the pressure buffer iterators
+     */
+    void setVelocityBufferLeftIterator(std::vector<FLOAT>&);
+    void setVelocityBufferRightIterator(std::vector<FLOAT>&);
+    void setVelocityBufferBottomIterator(std::vector<FLOAT>&);
+    void setVelocityBufferTopIterator(std::vector<FLOAT>&);
+    void setVelocityBufferFrontIterator(std::vector<FLOAT>&);
+    void setVelocityBufferBackIterator(std::vector<FLOAT>&);
 };
 
 } // namespace NSEOF::Stencils

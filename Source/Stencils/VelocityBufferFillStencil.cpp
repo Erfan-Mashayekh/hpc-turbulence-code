@@ -14,18 +14,6 @@ namespace NSEOF::Stencils {
         velocityBufferBack_.clear();
     }
 
-    void VelocityBufferFillStencil::getVelocityBuffers(
-            std::vector<FLOAT>& velocityBufferLeft, std::vector<FLOAT>& velocityBufferRight,
-            std::vector<FLOAT>& velocityBufferBottom, std::vector<FLOAT>& velocityBufferTop,
-            std::vector<FLOAT>& velocityBufferFront, std::vector<FLOAT>& velocityBufferBack) {
-        velocityBufferLeft_   = velocityBufferLeft;
-        velocityBufferRight_  = velocityBufferRight;
-        velocityBufferBottom_ = velocityBufferBottom;
-        velocityBufferTop_    = velocityBufferTop;
-        velocityBufferFront_  = velocityBufferFront;
-        velocityBufferBack_   = velocityBufferBack;
-    }
-
     /**
      * Functions for 3D
      */
@@ -105,6 +93,34 @@ namespace NSEOF::Stencils {
 
     void VelocityBufferFillStencil::applyTopWall(FlowField& flowField, int i, int j) {
         applyTopWall(flowField, i, j, 0);
+    }
+
+    /**
+     * Getters for the velocity buffers
+     */
+
+    const std::vector<FLOAT>& VelocityBufferFillStencil::getVelocityBufferLeft() const {
+        return velocityBufferLeft_;
+    }
+
+    const std::vector<FLOAT>& VelocityBufferFillStencil::getVelocityBufferRight() const {
+        return velocityBufferRight_;
+    }
+
+    const std::vector<FLOAT>& VelocityBufferFillStencil::getVelocityBufferBottom() const {
+        return velocityBufferBottom_;
+    }
+
+    const std::vector<FLOAT>& VelocityBufferFillStencil::getVelocityBufferTop() const {
+        return velocityBufferTop_;
+    }
+
+    const std::vector<FLOAT>& VelocityBufferFillStencil::getVelocityBufferFront() const {
+        return velocityBufferFront_;
+    }
+
+    const std::vector<FLOAT>& VelocityBufferFillStencil::getVelocityBufferBack() const {
+        return velocityBufferBack_;
     }
 
 } // namespace NSEOF::Stencils

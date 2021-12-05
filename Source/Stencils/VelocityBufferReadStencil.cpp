@@ -9,12 +9,12 @@ namespace NSEOF::Stencils {
             std::vector<FLOAT>& velocityBufferLeft, std::vector<FLOAT>& velocityBufferRight,
             std::vector<FLOAT>& velocityBufferBottom, std::vector<FLOAT>& velocityBufferTop,
             std::vector<FLOAT>& velocityBufferFront, std::vector<FLOAT>& velocityBufferBack) {
-        velocityLeftIterator_   = std::move(velocityBufferLeft).begin();
-        velocityRightIterator_  = std::move(velocityBufferRight).begin();
-        velocityBottomIterator_ = std::move(velocityBufferBottom).begin();
-        velocityTopIterator_    = std::move(velocityBufferTop).begin();
-        velocityFrontIterator_  = std::move(velocityBufferFront).begin();
-        velocityBackIterator_   = std::move(velocityBufferBack).begin();
+        velocityBufferLeftIterator_   = std::move(velocityBufferLeft).begin();
+        velocityBufferRightIterator_  = std::move(velocityBufferRight).begin();
+        velocityBufferBottomIterator_ = std::move(velocityBufferBottom).begin();
+        velocityBufferTopIterator_    = std::move(velocityBufferTop).begin();
+        velocityBufferFrontIterator_  = std::move(velocityBufferFront).begin();
+        velocityBufferBackIterator_   = std::move(velocityBufferBack).begin();
     }
 
     /**
@@ -25,7 +25,7 @@ namespace NSEOF::Stencils {
         FLOAT* velocity = flowField.getVelocity().getVector(i + 1, j, k);
 
         for (int d = 0; d < parameters_.geometry.dim; d++) { // "u", "v" and "w"
-            velocity[d] = *(velocityLeftIterator_++);
+            velocity[d] = *(velocityBufferLeftIterator_++);
         }
     }
 
@@ -34,17 +34,17 @@ namespace NSEOF::Stencils {
         FLOAT* velocityRight = flowField.getVelocity().getVector(i - 1, j, k);
 
         for (int d = 0; d < parameters_.geometry.dim; d++) { // "u", "v" and "w"
-            velocityLeft[d] = *(velocityRightIterator_++);
+            velocityLeft[d] = *(velocityBufferRightIterator_++);
         }
 
-        velocityRight[0] = *(velocityRightIterator_++); // only "u"
+        velocityRight[0] = *(velocityBufferRightIterator_++); // only "u"
     }
 
     void VelocityBufferReadStencil::applyBottomWall(FlowField& flowField, int i, int j, int k) {
         FLOAT *velocity = flowField.getVelocity().getVector(i, j + 1, k);
 
         for (int d = 0; d < parameters_.geometry.dim; d++) { // "u", "v" and "w"
-            velocity[d] = *(velocityBottomIterator_++);
+            velocity[d] = *(velocityBufferBottomIterator_++);
         }
     }
 
@@ -53,10 +53,10 @@ namespace NSEOF::Stencils {
         FLOAT* velocityRight = flowField.getVelocity().getVector(i, j - 1, k);
 
         for (int d = 0; d < parameters_.geometry.dim; d++) { // "u", "v" and "w"
-            velocityLeft[d] = *(velocityTopIterator_++);
+            velocityLeft[d] = *(velocityBufferTopIterator_++);
         }
 
-        velocityRight[0] = *(velocityTopIterator_++); // only "v"
+        velocityRight[0] = *(velocityBufferTopIterator_++); // only "v"
     }
 
     void VelocityBufferReadStencil::applyFrontWall(FlowField& flowField, int i, int j, int k) {
@@ -64,17 +64,17 @@ namespace NSEOF::Stencils {
         FLOAT* velocityRight = flowField.getVelocity().getVector(i, j, k - 1);
 
         for (int d = 0; d < parameters_.geometry.dim; d++) { // "u", "v" and "w"
-            velocityLeft[d] = *(velocityFrontIterator_++);
+            velocityLeft[d] = *(velocityBufferFrontIterator_++);
         }
 
-        velocityRight[0] = *(velocityFrontIterator_++); // only "w"
+        velocityRight[0] = *(velocityBufferFrontIterator_++); // only "w"
     }
 
     void VelocityBufferReadStencil::applyBackWall(FlowField& flowField, int i, int j, int k) {
         FLOAT *velocity = flowField.getVelocity().getVector(i, j, k + 1);
 
         for (int d = 0; d < parameters_.geometry.dim; d++) { // "u", "v" and "w"
-            velocity[d] = *(velocityBackIterator_++);
+            velocity[d] = *(velocityBufferBackIterator_++);
         }
     }
 
@@ -96,6 +96,34 @@ namespace NSEOF::Stencils {
 
     void VelocityBufferReadStencil::applyTopWall(FlowField& flowField, int i, int j) {
         applyTopWall(flowField, i, j, 0);
+    }
+
+    /**
+     * Setters for the velocity buffer iterators
+     */
+
+    void VelocityBufferReadStencil::setVelocityBufferLeftIterator(std::vector<FLOAT>& velocityBufferLeft) {
+        velocityBufferLeftIterator_ = std::move(velocityBufferLeft).begin();
+    }
+
+    void VelocityBufferReadStencil::setVelocityBufferRightIterator(std::vector<FLOAT>& velocityBufferRight) {
+        velocityBufferRightIterator_ = std::move(velocityBufferRight).begin();
+    }
+
+    void VelocityBufferReadStencil::setVelocityBufferBottomIterator(std::vector<FLOAT>& velocityBufferBottom) {
+        velocityBufferBottomIterator_ = std::move(velocityBufferBottom).begin();
+    }
+
+    void VelocityBufferReadStencil::setVelocityBufferTopIterator(std::vector<FLOAT>& velocityBufferTop) {
+        velocityBufferTopIterator_ = std::move(velocityBufferTop).begin();
+    }
+
+    void VelocityBufferReadStencil::setVelocityBufferFrontIterator(std::vector<FLOAT>& velocityBufferFront) {
+        velocityBufferFrontIterator_ = std::move(velocityBufferFront).begin();
+    }
+
+    void VelocityBufferReadStencil::setVelocityBufferBackIterator(std::vector<FLOAT>& velocityBufferBack) {
+        velocityBufferBackIterator_ = std::move(velocityBufferBack).begin();
     }
 
 } // namespace NSEOF::Stencils

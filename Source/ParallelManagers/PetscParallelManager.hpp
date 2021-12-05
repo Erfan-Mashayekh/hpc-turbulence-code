@@ -21,7 +21,7 @@ public:
     ~PetscParallelManager() = default;
 
     void communicatePressure(Stencils::PressureBufferFillStencil&, Stencils::PressureBufferReadStencil&) const;
-    void communicateVelocity() const;
+    void communicateVelocity(Stencils::VelocityBufferFillStencil&, Stencils::VelocityBufferReadStencil&) const;
 };
 
 } // namespace NSEOF::ParallelManagers

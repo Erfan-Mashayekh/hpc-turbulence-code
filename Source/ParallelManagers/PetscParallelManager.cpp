@@ -88,7 +88,7 @@ namespace NSEOF::ParallelManagers {
 
     }
 
-    void PetscParallelManager::communicateVelocity() const {
-
+    void PetscParallelManager::communicateVelocity(Stencils::VelocityBufferFillStencil& velocityBufferFillStencil,
+                                                   Stencils::VelocityBufferReadStencil& velocityBufferReadStencil) const {
     }
 } // namespace NSEOF::ParallelManagers

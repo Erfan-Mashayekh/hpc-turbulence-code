@@ -51,6 +51,16 @@ public:
     void applyRightWall  (FlowField&, int, int) override;
     void applyBottomWall (FlowField&, int, int) override;
     void applyTopWall    (FlowField&, int, int) override;
+
+    /**
+     * Getters for the pressure buffers
+     */
+    const std::vector<FLOAT>& getVelocityBufferLeft() const;
+    const std::vector<FLOAT>& getVelocityBufferRight() const;
+    const std::vector<FLOAT>& getVelocityBufferBottom() const;
+    const std::vector<FLOAT>& getVelocityBufferTop() const;
+    const std::vector<FLOAT>& getVelocityBufferFront() const;
+    const std::vector<FLOAT>& getVelocityBufferBack() const;
 };
 
 } // namespace NSEOF::Stencils
