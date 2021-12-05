@@ -9,6 +9,7 @@ ViscosityStencil::ViscosityStencil(const Parameters& parameters)
 void ViscosityStencil::apply(FlowField& flowField, int i, int j) {
 	// TODO: change for input parameter
 	int model = 0;
+	FLOAT viscosiy = 1/parameters_.flow.Re;
 	FLOAT kappa = 0.41;
 	FLOAT mixing_length = 0.;
 	ScalarField& eddy_viscosity = flowField.getEddyViscosity().getScalar(i,j);
@@ -21,16 +22,18 @@ void ViscosityStencil::apply(FlowField& flowField, int i, int j) {
 		
 	}elseif(model ==1){
 		// boundary layer thickness of a laminar flat plate
-		// TODO: x, Re_x
-		int x = 0.;
-		FLOAT Re_x = 0.;
+		// TODO: x? everytime? what abou cavity?
+		FLOAT x = parameters_.meshsize->getPosX(i,j,k);
+		//TODO: HowTo calculate Re(x)? how to get u0?
+		FLOAT Re_x = u0 * x/viscosity;
 		FLOAT boundary_thickness = 4.91 * x / std::sqrt(Re_x);
 		mixing_length = 0.09 * boundary_thickness;	
 
 	}elseif(model == 2){
 		// boundary layer thickness of a turbulent flat plate
-		// TODO: x, Re_x
-		int x = 0.;
+		// TODO: x? everytime? what abou cavity?
+		FLOAT x = parameters_.meshsize->getPosX(i,j,k);
+		//TODO: HowTo calculate Re(x)? how to get u0?
 		FLOAT Re_x = 0.;
 		FLOAT boundary_thickness = 0.382 * x / std::pow(Re_x, 0.2);
 		mixing_length = 0.09 * boundary_thickness;	
@@ -50,7 +53,6 @@ void ViscosityStencil::apply(FlowField& flowField, int i, int j) {
 }
 
 void ViscosityStencil::apply(FlowField& flowField, int i, int j, int k) {
-
 }
 
 } // namespace Stencils
