@@ -10,6 +10,8 @@ void ViscosityStencil::apply(FlowField& flowField, int i, int j) {
 	// TODO: change for input parameter
 	int model = 0;
 	FLOAT viscosiy = 1/parameters_.flow.Re;
+	//TODO: is that a right value for u_0?
+	int u0 = 0;
 	FLOAT kappa = 0.41;
 	FLOAT mixing_length = 0.;
 	ScalarField& eddy_viscosity = flowField.getEddyViscosity().getScalar(i,j);
@@ -34,7 +36,7 @@ void ViscosityStencil::apply(FlowField& flowField, int i, int j) {
 		// TODO: x? everytime? what abou cavity?
 		FLOAT x = parameters_.meshsize->getPosX(i,j,k);
 		//TODO: HowTo calculate Re(x)? how to get u0?
-		FLOAT Re_x = 0.;
+		FLOAT Re_x = u0 * x/viscosity;
 		FLOAT boundary_thickness = 0.382 * x / std::pow(Re_x, 0.2);
 		mixing_length = 0.09 * boundary_thickness;	
 
@@ -46,9 +48,12 @@ void ViscosityStencil::apply(FlowField& flowField, int i, int j) {
 	}
 
 	//TODO: compute strain tensor
-	FLOAT strain_tensor = 1.;
+	loadLocalVelocity2D(flowField, localVelocity_, i, j);
+	loadLocalMeshsize2D(parameters_, localMeshsize_, i, j);
+	
+	FLOAT strain_tensor_squared = computeStrainTensorSquare2D(localVelocity_, localMeshsize_);
 	//compute eddy vicosity
-	eddy_viscosity = std::pow(mixing_length,2) * std::sqrt(2 * strain_tensor * strain_tensor);
+	eddy_viscosity = std::pow(mixing_length,2) * std::sqrt(2 * strain_tensor_squared);
 
 }
 

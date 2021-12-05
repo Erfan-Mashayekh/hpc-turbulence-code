@@ -676,6 +676,31 @@ inline FLOAT computeF2D(const FLOAT* const localVelocity, const FLOAT* const loc
         + dt * (2*(v+vt)*dudx(localVelocity, localMeshsize)/localMeshsize[mapd(0, 0, 0, 0)]
                + (v+vt)*(dudy(localVelocity, localMeshsize) + dvdx(localVelocity, localMeshsize))/localMeshsize[mapd(0, 0, 0, 1)]);
 }
+
+
+inline FLOAT computeStrainTensorSquared2D(const FLOAT* const localVelocity, const FLOAT* const localMeshsize) {
+
+	S11 = 2 * dudx(localVelocity, localMeshsize);
+	S22 = 2 * dvdy(localVelocity, localMeshsize);
+	S12 = dudy(localVelocity, localMeshsize) + dvdx(localVelocity, localMeshsize);
+
+	return std::pow(S11,2) + std::pow(S22,2) + 2*std::pow(S12,2);
+
+}
+
+inline FLOAT computeStrainTensorSquared3D(const FLOAT* const localVelocity, const FLOAT* const localMeshsize) {
+
+	S11 = 2 * dudx(localVelocity, localMeshsize);
+	S22 = 2 * dvdy(localVelocity, localMeshsize);
+	S33 = 2 * dwdz(localVelocity, localMeshsize);
+	S12 = dudy(localVelocity, localMeshsize) + dvdx(localVelocity, localMeshsize);
+	S13 = dudz(localVelocity, localMeshsize) + dwdx(localVelocity, localMeshsize);
+	S23 = dvdz(localVelocity, localMeshsize) + dwdy(localVelocity, localMeshsize);
+
+	return std::pow(S11,2) + std::pow(S22,2) + std::pow(S33,2) + 2*(std::pow(S12,2) + std::pow(S13,2) + std::pow(S23,2));
+}
+
+
 //*************Turbulence model end******************
 
 
