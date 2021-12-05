@@ -646,16 +646,49 @@ inline FLOAT computeF2D(const FLOAT* const localVelocity, const FLOAT* const loc
 inline FLOAT dudy(const FLOAT* const lv, const FLOAT* const lm) {
     // Evaluate dudy in the cell center by a central difference
     const int index0 = mapd(0, 0, 0, 0);
-    const int index1 = mapd(-1, 0, 0, 0);
+    const int index1 = mapd(0, -1, 0, 0);
     return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 1)];
+}
+
+// TODO dudz <-> first derivative of u-component of velocity field w.r.t. z-direction.
+inline FLOAT dudz(const FLOAT* const lv, const FLOAT* const lm) {
+    // Evaluate dudy in the cell center by a central difference
+    const int index0 = mapd(0, 0, 0, 0);
+    const int index1 = mapd(, 0, 0, -1);
+    return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 2)];
 }
 
 // dvdx <-> first derivative of v-component of velocity field w.r.t. x-direction.
 inline FLOAT dvdx(const FLOAT* const lv, const FLOAT* const lm) {
     const int index0 = mapd(0, 0, 0, 1);
-    const int index1 = mapd(0, -1, 0, 1);
+    const int index1 = mapd(-1, , 0, 1);
     return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 0)];
 }
+
+// TODO dvdz <-> first derivative of v-component of velocity field w.r.t. z-direction.
+inline FLOAT dvdz(const FLOAT* const lv, const FLOAT* const lm) {
+    // Evaluate dudy in the cell center by a central difference
+    const int index0 = mapd(0, 0, 0, 1);
+    const int index1 = mapd(0, 0, -1, 1);
+    return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 2)];
+}
+
+// TODO dwdx <-> first derivative of w-component of velocity field w.r.t. x-direction.
+inline FLOAT dwdx(const FLOAT* const lv, const FLOAT* const lm) {
+    // Evaluate dudy in the cell center by a central difference
+    const int index0 = mapd(0, 0, 0, 2);
+    const int index1 = mapd(-1, 0, 0, 2);
+    return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 0)];
+}
+
+// TODO dwdy <-> first derivative of w-component of velocity field w.r.t. y-direction.
+inline FLOAT dwdy(const FLOAT* const lv, const FLOAT* const lm) {
+    // Evaluate dudy in the cell center by a central difference
+    const int index0 = mapd(0, 0, 0, 2);
+    const int index1 = mapd(0, -1, 0, 2);
+    return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 1)];
+}
+
 
 inline FLOAT computeF2D(const FLOAT* const localVelocity, const FLOAT* const localMeshsize, const Parameters& parameters, FLOAT dt) {
     //let kinmatic viscosity be:
