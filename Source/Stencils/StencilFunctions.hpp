@@ -654,14 +654,14 @@ inline FLOAT dudy(const FLOAT* const lv, const FLOAT* const lm) {
 inline FLOAT dudz(const FLOAT* const lv, const FLOAT* const lm) {
     // Evaluate dudy in the cell center by a central difference
     const int index0 = mapd(0, 0, 0, 0);
-    const int index1 = mapd(, 0, 0, -1);
+    const int index1 = mapd(0, 0, 0, -1);
     return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 2)];
 }
 
 // dvdx <-> first derivative of v-component of velocity field w.r.t. x-direction.
 inline FLOAT dvdx(const FLOAT* const lv, const FLOAT* const lm) {
     const int index0 = mapd(0, 0, 0, 1);
-    const int index1 = mapd(-1, , 0, 1);
+    const int index1 = mapd(-1,0 , 0, 1);
     return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 0)];
 }
 
@@ -690,7 +690,7 @@ inline FLOAT dwdy(const FLOAT* const lv, const FLOAT* const lm) {
 }
 
 
-inline FLOAT computeF2D(const FLOAT* const localVelocity, const FLOAT* const localMeshsize, const Parameters& parameters, FLOAT dt) {
+/*inline FLOAT computeF2D(const FLOAT* const localVelocity, const FLOAT* const localMeshsize, const Parameters& parameters, FLOAT dt) {
     //let kinmatic viscosity be:
     v = 1/parameters.flow.Re;
     
@@ -708,14 +708,14 @@ inline FLOAT computeF2D(const FLOAT* const localVelocity, const FLOAT* const loc
     return localVelocity[mapd(0, 0, 0, 0)]
         + dt * (2*(v+vt)*dudx(localVelocity, localMeshsize)/localMeshsize[mapd(0, 0, 0, 0)]
                + (v+vt)*(dudy(localVelocity, localMeshsize) + dvdx(localVelocity, localMeshsize))/localMeshsize[mapd(0, 0, 0, 1)]);
-}
+}*/
 
 
 inline FLOAT computeStrainTensorSquared2D(const FLOAT* const localVelocity, const FLOAT* const localMeshsize) {
 
-	S11 = 2 * dudx(localVelocity, localMeshsize);
-	S22 = 2 * dvdy(localVelocity, localMeshsize);
-	S12 = dudy(localVelocity, localMeshsize) + dvdx(localVelocity, localMeshsize);
+	FLOAT S11 = 2 * dudx(localVelocity, localMeshsize);
+	FLOAT S22 = 2 * dvdy(localVelocity, localMeshsize);
+	FLOAT S12 = dudy(localVelocity, localMeshsize) + dvdx(localVelocity, localMeshsize);
 
 	return std::pow(S11,2) + std::pow(S22,2) + 2*std::pow(S12,2);
 
@@ -723,12 +723,12 @@ inline FLOAT computeStrainTensorSquared2D(const FLOAT* const localVelocity, cons
 
 inline FLOAT computeStrainTensorSquared3D(const FLOAT* const localVelocity, const FLOAT* const localMeshsize) {
 
-	S11 = 2 * dudx(localVelocity, localMeshsize);
-	S22 = 2 * dvdy(localVelocity, localMeshsize);
-	S33 = 2 * dwdz(localVelocity, localMeshsize);
-	S12 = dudy(localVelocity, localMeshsize) + dvdx(localVelocity, localMeshsize);
-	S13 = dudz(localVelocity, localMeshsize) + dwdx(localVelocity, localMeshsize);
-	S23 = dvdz(localVelocity, localMeshsize) + dwdy(localVelocity, localMeshsize);
+	FLOAT S11 = 2 * dudx(localVelocity, localMeshsize);
+	FLOAT S22 = 2 * dvdy(localVelocity, localMeshsize);
+	FLOAT S33 = 2 * dwdz(localVelocity, localMeshsize);
+	FLOAT S12 = dudy(localVelocity, localMeshsize) + dvdx(localVelocity, localMeshsize);
+	FLOAT S13 = dudz(localVelocity, localMeshsize) + dwdx(localVelocity, localMeshsize);
+	FLOAT S23 = dvdz(localVelocity, localMeshsize) + dwdy(localVelocity, localMeshsize);
 
 	return std::pow(S11,2) + std::pow(S22,2) + std::pow(S33,2) + 2*(std::pow(S12,2) + std::pow(S13,2) + std::pow(S23,2));
 }
