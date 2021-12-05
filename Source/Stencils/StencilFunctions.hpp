@@ -690,27 +690,8 @@ inline FLOAT dwdy(const FLOAT* const lv, const FLOAT* const lm) {
 }
 
 
-/*inline FLOAT computeF2D(const FLOAT* const localVelocity, const FLOAT* const localMeshsize, const Parameters& parameters, FLOAT dt) {
-    //let kinmatic viscosity be:
-    v = 1/parameters.flow.Re;
-    
-    //shear strain tensor
-    sij = 0.5 * (dudy + dvdx);
-    //**distance to nearest wall (*dummy value*)
-    h = 0.01;
-    //value of k given in worksheet as:
-    k = 0.41;
-    //***test lm
-    lm = k*h;
-    //let eddy viscosity be:
-    vt = lm*lm*sqrt(2*sij*sij);
-    
-    return localVelocity[mapd(0, 0, 0, 0)]
-        + dt * (2*(v+vt)*dudx(localVelocity, localMeshsize)/localMeshsize[mapd(0, 0, 0, 0)]
-               + (v+vt)*(dudy(localVelocity, localMeshsize) + dvdx(localVelocity, localMeshsize))/localMeshsize[mapd(0, 0, 0, 1)]);
-}*/
 
-
+// function to compute the strain tensor squared in 2D
 inline FLOAT computeStrainTensorSquared2D(const FLOAT* const localVelocity, const FLOAT* const localMeshsize) {
 
 	FLOAT S11 = 2 * dudx(localVelocity, localMeshsize);
@@ -721,6 +702,7 @@ inline FLOAT computeStrainTensorSquared2D(const FLOAT* const localVelocity, cons
 
 }
 
+// function to compute the strain tensor squared in 3D
 inline FLOAT computeStrainTensorSquared3D(const FLOAT* const localVelocity, const FLOAT* const localMeshsize) {
 
 	FLOAT S11 = 2 * dudx(localVelocity, localMeshsize);
