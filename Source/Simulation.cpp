@@ -136,4 +136,15 @@ void Simulation::setTimeStep() {
     parameters_.timestep.dt *= parameters_.timestep.tau;
 }
 
+
+//TODO: WS2 call iterator for distinguish new time step size
+//similar to the one above?
+/*
+void TurbulentSimulation::setTimeStep(){
+	Stencils::TimeStencil timeStencil_();
+	FieldIterator<FlowField> timeIterator_();
+	timeIterator_.iterate();
+}
+*/
+
 } // namespace NSEOF
