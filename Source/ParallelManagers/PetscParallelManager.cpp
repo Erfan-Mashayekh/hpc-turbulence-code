@@ -90,5 +90,84 @@ namespace NSEOF::ParallelManagers {
 
     void PetscParallelManager::communicateVelocity(Stencils::VelocityBufferFillStencil& velocityBufferFillStencil,
                                                    Stencils::VelocityBufferReadStencil& velocityBufferReadStencil) const {
+
+        /**
+         * @brief Communication: Send to right, receive from left
+         */
+
+        std::vector<FLOAT> velocityBufferLeft = velocityBufferFillStencil.getVelocityBufferLeft();
+        std::vector<FLOAT> velocityBufferRight = velocityBufferFillStencil.getVelocityBufferRight();
+
+        MPI_Sendrecv(&velocityBufferRight[0], (int) velocityBufferRight.size(), MY_MPI_FLOAT, parameters_.parallel.rightNb, 0,
+                     &velocityBufferLeft[0], (int) velocityBufferLeft.size(), MY_MPI_FLOAT, parameters_.parallel.leftNb, 0,
+                     MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+        velocityBufferReadStencil.setVelocityBufferLeftIterator(velocityBufferLeft);
+
+        /**
+         * @brief Communication: send to left, receive from right
+         */
+
+        std::vector<FLOAT> velocityBufferLeft = velocityBufferFillStencil.getVelocityBufferLeft();
+        std::vector<FLOAT> velocityBufferRight = velocityBufferFillStencil.getVelocityBufferRight();
+
+        MPI_Sendrecv(&velocityBufferLeft[0], (int) velocityBufferLeft.size(), MY_MPI_FLOAT, parameters_.parallel.leftNb, 0,
+                     &velocityBufferRight[0], (int) velocityBufferRight.size(), MY_MPI_FLOAT, parameters_.parallel.rightNb, 0,
+                     MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+        velocityBufferReadStencil.setVelocityBufferRightIterator(velocityBufferRight);
+
+        /**
+         * @brief Communication: send to top, receive from bottom
+         */
+
+        std::vector<FLOAT> velocityBufferTop = velocityBufferFillStencil.getVelocityBufferTop();
+        std::vector<FLOAT> velocityBufferBottom = velocityBufferFillStencil.getVelocityBufferBottom();
+
+        MPI_Sendrecv(&velocityBufferTop[0], (int) velocityBufferTop.size(), MY_MPI_FLOAT, parameters_.parallel.topNb, 0,
+                     &velocityBufferBottom[0], (int) velocityBufferBottom.size(), MY_MPI_FLOAT, parameters_.parallel.bottomNb, 0,
+                     MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+        velocityBufferReadStencil.setVelocityBufferBottomIterator(velocityBufferBottom);     
+
+        /**
+         * @brief Communication: send to bottom, receive from top
+         */
+
+        std::vector<FLOAT> velocityBufferTop = velocityBufferFillStencil.getVelocityBufferTop();
+        std::vector<FLOAT> velocityBufferBottom = velocityBufferFillStencil.getVelocityBufferBottom();
+
+        MPI_Sendrecv(&velocityBufferBottom[0], (int) velocityBufferBottom.size(), MY_MPI_FLOAT, parameters_.parallel.bottomNb, 0,
+                     &velocityBufferTop[0], (int) velocityBufferTop.size(), MY_MPI_FLOAT, parameters_.parallel.topNb, 0,
+                     MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+        velocityBufferReadStencil.setVelocityBufferTopIterator(velocityBufferTop);     
+
+        /**
+         * @brief Communication: send to front, receive from back
+         */
+
+        std::vector<FLOAT> velocityBufferFront = velocityBufferFillStencil.getVelocityBufferFront();
+        std::vector<FLOAT> velocityBufferBack = velocityBufferFillStencil.getVelocityBufferBack();
+
+        MPI_Sendrecv(&velocityBufferFront[0], (int) velocityBufferFront.size(), MY_MPI_FLOAT, parameters_.parallel.frontNb, 0,
+                     &velocityBufferBack[0], (int) velocityBufferBack.size(), MY_MPI_FLOAT, parameters_.parallel.backNb, 0,
+                     MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+        velocityBufferReadStencil.setVelocityBufferBackIterator(velocityBufferBack);     
+
+        /**
+         * @brief Communication: send to back, receive from front
+         */
+
+        std::vector<FLOAT> velocityBufferFront = velocityBufferFillStencil.getVelocityBufferFront();
+        std::vector<FLOAT> velocityBufferBack = velocityBufferFillStencil.getVelocityBufferBack();
+
+        MPI_Sendrecv(&velocityBufferBack[0], (int) velocityBufferBack.size(), MY_MPI_FLOAT, parameters_.parallel.backNb, 0,
+                     &velocityBufferFront[0], (int) velocityBufferFront.size(), MY_MPI_FLOAT, parameters_.parallel.frontNb, 0,
+                     MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+        velocityBufferReadStencil.setVelocityBufferFrontIterator(velocityBufferFront);     
+
     }
 } // namespace NSEOF::ParallelManagers
