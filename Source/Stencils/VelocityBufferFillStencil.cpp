@@ -34,7 +34,7 @@ namespace NSEOF::Stencils {
             velocityBufferRight_.push_back(velocityLeft[d]);
         }
 
-        velocityBufferRight_.push_back(velocityRight[0]); // only "u"
+        // velocityBufferRight_.push_back(velocityRight[0]); // only "u"
     }
     
     void VelocityBufferFillStencil::applyBottomWall(FlowField& flowField, int i, int j, int k) {
@@ -53,10 +53,18 @@ namespace NSEOF::Stencils {
             velocityBufferTop_.push_back(velocityLeft[d]);
         }
 
-        velocityBufferTop_.push_back(velocityRight[1]); // only "v"
+        // velocityBufferTop_.push_back(velocityRight[1]); // only "v"
     }
 
     void VelocityBufferFillStencil::applyFrontWall(FlowField& flowField, int i, int j, int k) {
+        FLOAT* velocity = flowField.getVelocity().getVector(i, j, k + 1);
+
+        for (int d = 0; d < parameters_.geometry.dim; d++) { // "u", "v" and "w"
+            velocityBufferBack_.push_back(velocity[d]);
+        }
+    }
+    
+    void VelocityBufferFillStencil::applyBackWall(FlowField& flowField, int i, int j, int k) {
         FLOAT* velocityLeft = flowField.getVelocity().getVector(i, j, k - 2);
         FLOAT* velocityRight = flowField.getVelocity().getVector(i, j, k - 1);
 
@@ -64,15 +72,7 @@ namespace NSEOF::Stencils {
             velocityBufferFront_.push_back(velocityLeft[d]);
         }
 
-        velocityBufferFront_.push_back(velocityRight[2]); // only "w"
-    }
-    
-    void VelocityBufferFillStencil::applyBackWall(FlowField& flowField, int i, int j, int k) {
-        FLOAT* velocity = flowField.getVelocity().getVector(i, j, k + 1);
-
-        for (int d = 0; d < parameters_.geometry.dim; d++) { // "u", "v" and "w"
-            velocityBufferBack_.push_back(velocity[d]);
-        }
+        // velocityBufferFront_.push_back(velocityRight[2]); // only "w"
     }
 
     /**
