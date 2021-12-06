@@ -922,8 +922,6 @@ inline FLOAT computeH3DT(const FLOAT* const localVelocity, const FLOAT* const lo
     FLOAT term3 = HT_term3(localVelocity, localMeshsize, vijk, vijk1);
     return localVelocity[mapd(0, 0, 0, 2)] + dt * (term1 + term2 + term3); //TODO: add gravity term: parameters.environment.gz
 }
-//*************Turbulence model end******************
-
 
 
 inline FLOAT computeG2D(const FLOAT* const localVelocity, const FLOAT* const localMeshsize, const Parameters& parameters, FLOAT dt) {
@@ -955,6 +953,81 @@ inline FLOAT computeH3D(const FLOAT* const localVelocity, const FLOAT* const loc
             + d2wdy2(localVelocity, localMeshsize) + d2wdz2(localVelocity, localMeshsize))
             - dw2dz(localVelocity, parameters, localMeshsize) - duwdx(localVelocity, parameters, localMeshsize)
             - dvwdy(localVelocity, parameters, localMeshsize) + parameters.environment.gz);
+}
+
+
+
+// dudy <-> first derivative of u-component of velocity field w.r.t. y-direction.
+inline FLOAT dudy(const FLOAT* const lv, const FLOAT* const lm) {
+    // Evaluate dudy in the cell center by a central difference
+    const int index0 = mapd(0, 0, 0, 0);
+    const int index1 = mapd(0, -1, 0, 0);
+    return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 1)];
+}
+
+// dudz <-> first derivative of u-component of velocity field w.r.t. z-direction.
+inline FLOAT dudz(const FLOAT* const lv, const FLOAT* const lm) {
+    // Evaluate dudy in the cell center by a central difference
+    const int index0 = mapd(0, 0, 0, 0);
+    const int index1 = mapd(0, 0, 0, -1);
+    return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 2)];
+}
+
+// dvdx <-> first derivative of v-component of velocity field w.r.t. x-direction.
+inline FLOAT dvdx(const FLOAT* const lv, const FLOAT* const lm) {
+    const int index0 = mapd(0, 0, 0, 1);
+    const int index1 = mapd(-1,0 , 0, 1);
+    return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 0)];
+}
+
+// dvdz <-> first derivative of v-component of velocity field w.r.t. z-direction.
+inline FLOAT dvdz(const FLOAT* const lv, const FLOAT* const lm) {
+    // Evaluate dudy in the cell center by a central difference
+    const int index0 = mapd(0, 0, 0, 1);
+    const int index1 = mapd(0, 0, -1, 1);
+    return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 2)];
+}
+
+// dwdx <-> first derivative of w-component of velocity field w.r.t. x-direction.
+inline FLOAT dwdx(const FLOAT* const lv, const FLOAT* const lm) {
+    // Evaluate dudy in the cell center by a central difference
+    const int index0 = mapd(0, 0, 0, 2);
+    const int index1 = mapd(-1, 0, 0, 2);
+    return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 0)];
+}
+
+// dwdy <-> first derivative of w-component of velocity field w.r.t. y-direction.
+inline FLOAT dwdy(const FLOAT* const lv, const FLOAT* const lm) {
+    // Evaluate dudy in the cell center by a central difference
+    const int index0 = mapd(0, 0, 0, 2);
+    const int index1 = mapd(0, -1, 0, 2);
+    return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 1)];
+}
+
+
+
+// function to compute the strain tensor squared in 2D
+inline FLOAT computeStrainTensorSquared2D(const FLOAT* const localVelocity, const FLOAT* const localMeshsize) {
+
+	FLOAT S11 = 2 * dudx(localVelocity, localMeshsize);
+	FLOAT S22 = 2 * dvdy(localVelocity, localMeshsize);
+	FLOAT S12 = dudy(localVelocity, localMeshsize) + dvdx(localVelocity, localMeshsize);
+
+	return std::pow(S11,2) + std::pow(S22,2) + 2*std::pow(S12,2);
+
+}
+
+// function to compute the strain tensor squared in 3D
+inline FLOAT computeStrainTensorSquared3D(const FLOAT* const localVelocity, const FLOAT* const localMeshsize) {
+
+	FLOAT S11 = 2 * dudx(localVelocity, localMeshsize);
+	FLOAT S22 = 2 * dvdy(localVelocity, localMeshsize);
+	FLOAT S33 = 2 * dwdz(localVelocity, localMeshsize);
+	FLOAT S12 = dudy(localVelocity, localMeshsize) + dvdx(localVelocity, localMeshsize);
+	FLOAT S13 = dudz(localVelocity, localMeshsize) + dwdx(localVelocity, localMeshsize);
+	FLOAT S23 = dvdz(localVelocity, localMeshsize) + dwdy(localVelocity, localMeshsize);
+
+	return std::pow(S11,2) + std::pow(S22,2) + std::pow(S33,2) + 2*(std::pow(S12,2) + std::pow(S13,2) + std::pow(S23,2));
 }
 
 } // namespace Stencils

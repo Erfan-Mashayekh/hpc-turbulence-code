@@ -147,4 +147,5 @@ namespace NSEOF::Stencils {
         // Close the file stream
         fclose(filePtr);
     }
+
 } // namespace NSEOF::Stencils

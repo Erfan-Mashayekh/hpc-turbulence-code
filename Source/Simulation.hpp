@@ -10,6 +10,7 @@
 #include "Stencils/MovingWallStencils.hpp"
 #include "Stencils/RHSStencil.hpp"
 #include "Stencils/VelocityStencil.hpp"
+#include "Stencils/ViscosityStencil.hpp"
 #include "Stencils/ObstacleStencil.hpp"
 #include "Stencils/VTKStencil.hpp"
 #include "Stencils/MaxUStencil.hpp"
@@ -52,6 +53,9 @@ protected:
     FieldIterator<FlowField> velocityIterator_;
     FieldIterator<FlowField> obstacleIterator_;
 
+    Stencils::ViscosityStencil viscosityStencil_;
+    FieldIterator<FlowField> viscosityIterator_;
+    
     std::unique_ptr<Solvers::LinearSolver> solver_;
 
     virtual void setTimeStep();
@@ -68,6 +72,14 @@ public:
     /** Plots the flow field */
     virtual void plotVTK(int timeStep);
 };
+
+/*
+//TODO: is this right?!
+class TurbulentSimulation:public Simulation{
+	public:
+		TurbulentSimulation(Parameters& parameters, FlowField& flowField):Simulation(parameters, flowField);
+};
+*/
 
 } // namespace NSEOF
 

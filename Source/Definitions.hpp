@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <float.h>
+#include <math.h>
 
 // Datatype for the type of data stored in the structures
 #ifdef USE_SINGLE_PRECISION
