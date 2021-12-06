@@ -36,6 +36,7 @@ namespace NSEOF::ParallelManagers {
         MPI_Sendrecv(&pressureBufferLeft[0], (int) pressureBufferLeft.size(), MY_MPI_FLOAT, parameters_.parallel.leftNb, 0,
                      &pressureBufferRight[0], (int) pressureBufferRight.size(), MY_MPI_FLOAT, parameters_.parallel.rightNb, 0,
                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
         if (parameters_.parallel.rightNb != MPI_PROC_NULL) {
             pressureBufferReadStencil.setPressureBufferRightIterator(pressureBufferRight);
         }
