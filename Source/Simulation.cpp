@@ -132,4 +132,103 @@ void Simulation::setTimeStep() {
     parameters_.timestep.dt *= parameters_.timestep.tau;
 }
 
+
+
+//*****Distance to nearest wall function
+
+void Simulation::distanceNearestWall() {
+    //number of cells in each direction plus the ghost cells 
+    const int sizex = flowField_.getNx() + 3;
+    const int sizey = flowField_.getNy() + 3;
+    const int sizez = flowField_.getNz() + 3; 
+    
+    // distance to each axis
+    int dx;
+    int dy;
+    int dz;
+
+    if (parameters_.geometry.dim == 2) {
+        for (int j = 0; j < sizey; j++) {
+            //check conditions for the y axis distance
+            if (j <= sizey/2) {
+                dy = (j-1)*parameters_.meshsize->getDy() + parameters_.meshsize->getDy()/2;
+            }
+            else if (j > sizey/2){
+                dy = (sizey-j)*parameters_.meshsize->getDy() + parameters_.meshsize->getDy()/2;
+            } 
+           // check conditions for the x axis distance      
+            for (int i = 0; i < sizex; i++) {
+                if (i <= sizex/2) {
+                    dx = (i-1)*parameters_.meshsize->getDx() + parameters_.meshsize->getDx()/2;
+                }
+                else if (i > sizex/2){
+                    dx = (sizex-i)*parameters_.meshsize->getDx() + parameters_.meshsize->getDx()/2;
+                }
+                if (dx <= dy){
+                    distance_to_wall.getScalar(i,j) = dx;
+                } 
+                else if (dy < dx){
+                    distance_to_wall.getScalar(i,j) = dx;     
+                } 
+               // this condition is for the ghost and boundary cells (needs to be reconfirmed)
+                if ((i <= 1) || (i == sizex-1) || (j <= 1) || (j == sizey-1)){
+                    distance_to_wall.getScalar(i,j) = 0; 
+                }       
+            }
+        }
+    }
+    
+    if (parameters_.geometry.dim == 3) {
+    
+         for (int k = 0; k < sizez; k++) {
+             //check conditions for the z axis distance
+             if (k <= sizez/2) {
+                 dz = (k-1)*parameters_.meshsize->getDz() + parameters_.meshsize->getDz()/2;
+             }
+             else if (k > sizez/2){
+                 dz = (sizez-k)*parameters_.meshsize->getDz() + parameters_.meshsize->getDz()/2;
+             } 
+                 
+             for (int j = 0; j < sizey; j++) {
+                //check conditions for the y axis distance
+                if (j <= sizey/2) {
+                    dy = (j-1)*parameters_.meshsize->getDy() + parameters_.meshsize->getDy()/2;
+                }
+                else if (j > sizey/2){
+                    dy = (sizey-j)*parameters_.meshsize->getDy() + parameters_.meshsize->getDy()/2;
+                } 
+               // check conditions for the x axis distance      
+                for (int i = 0; i < sizex; i++) {
+                    if (i <= sizex/2) {
+                        dx = (i-1)*parameters_.meshsize->getDx() + parameters_.meshsize->getDx()/2;
+                    }
+                    else if (i > sizex/2){
+                        dx = (sizex-i)*parameters_.meshsize->getDx() + parameters_.meshsize->getDx()/2;
+                    }
+                    
+                    //*****distance to nearest wall input
+                    if (dx <= dy){
+                        if (dx <= dz){
+                            distance_to_wall.getScalar(i,j,k) = dx;
+                        }
+                    } 
+                    else if (dy <= dz){
+                        distance_to_wall.getScalar(i,j,k) = dy;     
+                    } 
+                    else if (dz <= dx){
+                        distance_to_wall.getScalar(i,j,k) = dz;     
+                    } 
+                            
+                   // this condition is for the ghost and boundary cells (needs to be reconfirmed)
+                    if ((i <= 1) || (i == sizex-1) || (j <= 1) || (j == sizey-1) || (k == sizez-1)){
+                        distance_to_wall.getScalar(i,j,k) = 0; 
+                    }       
+                }
+             }
+        } 
+    }  
+
+}
+//**************************************
+
 } // namespace NSEOF
