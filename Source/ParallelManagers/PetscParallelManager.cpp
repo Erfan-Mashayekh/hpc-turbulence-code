@@ -194,4 +194,5 @@ namespace NSEOF::ParallelManagers {
             velocityBufferReadStencil.setVelocityBufferFrontIterator(velocityBufferFront);     
         }
     }
+
 } // namespace NSEOF::ParallelManagers
