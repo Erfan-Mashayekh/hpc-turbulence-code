@@ -10,6 +10,7 @@
 #include <iomanip>
 #include <sys/stat.h>
 
+#include <filesystem>
 
 int main(int argc, char *argv[]) {
     // Parallelization related. Initialize and identify.
