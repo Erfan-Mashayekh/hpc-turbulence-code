@@ -8,6 +8,10 @@ namespace NSEOF::ParallelManagers {
     void PetscParallelManager::communicatePressure(Stencils::PressureBufferFillStencil& pressureBufferFillStencil,
                                                    Stencils::PressureBufferReadStencil& pressureBufferReadStencil) const {
 
+        std:: cout << "rank of the current: " << parameters_.parallel.rank << " "
+                   << "right neighbor's rank: " << parameters_.parallel.rightNb << " "
+                   << "left neighbor's rank: "  << parameters_.parallel.leftNb  << std::endl;                                                   
+
         /**
          * @brief Communication: Send to right, receive from left
          */
@@ -19,7 +23,9 @@ namespace NSEOF::ParallelManagers {
                      &pressureBufferLeft[0], (int) pressureBufferLeft.size(), MY_MPI_FLOAT, parameters_.parallel.leftNb, 0,
                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-        pressureBufferReadStencil.setPressureBufferLeftIterator(pressureBufferLeft);
+        if( parameters_.parallel.leftNb != MPI_PROC_NULL ){
+            pressureBufferReadStencil.setPressureBufferLeftIterator(pressureBufferLeft);
+        }
 
         /**
          * @brief Communication: send to left, receive from right
@@ -31,8 +37,9 @@ namespace NSEOF::ParallelManagers {
         MPI_Sendrecv(&pressureBufferLeft[0], (int) pressureBufferLeft.size(), MY_MPI_FLOAT, parameters_.parallel.leftNb, 0,
                      &pressureBufferRight[0], (int) pressureBufferRight.size(), MY_MPI_FLOAT, parameters_.parallel.rightNb, 0,
                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
-        pressureBufferReadStencil.setPressureBufferRightIterator(pressureBufferRight);
+        if( parameters_.parallel.rightNb != MPI_PROC_NULL ){
+            pressureBufferReadStencil.setPressureBufferRightIterator(pressureBufferRight);
+        }
 
         /**
          * @brief Communication: send to top, receive from bottom
@@ -45,7 +52,9 @@ namespace NSEOF::ParallelManagers {
                      &pressureBufferBottom[0], (int) pressureBufferBottom.size(), MY_MPI_FLOAT, parameters_.parallel.bottomNb, 0,
                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-        pressureBufferReadStencil.setPressureBufferBottomIterator(pressureBufferBottom);     
+        if( parameters_.parallel.bottomNb != MPI_PROC_NULL ){
+            pressureBufferReadStencil.setPressureBufferBottomIterator(pressureBufferBottom);     
+        }
 
         /**
          * @brief Communication: send to bottom, receive from top
@@ -58,7 +67,9 @@ namespace NSEOF::ParallelManagers {
                      &pressureBufferTop[0], (int) pressureBufferTop.size(), MY_MPI_FLOAT, parameters_.parallel.topNb, 0,
                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-        pressureBufferReadStencil.setPressureBufferTopIterator(pressureBufferTop);     
+        if( parameters_.parallel.topNb != MPI_PROC_NULL ){
+            pressureBufferReadStencil.setPressureBufferTopIterator(pressureBufferTop);     
+        }
 
         /**
          * @brief Communication: send to front, receive from back
@@ -71,7 +82,9 @@ namespace NSEOF::ParallelManagers {
                      &pressureBufferBack[0], (int) pressureBufferBack.size(), MY_MPI_FLOAT, parameters_.parallel.backNb, 0,
                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-        pressureBufferReadStencil.setPressureBufferBackIterator(pressureBufferBack);     
+        if( parameters_.parallel.backNb != MPI_PROC_NULL ){
+            pressureBufferReadStencil.setPressureBufferBackIterator(pressureBufferBack);     
+        }
 
         /**
          * @brief Communication: send to back, receive from front
@@ -84,8 +97,9 @@ namespace NSEOF::ParallelManagers {
                      &pressureBufferFront[0], (int) pressureBufferFront.size(), MY_MPI_FLOAT, parameters_.parallel.frontNb, 0,
                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-        pressureBufferReadStencil.setPressureBufferFrontIterator(pressureBufferFront);     
-
+        if( parameters_.parallel.frontNb != MPI_PROC_NULL ){
+            pressureBufferReadStencil.setPressureBufferFrontIterator(pressureBufferFront);     
+        }
     }
 
     void PetscParallelManager::communicateVelocity(Stencils::VelocityBufferFillStencil& velocityBufferFillStencil,
@@ -102,7 +116,9 @@ namespace NSEOF::ParallelManagers {
                      &velocityBufferLeft[0], (int) velocityBufferLeft.size(), MY_MPI_FLOAT, parameters_.parallel.leftNb, 0,
                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-        velocityBufferReadStencil.setVelocityBufferLeftIterator(velocityBufferLeft);
+        if( parameters_.parallel.leftNb != MPI_PROC_NULL ){
+            velocityBufferReadStencil.setVelocityBufferLeftIterator(velocityBufferLeft);
+        }
 
         /**
          * @brief Communication: send to left, receive from right
@@ -115,7 +131,9 @@ namespace NSEOF::ParallelManagers {
                      &velocityBufferRight[0], (int) velocityBufferRight.size(), MY_MPI_FLOAT, parameters_.parallel.rightNb, 0,
                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-        velocityBufferReadStencil.setVelocityBufferRightIterator(velocityBufferRight);
+        if( parameters_.parallel.rightNb != MPI_PROC_NULL ){
+            velocityBufferReadStencil.setVelocityBufferRightIterator(velocityBufferRight);
+        }
 
         /**
          * @brief Communication: send to top, receive from bottom
@@ -128,7 +146,9 @@ namespace NSEOF::ParallelManagers {
                      &velocityBufferBottom[0], (int) velocityBufferBottom.size(), MY_MPI_FLOAT, parameters_.parallel.bottomNb, 0,
                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-        velocityBufferReadStencil.setVelocityBufferBottomIterator(velocityBufferBottom);     
+        if( parameters_.parallel.bottomNb != MPI_PROC_NULL ){
+            velocityBufferReadStencil.setVelocityBufferBottomIterator(velocityBufferBottom);     
+        }
 
         /**
          * @brief Communication: send to bottom, receive from top
@@ -141,7 +161,9 @@ namespace NSEOF::ParallelManagers {
                      &velocityBufferTop[0], (int) velocityBufferTop.size(), MY_MPI_FLOAT, parameters_.parallel.topNb, 0,
                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-        velocityBufferReadStencil.setVelocityBufferTopIterator(velocityBufferTop);     
+        if( parameters_.parallel.topNb != MPI_PROC_NULL ){
+            velocityBufferReadStencil.setVelocityBufferTopIterator(velocityBufferTop);     
+        }
 
         /**
          * @brief Communication: send to front, receive from back
@@ -154,7 +176,9 @@ namespace NSEOF::ParallelManagers {
                      &velocityBufferBack[0], (int) velocityBufferBack.size(), MY_MPI_FLOAT, parameters_.parallel.backNb, 0,
                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-        velocityBufferReadStencil.setVelocityBufferBackIterator(velocityBufferBack);     
+        if( parameters_.parallel.backNb != MPI_PROC_NULL ){
+            velocityBufferReadStencil.setVelocityBufferBackIterator(velocityBufferBack);     
+        }
 
         /**
          * @brief Communication: send to back, receive from front
@@ -166,8 +190,9 @@ namespace NSEOF::ParallelManagers {
         MPI_Sendrecv(&velocityBufferBack[0], (int) velocityBufferBack.size(), MY_MPI_FLOAT, parameters_.parallel.backNb, 0,
                      &velocityBufferFront[0], (int) velocityBufferFront.size(), MY_MPI_FLOAT, parameters_.parallel.frontNb, 0,
                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
-        velocityBufferReadStencil.setVelocityBufferFrontIterator(velocityBufferFront);     
-
+                     
+        if( parameters_.parallel.frontNb != MPI_PROC_NULL ){        
+            velocityBufferReadStencil.setVelocityBufferFrontIterator(velocityBufferFront);     
+        }
     }
 } // namespace NSEOF::ParallelManagers
