@@ -11,7 +11,7 @@
 namespace NSEOF::Stencils {
 
 /**
- * TODO: Write a definition here!
+ * A boundary stencil that fills the pressure buffer
  */
 class PressureBufferFillStencil : public BoundaryStencil<FlowField> {
 
@@ -46,14 +46,14 @@ public:
     void applyTopWall    (FlowField&, int, int) override;
 
     /**
-     * Getters for the pressure buffers
+     * Getters for pressure buffers
      */
-    const std::vector<FLOAT>& getPressureBufferLeft() const;
-    const std::vector<FLOAT>& getPressureBufferRight() const;
-    const std::vector<FLOAT>& getPressureBufferBottom() const;
-    const std::vector<FLOAT>& getPressureBufferTop() const;
-    const std::vector<FLOAT>& getPressureBufferFront() const;
-    const std::vector<FLOAT>& getPressureBufferBack() const;
+    [[nodiscard]] const std::vector<FLOAT>& getPressureBufferLeft   () const;
+    [[nodiscard]] const std::vector<FLOAT>& getPressureBufferRight  () const;
+    [[nodiscard]] const std::vector<FLOAT>& getPressureBufferBottom () const;
+    [[nodiscard]] const std::vector<FLOAT>& getPressureBufferTop    () const;
+    [[nodiscard]] const std::vector<FLOAT>& getPressureBufferFront  () const;
+    [[nodiscard]] const std::vector<FLOAT>& getPressureBufferBack   () const;
 };
 
 } // namespace NSEOF::Stencils

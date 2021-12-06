@@ -96,7 +96,7 @@ namespace NSEOF::Stencils {
     }
 
     /**
-     * Getters for the velocity buffers
+     * Getters for velocity buffers
      */
 
     const std::vector<FLOAT>& VelocityBufferFillStencil::getVelocityBufferLeft() const {

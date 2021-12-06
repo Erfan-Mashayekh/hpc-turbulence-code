@@ -87,7 +87,7 @@ namespace NSEOF::Stencils {
     }
 
     /**
-     * Setters for the velocity buffer iterators
+     * Setters for velocity buffer iterators
      */
 
     void VelocityBufferReadStencil::setVelocityBufferLeftIterator(std::vector<FLOAT>& velocityBufferLeft) {

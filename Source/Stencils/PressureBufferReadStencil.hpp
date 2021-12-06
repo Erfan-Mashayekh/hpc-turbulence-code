@@ -12,7 +12,7 @@
 namespace NSEOF::Stencils {
 
 /**
- * TODO: Write a definition here!
+ * A boundary stencil that reads the pressure buffer
  */
 class PressureBufferReadStencil : public BoundaryStencil<FlowField> {
 
@@ -47,14 +47,14 @@ public:
     void applyTopWall    (FlowField&, int, int) override;
 
     /**
-     * Setters for the pressure buffer iterators
+     * Setters for pressure buffer iterators
      */
-    void setPressureBufferLeftIterator(std::vector<FLOAT>&);
-    void setPressureBufferRightIterator(std::vector<FLOAT>&);
-    void setPressureBufferBottomIterator(std::vector<FLOAT>&);
-    void setPressureBufferTopIterator(std::vector<FLOAT>&);
-    void setPressureBufferFrontIterator(std::vector<FLOAT>&);
-    void setPressureBufferBackIterator(std::vector<FLOAT>&);
+    void setPressureBufferLeftIterator   (std::vector<FLOAT>&);
+    void setPressureBufferRightIterator  (std::vector<FLOAT>&);
+    void setPressureBufferBottomIterator (std::vector<FLOAT>&);
+    void setPressureBufferTopIterator    (std::vector<FLOAT>&);
+    void setPressureBufferFrontIterator  (std::vector<FLOAT>&);
+    void setPressureBufferBackIterator   (std::vector<FLOAT>&);
 };
 
 } // namespace NSEOF::Stencils

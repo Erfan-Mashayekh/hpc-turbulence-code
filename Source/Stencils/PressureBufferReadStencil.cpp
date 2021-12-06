@@ -54,7 +54,7 @@ namespace NSEOF::Stencils {
     }
 
     /**
-     * Setters for the pressure buffer iterators
+     * Setters for pressure buffer iterators
      */
 
     void PressureBufferReadStencil::setPressureBufferLeftIterator(std::vector<FLOAT>& pressureBufferLeft) {

@@ -63,7 +63,7 @@ namespace NSEOF::Stencils {
     }
 
     /**
-     * Getters for the pressure buffers
+     * Getters for pressure buffers
      */
 
     const std::vector<FLOAT>& PressureBufferFillStencil::getPressureBufferLeft() const {

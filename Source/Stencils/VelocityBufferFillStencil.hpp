@@ -11,7 +11,7 @@
 namespace NSEOF::Stencils {
 
 /**
- * TODO: Write a definition here!
+ * A boundary stencil that fills the velocity buffer
  */
 class VelocityBufferFillStencil : public BoundaryStencil<FlowField> {
 
@@ -46,14 +46,14 @@ public:
     void applyTopWall    (FlowField&, int, int) override;
 
     /**
-     * Getters for the pressure buffers
+     * Getters for velocity buffers
      */
-    const std::vector<FLOAT>& getVelocityBufferLeft() const;
-    const std::vector<FLOAT>& getVelocityBufferRight() const;
-    const std::vector<FLOAT>& getVelocityBufferBottom() const;
-    const std::vector<FLOAT>& getVelocityBufferTop() const;
-    const std::vector<FLOAT>& getVelocityBufferFront() const;
-    const std::vector<FLOAT>& getVelocityBufferBack() const;
+    [[nodiscard]] const std::vector<FLOAT>& getVelocityBufferLeft   () const;
+    [[nodiscard]] const std::vector<FLOAT>& getVelocityBufferRight  () const;
+    [[nodiscard]] const std::vector<FLOAT>& getVelocityBufferBottom () const;
+    [[nodiscard]] const std::vector<FLOAT>& getVelocityBufferTop    () const;
+    [[nodiscard]] const std::vector<FLOAT>& getVelocityBufferFront  () const;
+    [[nodiscard]] const std::vector<FLOAT>& getVelocityBufferBack   () const;
 };
 
 } // namespace NSEOF::Stencils

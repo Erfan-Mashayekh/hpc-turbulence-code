@@ -11,7 +11,7 @@
 namespace NSEOF::Stencils {
 
 /**
- * TODO: Write a definition here!
+ * A boundary stencil that reads the velocity buffer
  */
 class VelocityBufferReadStencil : public BoundaryStencil<FlowField> {
 
@@ -46,14 +46,14 @@ public:
     void applyTopWall    (FlowField&, int, int) override;
 
     /**
-     * Setters for the pressure buffer iterators
+     * Setters for velocity buffer iterators
      */
-    void setVelocityBufferLeftIterator(std::vector<FLOAT>&);
-    void setVelocityBufferRightIterator(std::vector<FLOAT>&);
-    void setVelocityBufferBottomIterator(std::vector<FLOAT>&);
-    void setVelocityBufferTopIterator(std::vector<FLOAT>&);
-    void setVelocityBufferFrontIterator(std::vector<FLOAT>&);
-    void setVelocityBufferBackIterator(std::vector<FLOAT>&);
+    void setVelocityBufferLeftIterator   (std::vector<FLOAT>&);
+    void setVelocityBufferRightIterator  (std::vector<FLOAT>&);
+    void setVelocityBufferBottomIterator (std::vector<FLOAT>&);
+    void setVelocityBufferTopIterator    (std::vector<FLOAT>&);
+    void setVelocityBufferFrontIterator  (std::vector<FLOAT>&);
+    void setVelocityBufferBackIterator   (std::vector<FLOAT>&);
 };
 
 } // namespace NSEOF::Stencils
