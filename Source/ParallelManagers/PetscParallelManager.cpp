@@ -40,8 +40,6 @@ namespace NSEOF::ParallelManagers {
             if (parameters_.parallel.leftNb != MPI_PROC_NULL) {
                 pressureBufferReadStencil.setPressureBufferLeftIterator(pressureBufferLeft);
             }
-
-            std::cout << "First communication done!" << std::endl;
         }
 
         /**
