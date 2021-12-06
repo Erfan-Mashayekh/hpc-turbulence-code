@@ -104,7 +104,6 @@ namespace NSEOF::ParallelManagers {
 
     void PetscParallelManager::communicateVelocity(Stencils::VelocityBufferFillStencil& velocityBufferFillStencil,
                                                    Stencils::VelocityBufferReadStencil& velocityBufferReadStencil) const {
-
         /**
          * @brief Communication: Send to right, receive from left
          */
