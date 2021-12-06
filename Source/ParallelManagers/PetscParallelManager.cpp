@@ -7,7 +7,6 @@ namespace NSEOF::ParallelManagers {
 
     void PetscParallelManager::communicatePressure(Stencils::PressureBufferFillStencil& pressureBufferFillStencil,
                                                    Stencils::PressureBufferReadStencil& pressureBufferReadStencil) const {
-
         /**
          * @brief Communication: Send to right, receive from left
          */
@@ -84,13 +83,11 @@ namespace NSEOF::ParallelManagers {
                      &pressureBufferFront[0], (int) pressureBufferFront.size(), MY_MPI_FLOAT, parameters_.parallel.frontNb, 0,
                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-        pressureBufferReadStencil.setPressureBufferFrontIterator(pressureBufferFront);     
-
+        pressureBufferReadStencil.setPressureBufferFrontIterator(pressureBufferFront);
     }
 
     void PetscParallelManager::communicateVelocity(Stencils::VelocityBufferFillStencil& velocityBufferFillStencil,
                                                    Stencils::VelocityBufferReadStencil& velocityBufferReadStencil) const {
-
         /**
          * @brief Communication: Send to right, receive from left
          */
@@ -167,7 +164,6 @@ namespace NSEOF::ParallelManagers {
                      &velocityBufferFront[0], (int) velocityBufferFront.size(), MY_MPI_FLOAT, parameters_.parallel.frontNb, 0,
                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-        velocityBufferReadStencil.setVelocityBufferFrontIterator(velocityBufferFront);     
-
+        velocityBufferReadStencil.setVelocityBufferFrontIterator(velocityBufferFront);
     }
 } // namespace NSEOF::ParallelManagers
