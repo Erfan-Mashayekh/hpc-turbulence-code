@@ -149,31 +149,43 @@ void Simulation::distanceNearestWall() {
 
     if (parameters_.geometry.dim == 2) {
         for (int j = 0; j < sizey; j++) {
-            //check conditions for the y axis distance
-            if (j <= sizey/2) {
-                dy = (j-1)*parameters_.meshsize->getDy() + parameters_.meshsize->getDy()/2;
-            }
-            else if (j > sizey/2){
-                dy = (sizey-j)*parameters_.meshsize->getDy() + parameters_.meshsize->getDy()/2;
-            } 
            // check conditions for the x axis distance      
             for (int i = 0; i < sizex; i++) {
-                if (i <= sizex/2) {
-                    dx = (i-1)*parameters_.meshsize->getDx() + parameters_.meshsize->getDx()/2;
-                }
-                else if (i > sizex/2){
-                    dx = (sizex-i)*parameters_.meshsize->getDx() + parameters_.meshsize->getDx()/2;
-                }
-                if (dx <= dy){
-                    distance_to_wall.getScalar(i,j) = dx;
-                } 
-                else if (dy < dx){
-                    distance_to_wall.getScalar(i,j) = dx;     
-                } 
-               // this condition is for the ghost and boundary cells (needs to be reconfirmed)
-                if ((i <= 1) || (i == sizex-1) || (j <= 1) || (j == sizey-1)){
-                    distance_to_wall.getScalar(i,j) = 0; 
-                }       
+            	
+            	const int obstacle = flowField.getFlags().getValue(i, j);
+            	if((obstacle & OBSTACLE_SELF) == 1){
+            		distance_to_wall.getScalar(i,j) = 0;
+            	}
+		        
+		        else{
+		        	if ((obstacle & OBSTACLE_TOP) == 0)
+		        			
+						if (j <= sizey/2) {
+						    dy = (j-1)*parameters_.meshsize->getDy() + parameters_.meshsize->getDy()/2;
+						}
+						else if (j > sizey/2){
+						    dy = (sizey-j)*parameters_.meshsize->getDy() + parameters_.meshsize->getDy()/2;
+						} 
+				    
+				        if (i <= sizex/2) {
+				            dx = (i-1)*parameters_.meshsize->getDx() + parameters_.meshsize->getDx()/2;
+				        }
+				        else if (i > sizex/2){
+				            dx = (sizex-i)*parameters_.meshsize->getDx() + parameters_.meshsize->getDx()/2;
+				        }
+				        //assign nearest distance
+				        if (dx <= dy){
+				            distance_to_wall.getScalar(i,j) = dx;
+				        } 
+				        else if (dy < dx){
+				            distance_to_wall.getScalar(i,j) = dx;     
+				        } 
+				       // this condition is for the ghost and boundary cells (needs to be reconfirmed)
+				        if ((i <= 1) || (i == sizex-1) || (j <= 1) || (j == sizey-1)){
+				        	if 
+				            distance_to_wall.getScalar(i,j) = 0;       
+				        } 
+	            }      
             }
         }
     }

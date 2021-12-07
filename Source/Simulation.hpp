@@ -67,6 +67,9 @@ public:
 
     /** Plots the flow field */
     virtual void plotVTK(int timeStep);
+    
+    /** calculates distance to nearest wall */
+    virtual void distanceNearestWall();
 };
 
 } // namespace NSEOF

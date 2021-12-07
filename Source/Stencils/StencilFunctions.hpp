@@ -733,7 +733,7 @@ inline FLOAT computeF2DT(const FLOAT* const localVelocity, const FLOAT* const lo
 //////////////////////////////********vijk, vi1jk*********** need to be input somehow*******///////////////////////////////
     FLOAT term1 = FT_term1(localVelocity, localMeshsize, vijk, vi1jk);
     FLOAT term2 = FT_term2(localVelocity, localMeshsize, vtr, vbr);
-    return localVelocity[mapd(0, 0, 0, 0)] + dt * (term1 + term2);
+    return localVelocity[mapd(0, 0, 0, 0)] + dt * (term1 + term2 + parameters.environment.gx);
 }
 
 inline FLOAT computeF3DT(const FLOAT* const localVelocity, const FLOAT* const localMeshsize, const Parameters& parameters, FLOAT dt) {
@@ -743,7 +743,7 @@ inline FLOAT computeF3DT(const FLOAT* const localVelocity, const FLOAT* const lo
     FLOAT term1 = FT_term1(localVelocity, localMeshsize, vijk, vi1jk);
     FLOAT term2 = FT_term2(localVelocity, localMeshsize, vtr, vbr);
     FLOAT term3 = FT_term3(localVelocity, localMeshsize, vrf, vrb);
-    return localVelocity[mapd(0, 0, 0, 0)] + dt * (term1 + term2 + term3);
+    return localVelocity[mapd(0, 0, 0, 0)] + dt * (term1 + term2 + term3 + parameters.environment.gx);
 }
 
 
@@ -826,7 +826,7 @@ inline FLOAT computeG2DT(const FLOAT* const localVelocity, const FLOAT* const lo
     FLOAT term1 = GT_term1(localVelocity, localMeshsize, vtr, vtl);
     FLOAT term2 = GT_term2(localVelocity, localMeshsize, vijk, vij1k)
     
-    return localVelocity[mapd(0, 0, 0, 1)] + dt * (term1 + term2);
+    return localVelocity[mapd(0, 0, 0, 1)] + dt * (term1 + term2 + parameters.environment.gy);
 }
 
 inline FLOAT computeG3DT(const FLOAT* const localVelocity, const FLOAT* const localMeshsize, const Parameters& parameters, FLOAT dt) {
@@ -836,7 +836,7 @@ inline FLOAT computeG3DT(const FLOAT* const localVelocity, const FLOAT* const lo
     FLOAT term2 = GT_term2(localVelocity, localMeshsize, vijk, vij1k)
     FLOAT term3 = GT_term3(localVelocity, localMeshsize, vtf, vtb);
     
-    return localVelocity[mapd(0, 0, 0, 1)] + dt * (term1 + term2 + term2);
+    return localVelocity[mapd(0, 0, 0, 1)] + dt * (term1 + term2 + term3 + parameters.environment.gy);
 }
 
 
@@ -919,7 +919,7 @@ inline FLOAT computeH3DT(const FLOAT* const localVelocity, const FLOAT* const lo
     FLOAT term1 = HT_term1(localVelocity, localMeshsize, vfr, vfl);
     FLOAT term2 = HT_term2(localVelocity, localMeshsize, vft, vfb);
     FLOAT term3 = HT_term3(localVelocity, localMeshsize, vijk, vijk1);
-    return localVelocity[mapd(0, 0, 0, 2)] + dt * (term1 + term2 + term3);
+    return localVelocity[mapd(0, 0, 0, 2)] + dt * (term1 + term2 + term3 + parameters.environment.gz);
 }
 //*************Turbulence model end******************
 
