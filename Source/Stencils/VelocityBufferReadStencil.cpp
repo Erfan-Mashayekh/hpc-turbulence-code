@@ -10,51 +10,39 @@ namespace NSEOF::Stencils {
      */
 
     void VelocityBufferReadStencil::applyLeftWall(FlowField& flowField, int i, int j, int k) {
-        FLOAT* velocity = flowField.getVelocity().getVector(i - 1, j, k);
-
-        for (int d = 0; d < parameters_.geometry.dim; d++) { // "u", "v" and "w"
-            velocity[d] = *(velocityBufferLeftIterator_++);
-        }
+        flowField.getVelocity().getVector(i - 1, j, k)[0] = *(velocityBufferLeftIterator_++); // "u" 
+        flowField.getVelocity().getVector(i, j, k)[1] = *(velocityBufferLeftIterator_++);     // "v"
+        flowField.getVelocity().getVector(i, j, k)[2] = *(velocityBufferLeftIterator_++);     // "w"
     }
 
     void VelocityBufferReadStencil::applyRightWall(FlowField& flowField, int i, int j, int k) {
-        FLOAT* velocity = flowField.getVelocity().getVector(i, j, k);
-
-        for (int d = 0; d < parameters_.geometry.dim; d++) { // "u", "v" and "w"
-            velocity[d] = *(velocityBufferRightIterator_++);
-        }
+        flowField.getVelocity().getVector(i, j, k)[0] = *(velocityBufferRightIterator_++); // "u"
+        flowField.getVelocity().getVector(i, j, k)[1] = *(velocityBufferRightIterator_++); // "v"
+        flowField.getVelocity().getVector(i, j, k)[2] = *(velocityBufferRightIterator_++); // "w"
     }
 
     void VelocityBufferReadStencil::applyBottomWall(FlowField& flowField, int i, int j, int k) {
-        FLOAT* velocity = flowField.getVelocity().getVector(i, j - 1, k);
-
-        for (int d = 0; d < parameters_.geometry.dim; d++) { // "u", "v" and "w"
-            velocity[d] = *(velocityBufferBottomIterator_++);
-        }
+        flowField.getVelocity().getVector(i, j, k)[0] = *(velocityBufferBottomIterator_++);     // "u" 
+        flowField.getVelocity().getVector(i, j - 1, k)[1] = *(velocityBufferBottomIterator_++); // "v"
+        flowField.getVelocity().getVector(i, j, k)[2] = *(velocityBufferBottomIterator_++);     // "w"
     }
 
     void VelocityBufferReadStencil::applyTopWall(FlowField& flowField, int i, int j, int k) {
-        FLOAT* velocity = flowField.getVelocity().getVector(i, j, k);
-
-        for (int d = 0; d < parameters_.geometry.dim; d++) { // "u", "v" and "w"
-            velocity[d] = *(velocityBufferTopIterator_++);
-        }
+        flowField.getVelocity().getVector(i, j, k)[0] = *(velocityBufferTopIterator_++); // "u"
+        flowField.getVelocity().getVector(i, j, k)[1] = *(velocityBufferTopIterator_++); // "v"
+        flowField.getVelocity().getVector(i, j, k)[2] = *(velocityBufferTopIterator_++); // "w"
     }
 
     void VelocityBufferReadStencil::applyFrontWall(FlowField& flowField, int i, int j, int k) {
-        FLOAT* velocity = flowField.getVelocity().getVector(i, j, k - 1);
-
-        for (int d = 0; d < parameters_.geometry.dim; d++) { // "u", "v" and "w"
-            velocity[d] = *(velocityBufferFrontIterator_++);
-        }
+        flowField.getVelocity().getVector(i, j, k)[0] = *(velocityBufferFrontIterator_++);     // "u" 
+        flowField.getVelocity().getVector(i, j, k)[1] = *(velocityBufferFrontIterator_++);     // "v"
+        flowField.getVelocity().getVector(i, j, k - 1)[2] = *(velocityBufferFrontIterator_++); // "w"
     }
 
     void VelocityBufferReadStencil::applyBackWall(FlowField& flowField, int i, int j, int k) {
-        FLOAT* velocity = flowField.getVelocity().getVector(i, j, k);
-
-        for (int d = 0; d < parameters_.geometry.dim; d++) { // "u", "v" and "w"
-            velocity[d] = *(velocityBufferBackIterator_++);
-        }
+        flowField.getVelocity().getVector(i, j, k)[0] = *(velocityBufferBackIterator_++); // "u"
+        flowField.getVelocity().getVector(i, j, k)[1] = *(velocityBufferBackIterator_++); // "v"
+        flowField.getVelocity().getVector(i, j, k)[2] = *(velocityBufferBackIterator_++); // "w"
     }
 
     /**

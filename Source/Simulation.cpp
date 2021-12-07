@@ -109,9 +109,9 @@ void Simulation::solveTimestep() {
     obstacleIterator_.iterate();
 
     // TODO WS2: communicate velocity values
-    velocityBufferFillIterator_.iterate();
-    petscParallelManager_.communicateVelocity(velocityBufferFillStencil_, velocityBufferReadStencil_);
-    velocityBufferReadIterator_.iterate();
+    //velocityBufferFillIterator_.iterate();
+    //petscParallelManager_.communicateVelocity(velocityBufferFillStencil_, velocityBufferReadStencil_);
+    //velocityBufferReadIterator_.iterate();
 
     // Iterate for velocities on the boundary
     wallVelocityIterator_.iterate();

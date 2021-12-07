@@ -19,60 +19,39 @@ namespace NSEOF::Stencils {
      */
 
     void VelocityBufferFillStencil::applyLeftWall(FlowField& flowField, int i, int j, int k) {
-        FLOAT* velocity = flowField.getVelocity().getVector(i + 1, j, k);
-
-        for (int d = 0; d < parameters_.geometry.dim; d++) { // "u", "v" and "w"
-            velocityBufferLeft_.push_back(velocity[d]);
-        }
+        velocityBufferLeft_.push_back(flowField.getVelocity().getVector(i + 1, j, k)[0]); // "u"
+        velocityBufferLeft_.push_back(flowField.getVelocity().getVector(i + 1, j, k)[1]); // "v"
+        velocityBufferLeft_.push_back(flowField.getVelocity().getVector(i + 1, j, k)[2]); // "w"
     }
 
     void VelocityBufferFillStencil::applyRightWall(FlowField& flowField, int i, int j, int k) {
-        FLOAT* velocityLeft = flowField.getVelocity().getVector(i - 2, j, k);
-        FLOAT* velocityRight = flowField.getVelocity().getVector(i - 1, j, k);
-
-        for (int d = 0; d < parameters_.geometry.dim; d++) { // "u", "v" and "w"
-            velocityBufferRight_.push_back(velocityLeft[d]);
-        }
-
-        // velocityBufferRight_.push_back(velocityRight[0]); // only "u"
+        velocityBufferRight_.push_back(flowField.getVelocity().getVector(i - 2, j, k)[0]); // "u"                                                             // "v" and "w"
+        velocityBufferRight_.push_back(flowField.getVelocity().getVector(i - 1, j, k)[1]); // "v" 
+        velocityBufferRight_.push_back(flowField.getVelocity().getVector(i - 1, j, k)[2]); // "w"
     }
     
     void VelocityBufferFillStencil::applyBottomWall(FlowField& flowField, int i, int j, int k) {
-        FLOAT* velocity = flowField.getVelocity().getVector(i, j + 1, k);
-
-        for (int d = 0; d < parameters_.geometry.dim; d++) { // "u", "v" and "w"
-            velocityBufferBottom_.push_back(velocity[d]);
-        }
+        velocityBufferBottom_.push_back(flowField.getVelocity().getVector(i, j + 1, k)[0]); // "u"
+        velocityBufferBottom_.push_back(flowField.getVelocity().getVector(i, j + 1, k)[1]); // "v"
+        velocityBufferBottom_.push_back(flowField.getVelocity().getVector(i, j + 1, k)[2]); // "w"
     }
     
     void VelocityBufferFillStencil::applyTopWall(FlowField& flowField, int i, int j, int k) {
-        FLOAT* velocityLeft = flowField.getVelocity().getVector(i, j - 2, k);
-        FLOAT* velocityRight = flowField.getVelocity().getVector(i, j - 1, k);
-
-        for (int d = 0; d < parameters_.geometry.dim; d++) { // "u", "v" and "w"
-            velocityBufferTop_.push_back(velocityLeft[d]);
-        }
-
-        // velocityBufferTop_.push_back(velocityRight[1]); // only "v"
+        velocityBufferTop_.push_back(flowField.getVelocity().getVector(i, j - 1, k)[0]); // "u"                                                             // "v" and "w"
+        velocityBufferTop_.push_back(flowField.getVelocity().getVector(i, j - 2, k)[1]); // "v" 
+        velocityBufferTop_.push_back(flowField.getVelocity().getVector(i, j - 1, k)[2]); // "w"
     }
 
     void VelocityBufferFillStencil::applyFrontWall(FlowField& flowField, int i, int j, int k) {
-        FLOAT* velocity = flowField.getVelocity().getVector(i, j, k + 1);
-
-        for (int d = 0; d < parameters_.geometry.dim; d++) { // "u", "v" and "w"
-            velocityBufferBack_.push_back(velocity[d]);
-        }
+        velocityBufferFront_.push_back(flowField.getVelocity().getVector(i, j, k + 1)[0]); // "u"
+        velocityBufferFront_.push_back(flowField.getVelocity().getVector(i, j, k + 1)[1]); // "v"
+        velocityBufferFront_.push_back(flowField.getVelocity().getVector(i, j, k + 1)[2]); // "w"
     }
     
     void VelocityBufferFillStencil::applyBackWall(FlowField& flowField, int i, int j, int k) {
-        FLOAT* velocityLeft = flowField.getVelocity().getVector(i, j, k - 2);
-        FLOAT* velocityRight = flowField.getVelocity().getVector(i, j, k - 1);
-
-        for (int d = 0; d < parameters_.geometry.dim; d++) { // "u", "v" and "w"
-            velocityBufferFront_.push_back(velocityLeft[d]);
-        }
-
-        // velocityBufferFront_.push_back(velocityRight[2]); // only "w"
+        velocityBufferBack_.push_back(flowField.getVelocity().getVector(i, j, k - 1)[0]); // "u"                                                             // "v" and "w"
+        velocityBufferBack_.push_back(flowField.getVelocity().getVector(i, j, k - 1)[1]); // "v" 
+        velocityBufferBack_.push_back(flowField.getVelocity().getVector(i, j, k - 2)[2]); // "w"
     }
 
     /**

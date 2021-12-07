@@ -41,7 +41,7 @@ namespace NSEOF::ParallelManagers {
                 pressureBufferReadStencil.setPressureBufferLeftIterator(pressureBufferLeft);
             }
         }
-
+        return;
         /**
          * Communication: Bottom & Top
          */
@@ -117,6 +117,7 @@ namespace NSEOF::ParallelManagers {
 
     void PetscParallelManager::communicateVelocity(Stencils::VelocityBufferFillStencil& velocityBufferFillStencil,
                                                    Stencils::VelocityBufferReadStencil& velocityBufferReadStencil) const {
+        return;
         /**
          * Communication: Left & Right
          */
