@@ -275,6 +275,19 @@ void Configuration::loadParameters(Parameters & parameters, const MPI_Comm & com
         } else {
             HANDLE_ERROR(1, "Missing scenario in simulation parameters");
         }
+        
+	//--------------------------------------------------
+        // Turbulent Simulation parameters
+        //--------------------------------------------------
+        node = confFile.FirstChildElement()->FirstChildElement("turbulent");
+
+        if (node == NULL) {
+            HANDLE_ERROR(1, "Error loading parameters for turbulence modeling");
+        }
+
+        readIntOptional (parameters.turbulence.turb_viscosity, node, "turb_viscosity");
+        readIntOptional (parameters.turbulence.model, node, "model");
+
 
         //--------------------------------------------------
         // VTK parameters

@@ -5,6 +5,9 @@
         <type>dns</type>
         <scenario>cavity</scenario>
     </simulation>
+    <turbulent turb_viscosity="0" 
+        model = "0"
+    </turbulent>
     <timestep dt="1" tau="0.5" />
     <solver gamma="0.5" />
     <geometry dim="2"
