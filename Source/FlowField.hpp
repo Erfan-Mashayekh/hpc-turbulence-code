@@ -23,8 +23,9 @@ private:
     ScalarField pressure_; //! Scalar field representing the pressure
     VectorField velocity_; //! Multicomponent field representing velocity
 
-	ScalarField distance_to_wall_; //ws2 distance to nearest wall data structure
-	
+    ScalarField eddy_viscosity_; //! Scalar field representing the turbulence viscosity
+    ScalarField distance_to_wall_; //! Scalar field representing the distance to the nearest wall of each cell
+  
     IntScalarField flags_; //! Integer field for the flags
 
     VectorField FGH_;
@@ -91,6 +92,9 @@ public:
     
     ScalarField& getDistance(); //ws2 function for nearest wall distance
 
+    ScalarField& getEddyViscosity();
+    ScalarField& getDistance();
+    
     IntScalarField& getFlags();
 
     VectorField& getFGH();

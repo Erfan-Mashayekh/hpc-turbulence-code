@@ -24,6 +24,8 @@ Simulation::Simulation(Parameters& parameters, FlowField& flowField)
     , obstacleStencil_(parameters)
     , velocityIterator_(flowField_, parameters, velocityStencil_)
     , obstacleIterator_(flowField_, parameters, obstacleStencil_)
+    , viscosityStencil_(parameters)
+    , viscosityIterator_(flowField_, parameters, viscosityStencil_)
 #ifdef BUILD_WITH_PETSC
     , solver_(std::make_unique<Solvers::PetscSolver>(flowField_, parameters))
 #else
@@ -74,6 +76,8 @@ void Simulation::initializeFlowField() {
 void Simulation::solveTimestep() {
     // Determine and set max. timestep which is allowed in this simulation
     setTimeStep();
+    // Compute eddy viscosity
+    viscosityIterator_.iterate();
     // Compute FGH
     fghIterator_.iterate();
     // Set global boundary values
@@ -131,7 +135,6 @@ void Simulation::setTimeStep() {
     parameters_.timestep.dt = globalMin;
     parameters_.timestep.dt *= parameters_.timestep.tau;
 }
-
 
 
 //*****Distance to nearest wall function
