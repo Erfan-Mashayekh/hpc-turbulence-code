@@ -285,8 +285,9 @@ void Configuration::loadParameters(Parameters & parameters, const MPI_Comm & com
             HANDLE_ERROR(1, "Error loading parameters for turbulence modeling");
         }
 
-        readIntOptional (parameters.turbulence.turb_viscosity, node, "turb_viscosity");
+        readIntOptional (parameters.turbulence.on, node, "turb_modeling");
         readIntOptional (parameters.turbulence.model, node, "model");
+        readIntOptional (parameters.turbulence.turb_viscosity, node, "turb_viscosity");
 
 
         //--------------------------------------------------

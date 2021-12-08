@@ -57,6 +57,33 @@ inline void loadLocalMeshsize3D(const Parameters& parameters, FLOAT* const local
     }
 }
 
+//TODO: possible to decrease because viscosity only 1 dimension in contrast to velocity and meshsize
+// Load the local viscosity (normal + eddy) cube with relevant viscosities of the 2D plane
+// in all three dimension the same value
+inline void loadLocalViscosity2D(FlowField& flowField, FLOAT* const localViscosity, int i, int j) {
+    for (int row = -1; row <= 1; row++) {
+        for (int column = -1; column <= 1; column ++) {
+            const FLOAT* const point = flowField.getEddyViscosity().getScalar(i + column, j + row);
+            localViscosity[39 + 9*row + 3*column]     = point[0] + 1/parameters.flow.Re; // x-component
+            localViscosity[39 + 9*row + 3*column + 1] = point[0] + 1/parameters.flow.Re; // y-component
+        }
+    }
+}
+
+//TODO: possible to decrease because viscosity only 1 dimension in contrast to velocity and meshsize
+// Load the local viscosity (normal + eddy) cube with surrounding viscosities
+// in all three dimension the same value
+inline void loadLocalViscosity3D(FlowField& flowField, FLOAT* const localViscosity, int i, int j, int k) {
+    for (int layer = -1; layer <= 1; layer ++) {
+        for (int row = -1; row <= 1; row++) {
+            for (int column = -1; column <= 1; column++) {
+                const FLOAT* const point = flowField.getEddyViscosity().getScalar(i + column, j + row, k + layer);
+                localViscosity[39 + 27*layer + 9*row + 3*column    ] = point[0] + 1/parameters.flow.Re; // x-component
+                localViscosity[39 + 27*layer + 9*row + 3*column + 1] = point[0] + 1/parameters.flow.Re; // y-component
+                localViscosity[39 + 27*layer + 9*row + 3*column + 2] = point[0] + 1/parameters.flow.Re; // z-component
+            }
+        }
+    }
 // Maps an index and a component to the corresponding value in the cube.
 inline int mapd(int i, int j, int k, int component) {
     return 39 + 27*k + 9*j + 3*i + component;
