@@ -23,10 +23,13 @@ private:
     ScalarField pressure_; //! Scalar field representing the pressure
     VectorField velocity_; //! Multicomponent field representing velocity
 
+	ScalarField distance_to_wall_; //ws2 distance to nearest wall data structure
+	
     IntScalarField flags_; //! Integer field for the flags
 
     VectorField FGH_;
     ScalarField RHS_;      //! Right hand side for the Poisson equation
+	
 
 public:
     /** Constructor for the 2D flow field
@@ -85,6 +88,8 @@ public:
 
     ScalarField& getPressure();
     VectorField& getVelocity();
+    
+    ScalarField& getDistance(); //ws2 function for nearest wall distance
 
     IntScalarField& getFlags();
 
