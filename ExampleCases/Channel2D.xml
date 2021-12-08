@@ -5,6 +5,8 @@
         <type>dns</type>
         <scenario>channel</scenario>
     </simulation>
+    <turbulence turb_viscosity = "0"
+	        model = "0"/>
     <timestep dt="1" tau="0.5" />
     <solver gamma="0.5" />
     <geometry

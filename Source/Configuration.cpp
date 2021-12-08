@@ -279,7 +279,7 @@ void Configuration::loadParameters(Parameters & parameters, const MPI_Comm & com
 	//--------------------------------------------------
         // Turbulent Simulation parameters
         //--------------------------------------------------
-        node = confFile.FirstChildElement()->FirstChildElement("turbulent");
+        node = confFile.FirstChildElement()->FirstChildElement("turbulence");
 
         if (node == NULL) {
             HANDLE_ERROR(1, "Error loading parameters for turbulence modeling");
