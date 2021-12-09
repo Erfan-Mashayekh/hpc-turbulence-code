@@ -14,6 +14,7 @@ private:
     // case, but can be used for 2D as well.
     FLOAT localVelocity_[27 * 3];
     FLOAT localMeshsize_[27 * 3];
+    FLOAT localViscosity_[27 * 3];
 
 public:
     FGHStencil(const Parameters& parameters);
