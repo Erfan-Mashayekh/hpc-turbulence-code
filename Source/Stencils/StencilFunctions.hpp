@@ -60,7 +60,7 @@ inline void loadLocalMeshsize3D(const Parameters& parameters, FLOAT* const local
 //TODO: possible to decrease because viscosity only 1 dimension in contrast to velocity and meshsize
 // Load the local viscosity (normal + eddy) cube with relevant viscosities of the 2D plane
 // in all three dimension the same value
-inline void loadLocalViscosity2D(FlowField& flowField, FLOAT* const localViscosity, int i, int j) {
+inline void loadLocalViscosity2D(const Parameters& parameters, FlowField& flowField, FLOAT* const localViscosity, int i, int j) {
     for (int row = -1; row <= 1; row++) {
         for (int column = -1; column <= 1; column ++) {
         	//changed from: const FLOAT* const point
@@ -75,7 +75,7 @@ inline void loadLocalViscosity2D(FlowField& flowField, FLOAT* const localViscosi
 //TODO: possible to decrease because viscosity only 1 dimension in contrast to velocity and meshsize
 // Load the local viscosity (normal + eddy) cube with surrounding viscosities
 // in all three dimension the same value
-inline void loadLocalViscosity3D(FlowField& flowField, FLOAT* const localViscosity, int i, int j, int k) {
+inline void loadLocalViscosity3D(const Parameters& parameters, FlowField& flowField, FLOAT* const localViscosity, int i, int j, int k) {
     for (int layer = -1; layer <= 1; layer ++) {
         for (int row = -1; row <= 1; row++) {
             for (int column = -1; column <= 1; column++) {
