@@ -17,7 +17,7 @@ void FGHStencil::apply(FlowField& flowField, int i, int j) {
     FLOAT* const values = flowField.getFGH().getVector(i, j);
  
     if(parameters_.turbulence.on == 1){
-	loadLocalViscosity2D(flowField, localViscosity_, i,j);
+	loadLocalViscosity2D(parameters_, flowField, localViscosity_, i,j);
         values[0] = computeF2DT(localVelocity_, localMeshsize_, localViscosity_, parameters_, parameters_.timestep.dt);
         values[1] = computeG2DT(localVelocity_, localMeshsize_, localViscosity_, parameters_, parameters_.timestep.dt);
 
@@ -40,7 +40,7 @@ void FGHStencil::apply(FlowField& flowField, int i, int j, int k) {
         loadLocalMeshsize3D(parameters_, localMeshsize_, i, j, k);
 	
     	if(parameters_.turbulence.on == 1){
-		loadLocalViscosity2D(flowField, localViscosity_, i, j, k);
+		loadLocalViscosity3D(parameters_, flowField, localViscosity_, i, j, k);
 		if ((obstacle & OBSTACLE_RIGHT) == 0) { // If the right cell is fluid
                         values[0] = computeF3DT(localVelocity_, localMeshsize_, localViscosity_, parameters_, parameters_.timestep.dt);
                 }

@@ -25,11 +25,12 @@ private:
 
     ScalarField eddy_viscosity_; //! Scalar field representing the turbulence viscosity
     ScalarField distance_to_wall_; //! Scalar field representing the distance to the nearest wall of each cell
-    
+  
     IntScalarField flags_; //! Integer field for the flags
 
     VectorField FGH_;
     ScalarField RHS_;      //! Right hand side for the Poisson equation
+	
 
 public:
     /** Constructor for the 2D flow field
@@ -88,6 +89,7 @@ public:
 
     ScalarField& getPressure();
     VectorField& getVelocity();
+    
 
     ScalarField& getEddyViscosity();
     ScalarField& getDistance();
