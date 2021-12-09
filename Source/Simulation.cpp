@@ -73,7 +73,7 @@ void Simulation::initializeFlowField() {
     solver_->reInitMatrix();
     
     //ws2: solve and store the nearest distance calculation
-    Simulation::distanceNearestWall() 
+    Simulation::distanceNearestWall();
 }
 
 void Simulation::solveTimestep() {

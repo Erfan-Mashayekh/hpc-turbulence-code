@@ -90,7 +90,6 @@ public:
     ScalarField& getPressure();
     VectorField& getVelocity();
     
-    ScalarField& getDistance(); //ws2 function for nearest wall distance
 
     ScalarField& getEddyViscosity();
     ScalarField& getDistance();

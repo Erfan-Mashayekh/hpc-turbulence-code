@@ -63,9 +63,11 @@ inline void loadLocalMeshsize3D(const Parameters& parameters, FLOAT* const local
 inline void loadLocalViscosity2D(FlowField& flowField, FLOAT* const localViscosity, int i, int j) {
     for (int row = -1; row <= 1; row++) {
         for (int column = -1; column <= 1; column ++) {
-            const FLOAT* const point = flowField.getEddyViscosity().getScalar(i + column, j + row);
-            localViscosity[39 + 9*row + 3*column]     = point[0] + 1/parameters.flow.Re; // x-component
-            localViscosity[39 + 9*row + 3*column + 1] = point[0] + 1/parameters.flow.Re; // y-component
+        	//changed from: const FLOAT* const point
+            const FLOAT point = flowField.getEddyViscosity().getScalar(i + column, j + row);
+            //changed from: point[0] to point
+            localViscosity[39 + 9*row + 3*column]     = point + 1/parameters.flow.Re; // x-component
+            localViscosity[39 + 9*row + 3*column + 1] = point + 1/parameters.flow.Re; // y-component
         }
     }
 }
@@ -77,13 +79,15 @@ inline void loadLocalViscosity3D(FlowField& flowField, FLOAT* const localViscosi
     for (int layer = -1; layer <= 1; layer ++) {
         for (int row = -1; row <= 1; row++) {
             for (int column = -1; column <= 1; column++) {
-                const FLOAT* const point = flowField.getEddyViscosity().getScalar(i + column, j + row, k + layer);
-                localViscosity[39 + 27*layer + 9*row + 3*column    ] = point[0] + 1/parameters.flow.Re; // x-component
-                localViscosity[39 + 27*layer + 9*row + 3*column + 1] = point[0] + 1/parameters.flow.Re; // y-component
-                localViscosity[39 + 27*layer + 9*row + 3*column + 2] = point[0] + 1/parameters.flow.Re; // z-component
+                //changed from: const FLOAT* const point
+                const FLOAT point = flowField.getEddyViscosity().getScalar(i + column, j + row, k + layer);
+                localViscosity[39 + 27*layer + 9*row + 3*column    ] = point + 1/parameters.flow.Re; // x-component
+                localViscosity[39 + 27*layer + 9*row + 3*column + 1] = point + 1/parameters.flow.Re; // y-component
+                localViscosity[39 + 27*layer + 9*row + 3*column + 2] = point + 1/parameters.flow.Re; // z-component
             }
         }
     }
+}
 // Maps an index and a component to the corresponding value in the cube.
 inline int mapd(int i, int j, int k, int component) {
     return 39 + 27*k + 9*j + 3*i + component;
@@ -893,7 +897,7 @@ inline FLOAT computeG2DT(const FLOAT* const localVelocity, const FLOAT* const lo
           
 
     FLOAT term1 = GT_term1(localVelocity, localMeshsize, vtr, vtl);
-    FLOAT term2 = GT_term2(localVelocity, localMeshsize, vijk, vij1k)
+    FLOAT term2 = GT_term2(localVelocity, localMeshsize, vijk, vij1k);
     
     return localVelocity[mapd(0, 0, 0, 1)] + dt * (term1 + term2 + parameters.environment.gy);
 }
@@ -926,7 +930,7 @@ inline FLOAT computeG3DT(const FLOAT* const localVelocity, const FLOAT* const lo
     FLOAT vtb = (localViscosity[index0] + localViscosity[index2] + localViscosity[index8] + localViscosity[index9])/4;
     
     FLOAT term1 = GT_term1(localVelocity, localMeshsize, vtr, vtl);
-    FLOAT term2 = GT_term2(localVelocity, localMeshsize, vijk, vij1k)
+    FLOAT term2 = GT_term2(localVelocity, localMeshsize, vijk, vij1k);
     FLOAT term3 = GT_term3(localVelocity, localMeshsize, vtf, vtb);
     
     return localVelocity[mapd(0, 0, 0, 1)] + dt * (term1 + term2 + term3 + parameters.environment.gy);
