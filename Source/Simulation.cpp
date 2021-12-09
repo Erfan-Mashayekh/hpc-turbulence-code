@@ -71,6 +71,9 @@ void Simulation::initializeFlowField() {
     }
 
     solver_->reInitMatrix();
+    
+    //ws2: solve and store the nearest distance calculation
+    Simulation::distanceNearestWall();
 }
 
 void Simulation::solveTimestep() {
@@ -146,91 +149,136 @@ void Simulation::distanceNearestWall() {
     const int sizez = flowField_.getNz() + 3; 
     
     // distance to each axis
-    int dx;
-    int dy;
-    int dz;
+    int dx = 0; //dummy values
+    int dy = 0; //dummy values
+    int dz = 0; //dummy values;
+    
+    //in case there is a step geometry
+    //number of cells in each direction that make up the step
+    //parameters_.bfStep.xRatio and parameters_.bfStep.yRatio are -1 if no step
+    int stepXBound = ceil(sizex*parameters_.bfStep.xRatio);
+    int stepYBound = ceil(sizey*parameters_.bfStep.yRatio);
+    
+ 	//field to store distance to wall
+    ScalarField& distance_to_wall = flowField_.getDistance();
 
     if (parameters_.geometry.dim == 2) {
-        for (int j = 0; j < sizey; j++) {
-            //check conditions for the y axis distance
-            if (j <= sizey/2) {
-                dy = (j-1)*parameters_.meshsize->getDy() + parameters_.meshsize->getDy()/2;
-            }
-            else if (j > sizey/2){
-                dy = (sizey-j)*parameters_.meshsize->getDy() + parameters_.meshsize->getDy()/2;
-            } 
-           // check conditions for the x axis distance      
-            for (int i = 0; i < sizex; i++) {
-                if (i <= sizex/2) {
-                    dx = (i-1)*parameters_.meshsize->getDx() + parameters_.meshsize->getDx()/2;
-                }
-                else if (i > sizex/2){
-                    dx = (sizex-i)*parameters_.meshsize->getDx() + parameters_.meshsize->getDx()/2;
-                }
-                if (dx <= dy){
-                    distance_to_wall.getScalar(i,j) = dx;
-                } 
-                else if (dy < dx){
-                    distance_to_wall.getScalar(i,j) = dx;     
-                } 
-               // this condition is for the ghost and boundary cells (needs to be reconfirmed)
-                if ((i <= 1) || (i == sizex-1) || (j <= 1) || (j == sizey-1)){
-                    distance_to_wall.getScalar(i,j) = 0; 
-                }       
-            }
-        }
+    	for (int j = 0; j < sizey; j++) {
+    		for (int i = 0; i < sizex; i++) {
+    			int obstacle = flowField_.getFlags().getValue(i, j);
+    			//if cell is fluid:
+    			if ((obstacle & OBSTACLE_SELF) == 0){
+    				//check right wall is wall and check if cell is more than equal to half the domain width to the right
+    				if ((obstacle = flowField_.getFlags().getValue(sizex-1, j) == 0) && (i >= sizex/2)){
+    					dx = (sizex-i)*parameters_.meshsize->getDx(i,j) - parameters_.meshsize->getDx(i,j)/2;
+    				}
+    				//check left wall is wall and check if cell is less than half the domain width to the left
+    				else if ((obstacle = flowField_.getFlags().getValue(0, j) == 0) && (i < sizex/2)){
+    					dx = (i)*parameters_.meshsize->getDx(i,j) - parameters_.meshsize->getDx(i,j)/2;
+    				}
+    				//check top wall is wall and check if cell is more than equal to half the domain height to the top
+    				if ((obstacle = flowField_.getFlags().getValue(i, sizey-1) == 0) && (j >= sizey/2)){
+    					dy = (sizey-j)*parameters_.meshsize->getDy(i,j) - parameters_.meshsize->getDy(i,j)/2;
+    				}
+    				//check bottom wall is wall and check if cell is less than half the domain height to the bottom
+    				else if ((obstacle = flowField_.getFlags().getValue(i, 0) == 0) && (j < sizey/2)){
+    					dy = (j)*parameters_.meshsize->getDy(i,j) - parameters_.meshsize->getDy(i,j)/2;
+    				}
+    				
+    				//find the distance of cell to nearest wall
+    				distance_to_wall.getScalar(i,j) = std::min(dx,dy);
+    				
+    				//only goes into these loops if there is a step
+    				//top boundary loop
+    				for (int x=0; x < stepXBound; x++){
+    					FLOAT xdis = (i-x)*parameters_.meshsize->getDx(i,j);
+    					FLOAT ydis = (j-stepYBound)*parameters_.meshsize->getDy(i,j);
+    					FLOAT stepDis = sqrt((xdis*xdis) + (ydis*ydis));
+    					distance_to_wall.getScalar(i,j) = std::min(distance_to_wall.getScalar(i,j), stepDis);   					
+    				}
+    				//left boundary loop
+    				for (int y=0; y < stepYBound; y++){
+    					FLOAT xdis = (i-stepXBound)*parameters_.meshsize->getDx(i,j);
+    					FLOAT ydis = (j-y)*parameters_.meshsize->getDy(i,j);
+    					FLOAT stepDis = sqrt((xdis*xdis) + (ydis*ydis));
+    					distance_to_wall.getScalar(i,j) = std::min(distance_to_wall.getScalar(i,j), stepDis);   					
+    				}
+    			}
+    			//if cell is object then distance to wall is zero
+    			else if ((obstacle & OBSTACLE_SELF) == 1){
+    				distance_to_wall.getScalar(i,j) = 0;
+    			}
+    			
+    			
+    		}
+    	}
+           
     }
     
     if (parameters_.geometry.dim == 3) {
+    	for (int k = 0; k < sizez; k++) {
+			for (int j = 0; j < sizey; j++) {
+				for (int i = 0; i < sizex; i++) {
+					int obstacle = flowField_.getFlags().getValue(i, j, k);
+					//if cell is fluid:
+					if ((obstacle & OBSTACLE_SELF) == 0){
+						//check right wall is wall and check if cell is more than equal to half the domain width to the right
+						if ((obstacle = flowField_.getFlags().getValue(sizex-1, j, k) == 0) && (i >= sizex/2)){
+							dx = (sizex-i)*parameters_.meshsize->getDx(i,j,k) - parameters_.meshsize->getDx(i,j,k)/2;
+						}
+						//check left wall is wall and check if cell is less than half the domain width to the left
+						else if ((obstacle = flowField_.getFlags().getValue(0, j, k) == 0) && (i < sizex/2)){
+							dx = (i)*parameters_.meshsize->getDx(i,j,k) - parameters_.meshsize->getDx(i,j,k)/2;
+						}
+						//check top wall is wall and check if cell is more than equal to half the domain height to the top
+						if ((obstacle = flowField_.getFlags().getValue(i, sizey-1, k) == 0) && (j >= sizey/2)){
+							dy = (sizey-j)*parameters_.meshsize->getDy(i,j,k) - parameters_.meshsize->getDy(i,j,k)/2;
+						}
+						//check bottom wall is wall and check if cell is less than half the domain height to the bottom
+						else if ((obstacle = flowField_.getFlags().getValue(i, 0, k) == 0) && (j < sizey/2)){
+							dy = (j)*parameters_.meshsize->getDy(i,j,k) - parameters_.meshsize->getDy(i,j,k)/2;
+						}
+						//check front wall is wall and check if cell is more than equal to half the domain depth to the start
+						if ((obstacle = flowField_.getFlags().getValue(i, j, sizez-1) == 0) && (k >= sizez/2)){
+							dz = (sizez-k)*parameters_.meshsize->getDx(i,j,k) - parameters_.meshsize->getDz(i,j,k)/2;
+						}
+						//check back wall is wall and check if cell is more than equal to half the domain depth to the end
+						else if ((obstacle = flowField_.getFlags().getValue(i, j, 0) == 0) && (k < sizez/2)){
+							dz = (k)*parameters_.meshsize->getDz(i,j,k) - parameters_.meshsize->getDz(i,j,k)/2;
+						}
+						
+						//find the distance of cell to nearest wall
+						distance_to_wall.getScalar(i,j,k) = std::min(std::min(dx,dy),dz);
+						
+						//only goes into these loops if there is a step
+						//we check both loops in the same z coordinate as the original point so dont need to count it
+						//There is no step in the Z-axis
+						//top boundary loop
+						for (int x=0; x < stepXBound; x++){
+							FLOAT xdis = (i-x)*parameters_.meshsize->getDx(i,j,k);
+							FLOAT ydis = (j-stepYBound)*parameters_.meshsize->getDy(i,j,k);
+							FLOAT stepDis = sqrt((xdis*xdis) + (ydis*ydis));
+							distance_to_wall.getScalar(i,j,k) = std::min(distance_to_wall.getScalar(i,j,k), stepDis);   					
+						}
+						//left boundary loop
+						for (int y=0; y < stepYBound; y++){
+							FLOAT xdis = (i-stepXBound)*parameters_.meshsize->getDx(i,j,k);
+							FLOAT ydis = (j-y)*parameters_.meshsize->getDy(i,j,k);
+							FLOAT stepDis = sqrt((xdis*xdis) + (ydis*ydis));
+							distance_to_wall.getScalar(i,j,k) = std::min(distance_to_wall.getScalar(i,j,k), stepDis);   					
+						}
+					}
+					//if cell is object then distance to wall is zero
+					else if ((obstacle & OBSTACLE_SELF) == 1){
+						distance_to_wall.getScalar(i,j,k) = 0;
+					}
+					
+					
+				}
+			}
+		}       
+    }
     
-         for (int k = 0; k < sizez; k++) {
-             //check conditions for the z axis distance
-             if (k <= sizez/2) {
-                 dz = (k-1)*parameters_.meshsize->getDz() + parameters_.meshsize->getDz()/2;
-             }
-             else if (k > sizez/2){
-                 dz = (sizez-k)*parameters_.meshsize->getDz() + parameters_.meshsize->getDz()/2;
-             } 
-                 
-             for (int j = 0; j < sizey; j++) {
-                //check conditions for the y axis distance
-                if (j <= sizey/2) {
-                    dy = (j-1)*parameters_.meshsize->getDy() + parameters_.meshsize->getDy()/2;
-                }
-                else if (j > sizey/2){
-                    dy = (sizey-j)*parameters_.meshsize->getDy() + parameters_.meshsize->getDy()/2;
-                } 
-               // check conditions for the x axis distance      
-                for (int i = 0; i < sizex; i++) {
-                    if (i <= sizex/2) {
-                        dx = (i-1)*parameters_.meshsize->getDx() + parameters_.meshsize->getDx()/2;
-                    }
-                    else if (i > sizex/2){
-                        dx = (sizex-i)*parameters_.meshsize->getDx() + parameters_.meshsize->getDx()/2;
-                    }
-                    
-                    //*****distance to nearest wall input
-                    if (dx <= dy){
-                        if (dx <= dz){
-                            distance_to_wall.getScalar(i,j,k) = dx;
-                        }
-                    } 
-                    else if (dy <= dz){
-                        distance_to_wall.getScalar(i,j,k) = dy;     
-                    } 
-                    else if (dz <= dx){
-                        distance_to_wall.getScalar(i,j,k) = dz;     
-                    } 
-                            
-                   // this condition is for the ghost and boundary cells (needs to be reconfirmed)
-                    if ((i <= 1) || (i == sizex-1) || (j <= 1) || (j == sizey-1) || (k == sizez-1)){
-                        distance_to_wall.getScalar(i,j,k) = 0; 
-                    }       
-                }
-             }
-        } 
-    }  
-
 }
 //**************************************
 
