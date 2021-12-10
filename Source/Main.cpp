@@ -108,6 +108,7 @@ int main(int argc, char *argv[]) {
 
     // TODO WS1: plot initial state
     simulation->plotVTK(timeSteps++);
+    
 
     // Time loop
     while (time < parameters.simulation.finalTime) {
