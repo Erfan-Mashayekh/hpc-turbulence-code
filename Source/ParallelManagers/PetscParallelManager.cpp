@@ -7,8 +7,8 @@ namespace NSEOF::ParallelManagers {
 
     void PetscParallelManager::sendRecvBuffers(std::vector<FLOAT>& bufferSent, int receiverRank,
                                                std::vector<FLOAT>& bufferReceived, int senderRank) {
-        MPI_Sendrecv(&bufferSent[0], (int) bufferSent.size(), MY_MPI_FLOAT, receiverRank, 0,
-                     &bufferReceived[0], (int) bufferReceived.size(), MY_MPI_FLOAT, senderRank, 0,
+        MPI_Sendrecv(&bufferSent[0],     (int) bufferSent.size(),     MY_MPI_FLOAT, receiverRank, 0,
+                     &bufferReceived[0], (int) bufferReceived.size(), MY_MPI_FLOAT, senderRank,   0,
                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     }
 
