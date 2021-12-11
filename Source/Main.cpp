@@ -110,7 +110,8 @@ int main(int argc, char *argv[]) {
     //simulation->plotVTK(timeSteps++);
 
     // Time loop
-    while (time < parameters.simulation.finalTime) {
+    //while (time < parameters.simulation.finalTime) {
+    for (int i=0 ; i<2 ; i++){
         simulation->solveTimestep();
 
         time += parameters.timestep.dt;
@@ -131,7 +132,7 @@ int main(int argc, char *argv[]) {
     }
 
     // TODO WS1: plot final output
-    //simulation->plotVTK(timeSteps);
+    simulation->plotVTK(timeSteps);
 
     delete simulation;
     simulation = NULL;

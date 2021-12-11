@@ -7,6 +7,7 @@
 #include "Definitions.hpp"
 
 #include <vector>
+#include <utility>
 
 namespace NSEOF::Stencils {
 
@@ -16,12 +17,12 @@ namespace NSEOF::Stencils {
 class VelocityBufferReadStencil : public BoundaryStencil<FlowField> {
 
 private:
-    std::vector<FLOAT>::iterator velocityBufferLeftIterator_;
-    std::vector<FLOAT>::iterator velocityBufferRightIterator_;
-    std::vector<FLOAT>::iterator velocityBufferBottomIterator_;
-    std::vector<FLOAT>::iterator velocityBufferTopIterator_;
-    std::vector<FLOAT>::iterator velocityBufferFrontIterator_;
-    std::vector<FLOAT>::iterator velocityBufferBackIterator_;
+    std::vector<FLOAT> velocityBufferLeftIterator_;
+    std::vector<FLOAT> velocityBufferRightIterator_;
+    std::vector<FLOAT> velocityBufferBottomIterator_;
+    std::vector<FLOAT> velocityBufferTopIterator_;
+    std::vector<FLOAT> velocityBufferFrontIterator_;
+    std::vector<FLOAT> velocityBufferBackIterator_;
 
 public:
     explicit VelocityBufferReadStencil(const Parameters&);

@@ -33,7 +33,7 @@ Simulation::Simulation(Parameters& parameters, FlowField& flowField)
                                   parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
     , pressureBufferReadIterator_(flowField_, parameters, pressureBufferReadStencil_,
                                   parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
-    , velocityBufferFillIterator_(flowField_, parameters, velocityBufferReadStencil_,
+    , velocityBufferFillIterator_(flowField_, parameters, velocityBufferFillStencil_,
                                   parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
     , velocityBufferReadIterator_(flowField_, parameters, velocityBufferReadStencil_,
                                   parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
@@ -52,9 +52,7 @@ void Simulation::initializeFlowField() {
         iterator.iterate();
     } else if (parameters_.simulation.scenario == "channel") {
         Stencils::BFStepInitStencil stencil(parameters_);
-        FieldIterator<FlowField> iterator(flowField_, parameters_, stencil,
-                                          parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset);
-
+        FieldIterator<FlowField> iterator(flowField_, parameters_, stencil, 0, 1);
         iterator.iterate();
         wallVelocityIterator_.iterate();
     } else if (parameters_.simulation.scenario == "pressure-channel") {
@@ -79,9 +77,7 @@ void Simulation::initializeFlowField() {
 
         // Do same procedure for domain flagging as for regular channel
         Stencils::BFStepInitStencil stencil(parameters_);
-        FieldIterator<FlowField> iterator(flowField_, parameters_, stencil,
-                                          parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset);
-
+        FieldIterator<FlowField> iterator(flowField_, parameters_, stencil, 0, 1);
         iterator.iterate();
     }
 
@@ -109,9 +105,9 @@ void Simulation::solveTimestep() {
     obstacleIterator_.iterate();
 
     // TODO WS2: communicate velocity values
-    //velocityBufferFillIterator_.iterate();
-    //petscParallelManager_.communicateVelocity(velocityBufferFillStencil_, velocityBufferReadStencil_);
-    //velocityBufferReadIterator_.iterate();
+    velocityBufferFillIterator_.iterate();
+    petscParallelManager_.communicateVelocity(velocityBufferFillStencil_, velocityBufferReadStencil_);
+    velocityBufferReadIterator_.iterate();
 
     // Iterate for velocities on the boundary
     wallVelocityIterator_.iterate();
@@ -153,7 +149,6 @@ void Simulation::setTimeStep() {
 
     globalMin = MY_FLOAT_MAX;
     MPI_Allreduce(&localMin, &globalMin, 1, MY_MPI_FLOAT, MPI_MIN, PETSC_COMM_WORLD);
-
     parameters_.timestep.dt = globalMin;
     parameters_.timestep.dt *= parameters_.timestep.tau;
 }
