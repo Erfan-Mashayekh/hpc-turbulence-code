@@ -48,6 +48,7 @@ namespace NSEOF::Stencils {
     /**
      * Functions for 2D
      */
+
     void VelocityBufferFillStencil::applyLeftWall(FlowField& flowField, int i, int j) {
         getBufferLeft().push_back(flowField.getVelocity().getVector(i + 1, j)[0]); // "u"
         getBufferLeft().push_back(flowField.getVelocity().getVector(i + 1, j)[1]); // "v"
