@@ -30,24 +30,6 @@ public:
     ~BufferFillStencil() override;
 
     /**
-     * Functions for 3D
-     */
-    void applyLeftWall  (FlowField&, int, int, int) override;
-    void applyRightWall (FlowField&, int, int, int) override;
-    void applyBottomWall(FlowField&, int, int, int) override;
-    void applyTopWall   (FlowField&, int, int, int) override;
-    void applyFrontWall (FlowField&, int, int, int) override;
-    void applyBackWall  (FlowField&, int, int, int) override;
-
-    /**
-     * Functions for 2D
-     */
-    void applyLeftWall  (FlowField&, int, int) override;
-    void applyRightWall (FlowField&, int, int) override;
-    void applyBottomWall(FlowField&, int, int) override;
-    void applyTopWall   (FlowField&, int, int) override;
-
-    /**
      * Getters for velocity buffers
      */
     std::vector<FLOAT>& getBufferLeft  ();

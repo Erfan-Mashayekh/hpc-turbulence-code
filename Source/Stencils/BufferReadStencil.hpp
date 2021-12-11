@@ -38,25 +38,6 @@ public:
     ~BufferReadStencil() override;
 
     /**
-     * Functions for 3D
-     */
-    void applyLeftWall  (FlowField&, int, int, int) override;
-    void applyRightWall (FlowField&, int, int, int) override;
-    void applyBottomWall(FlowField&, int, int, int) override;
-    void applyTopWall   (FlowField&, int, int, int) override;
-    void applyFrontWall (FlowField&, int, int, int) override;
-    void applyBackWall  (FlowField&, int, int, int) override;
-
-    /**
-     * Functions for 2D
-     */
-    void applyLeftWall  (FlowField&, int, int) override;
-    void applyRightWall (FlowField&, int, int) override;
-    void applyBottomWall(FlowField&, int, int) override;
-    void applyTopWall   (FlowField&, int, int) override;
-
-
-    /**
      * Gets the next value in the iterator and increments
      */
     FLOAT getNextInBufferLeft  ();
