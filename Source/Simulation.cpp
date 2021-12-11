@@ -27,6 +27,8 @@ Simulation::Simulation(Parameters& parameters, FlowField& flowField)
     , obstacleIterator_(flowField_, parameters, obstacleStencil_)
     , viscosityStencil_(parameters)
     , viscosityIterator_(flowField_, parameters, viscosityStencil_)
+    , minTimeStepStencil_(parameters)
+    , minTimeStepIterator_(flowField_, parameters, minTimeStepStencil_)
 #ifdef BUILD_WITH_PETSC
     , solver_(std::make_unique<Solvers::PetscSolver>(flowField_, parameters))
 #else
@@ -121,33 +123,56 @@ void Simulation::plotVTK(int timeStep) {
 }
 
 void Simulation::setTimeStep() {
-    FLOAT localMin, globalMin;
-    ASSERTION(parameters_.geometry.dim == 2 || parameters_.geometry.dim == 3);
-    FLOAT factor = 1.0 / (parameters_.meshsize->getDxMin() * parameters_.meshsize->getDxMin()) + 1.0 / (parameters_.meshsize->getDyMin() * parameters_.meshsize->getDyMin());
 
-    // Determine maximum velocity
-    maxUStencil_.reset();
-    maxUFieldIterator_.iterate();
-    maxUBoundaryIterator_.iterate();
-    if (parameters_.geometry.dim == 3) {
-        factor += 1.0 / (parameters_.meshsize->getDzMin() * parameters_.meshsize->getDzMin());
-        parameters_.timestep.dt = 1.0 / maxUStencil_.getMaxValues()[2];
-    } else {
-        parameters_.timestep.dt = 1.0 / maxUStencil_.getMaxValues()[0];
+	FLOAT localMin, globalMin;
+	ASSERTION(parameters_.geometry.dim == 2 || parameters_.geometry.dim == 3);
+	
+	// Determine maximum velocity
+	maxUStencil_.reset();
+	maxUFieldIterator_.iterate();
+	maxUBoundaryIterator_.iterate();
+
+	if(parameters_.turbulence.on == 1){
+		
+		// reset diffusive timestep stencil and determine min diffusive timestep
+		minTimeStepStencil_.reset();
+		minTimeStepIterator_.iterate();
+		// store minimum diffusive timestep
+		FLOAT diffusivetimeStep = minTimeStepStencil_.getDiffusiveTimeStep();
+
+		if (parameters_.geometry.dim == 3) {
+		    parameters_.timestep.dt = 1.0 / maxUStencil_.getMaxValues()[2];
+		} else {
+		    parameters_.timestep.dt = 1.0 / maxUStencil_.getMaxValues()[0];
+		}
+
+		localMin = std::min(diffusivetimeStep, std::min(parameters_.timestep.dt, std::min(1 / maxUStencil_.getMaxValues()[0], 1 / maxUStencil_.getMaxValues()[1])));
+
+	}
+	
+	else{
+		FLOAT factor = 1.0 / (parameters_.meshsize->getDxMin() * parameters_.meshsize->getDxMin()) + 1.0 / (parameters_.meshsize->getDyMin() * parameters_.meshsize->getDyMin());
+
+		if (parameters_.geometry.dim == 3) {
+		    factor += 1.0 / (parameters_.meshsize->getDzMin() * parameters_.meshsize->getDzMin());
+		    parameters_.timestep.dt = 1.0 / maxUStencil_.getMaxValues()[2];
+		} else {
+		    parameters_.timestep.dt = 1.0 / maxUStencil_.getMaxValues()[0];
+		}
+
+		localMin = std::min(parameters_.flow.Re / (2 * factor), std::min(parameters_.timestep.dt, std::min(1 / maxUStencil_.getMaxValues()[0], 1 / maxUStencil_.getMaxValues()[1])));
+		
     }
-
-    //localMin = std::min(parameters_.timestep.dt, std::min(std::min(parameters_.flow.Re/(2 * factor), 1.0 / maxUStencil_.getMaxValues()[0]), 1.0 / maxUStencil_.getMaxValues()[1]));
-    localMin = std::min(parameters_.flow.Re / (2 * factor), std::min(parameters_.timestep.dt, std::min(1 / maxUStencil_.getMaxValues()[0], 1 / maxUStencil_.getMaxValues()[1])));
-
+    
     // Here, we select the type of operation before compiling. This allows to use the correct
-    // data type for MPI. Not a concern for small simulations, but useful if using heterogeneous
-    // machines.
+	// data type for MPI. Not a concern for small simulations, but useful if using heterogeneous
+	// machines.
 
-    globalMin = MY_FLOAT_MAX;
-    MPI_Allreduce(&localMin, &globalMin, 1, MY_MPI_FLOAT, MPI_MIN, PETSC_COMM_WORLD);
+	globalMin = MY_FLOAT_MAX;
+	MPI_Allreduce(&localMin, &globalMin, 1, MY_MPI_FLOAT, MPI_MIN, PETSC_COMM_WORLD);
 
-    parameters_.timestep.dt = globalMin;
-    parameters_.timestep.dt *= parameters_.timestep.tau;
+	parameters_.timestep.dt = globalMin;
+	parameters_.timestep.dt *= parameters_.timestep.tau;
 }
 
 

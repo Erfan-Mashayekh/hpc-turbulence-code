@@ -113,7 +113,7 @@ int main(int argc, char *argv[]) {
     // Time loop
     while (time < parameters.simulation.finalTime) {
         simulation->solveTimestep();
-
+		
         time += parameters.timestep.dt;
 
         // Log the time (Master)

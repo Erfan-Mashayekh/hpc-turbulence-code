@@ -6,7 +6,7 @@
         <scenario>cavity</scenario>
     </simulation>
     <turbulence turb_modeling = "1"
-	    turb_viscosity="0" 
+	    turb_viscosity="0.02" 
 	    model = "0"/>
     <timestep dt="1" tau="0.5" />
     <solver gamma="0.5" />

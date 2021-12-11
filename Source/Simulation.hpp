@@ -11,6 +11,7 @@
 #include "Stencils/RHSStencil.hpp"
 #include "Stencils/VelocityStencil.hpp"
 #include "Stencils/ViscosityStencil.hpp"
+#include "Stencils/MinTimeStepStencil.hpp"
 #include "Stencils/ObstacleStencil.hpp"
 #include "Stencils/VTKStencil.hpp"
 #include "Stencils/MaxUStencil.hpp"
@@ -55,6 +56,9 @@ protected:
 
     Stencils::ViscosityStencil viscosityStencil_;
     FieldIterator<FlowField> viscosityIterator_;
+    
+    Stencils::MinTimeStepStencil minTimeStepStencil_;
+    FieldIterator<FlowField> minTimeStepIterator_;
     
     std::unique_ptr<Solvers::LinearSolver> solver_;
 
