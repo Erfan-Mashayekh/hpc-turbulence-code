@@ -17,7 +17,7 @@ namespace NSEOF::ParallelManagers {
         /**
          * Communication: Left & Right
          */
-        if (parameters_.parallel.rightNb != MPI_PROC_NULL || parameters_.parallel.leftNb != MPI_PROC_NULL) {
+        if (parameters_.parallel.leftNb != MPI_PROC_NULL || parameters_.parallel.rightNb != MPI_PROC_NULL) {
             /**
              * Communication: Send to left, receive from right
              */
