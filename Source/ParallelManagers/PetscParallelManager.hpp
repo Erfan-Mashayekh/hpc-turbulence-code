@@ -16,6 +16,8 @@ class PetscParallelManager {
 private:
     const Parameters& parameters_;
 
+    void communicate(Stencils::BufferFillStencil&, Stencils::BufferReadStencil&) const;
+
 public:
     explicit PetscParallelManager(const Parameters&);
     ~PetscParallelManager() = default;
