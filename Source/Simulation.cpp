@@ -183,7 +183,7 @@ void Simulation::distanceNearestWall() {
     std::cout << "meshsize = " << parameters_.meshsize->getDx(i,j) << " " << parameters_.meshsize->getDy(i,j) << std::endl;
     			//if cell is fluid:
     			if ((obstacle & OBSTACLE_SELF) == 0){
-				std::cout << "obstacel" << std::endl;
+				std::cout << "obstacle" << std::endl;
     				//check right wall is wall and check if cell is more than equal to half the domain width to the right
     				if ((obstacle = flowField_.getFlags().getValue(sizex-1, j) == 0) && (i >= sizex/2)){
     					dx = (sizex-i)*parameters_.meshsize->getDx(i,j) - parameters_.meshsize->getDx(i,j)/2;
@@ -208,7 +208,7 @@ void Simulation::distanceNearestWall() {
     				}
     				
     				//find the distance of cell to nearest wall
-    				distance_to_wall.getScalar(i,j) = std::min(dx,dy);
+    				distance_to_wall.getScalar(i,j) = std::abs(std::min(dx,dy));
 				std::cout << "distance = " << distance_to_wall.getScalar(i,j) << "	dx = " 
 					<< dx << "	dy = " << dy << std::endl;
     				
@@ -218,7 +218,7 @@ void Simulation::distanceNearestWall() {
     					FLOAT xdis = (i-x)*parameters_.meshsize->getDx(i,j);
     					FLOAT ydis = (j-stepYBound)*parameters_.meshsize->getDy(i,j);
     					FLOAT stepDis = sqrt((xdis*xdis) + (ydis*ydis));
-    					distance_to_wall.getScalar(i,j) = std::min(distance_to_wall.getScalar(i,j), stepDis);   					
+    					distance_to_wall.getScalar(i,j) = std::abs(std::min(distance_to_wall.getScalar(i,j), stepDis));   					
 					std::cout << "distance = " << distance_to_wall.getScalar(i,j) << " stepDis = " 
 					<< stepDis << std::endl;
     				}
@@ -227,7 +227,7 @@ void Simulation::distanceNearestWall() {
     					FLOAT xdis = (i-stepXBound)*parameters_.meshsize->getDx(i,j);
     					FLOAT ydis = (j-y)*parameters_.meshsize->getDy(i,j);
     					FLOAT stepDis = sqrt((xdis*xdis) + (ydis*ydis));
-    					distance_to_wall.getScalar(i,j) = std::min(distance_to_wall.getScalar(i,j), stepDis);   					
+    					distance_to_wall.getScalar(i,j) = std::abs(std::min(distance_to_wall.getScalar(i,j), stepDis));   					
 					std::cout << "left boundary distance = " << distance_to_wall.getScalar(i,j) << " stepDis = " 
 					<< stepDis << std::endl;
     				}
@@ -277,7 +277,7 @@ void Simulation::distanceNearestWall() {
 						}
 						
 						//find the distance of cell to nearest wall
-						distance_to_wall.getScalar(i,j,k) = std::min(std::min(dx,dy),dz);
+						distance_to_wall.getScalar(i,j,k) = std::abs(std::min(std::min(dx,dy),dz));
 						
 						//only goes into these loops if there is a step
 						//we check both loops in the same z coordinate as the original point so dont need to count it
@@ -287,14 +287,14 @@ void Simulation::distanceNearestWall() {
 							FLOAT xdis = (i-x)*parameters_.meshsize->getDx(i,j,k);
 							FLOAT ydis = (j-stepYBound)*parameters_.meshsize->getDy(i,j,k);
 							FLOAT stepDis = sqrt((xdis*xdis) + (ydis*ydis));
-							distance_to_wall.getScalar(i,j,k) = std::min(distance_to_wall.getScalar(i,j,k), stepDis);   					
+							distance_to_wall.getScalar(i,j,k) = std::abs(std::min(distance_to_wall.getScalar(i,j,k), stepDis));   					
 						}
 						//left boundary loop
 						for (int y=0; y < stepYBound; y++){
 							FLOAT xdis = (i-stepXBound)*parameters_.meshsize->getDx(i,j,k);
 							FLOAT ydis = (j-y)*parameters_.meshsize->getDy(i,j,k);
 							FLOAT stepDis = sqrt((xdis*xdis) + (ydis*ydis));
-							distance_to_wall.getScalar(i,j,k) = std::min(distance_to_wall.getScalar(i,j,k), stepDis);   					
+							distance_to_wall.getScalar(i,j,k) = std::abs(std::min(distance_to_wall.getScalar(i,j,k), stepDis));   					
 						}
 					}
 					//if cell is object then distance to wall is zero
