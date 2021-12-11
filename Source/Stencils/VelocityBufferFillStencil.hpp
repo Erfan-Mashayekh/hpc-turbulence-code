@@ -25,6 +25,8 @@ private:
 
 public:
     explicit VelocityBufferFillStencil(const Parameters&);
+
+    void clearVelocityBuffers();
     ~VelocityBufferFillStencil() override;
 
     /**

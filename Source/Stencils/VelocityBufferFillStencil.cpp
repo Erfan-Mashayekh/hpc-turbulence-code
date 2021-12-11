@@ -5,13 +5,17 @@ namespace NSEOF::Stencils {
     VelocityBufferFillStencil::VelocityBufferFillStencil(const Parameters& parameters)
             : BoundaryStencil<FlowField>(parameters) {}
 
-    VelocityBufferFillStencil::~VelocityBufferFillStencil() {
+    void VelocityBufferFillStencil::clearVelocityBuffers() {
         velocityBufferLeft_.clear();
         velocityBufferRight_.clear();
         velocityBufferBottom_.clear();
         velocityBufferTop_.clear();
         velocityBufferFront_.clear();
         velocityBufferBack_.clear();
+    }
+
+    VelocityBufferFillStencil::~VelocityBufferFillStencil() {
+        clearVelocityBuffers();
     }
 
     /**

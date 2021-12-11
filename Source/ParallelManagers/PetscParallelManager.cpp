@@ -113,6 +113,8 @@ namespace NSEOF::ParallelManagers {
                 pressureBufferReadStencil.setPressureBufferFrontIterator(pressureBufferFront);
             }
         }
+
+        pressureBufferFillStencil.clearPressureBuffers();
     }
 
     void PetscParallelManager::communicateVelocity(Stencils::VelocityBufferFillStencil& velocityBufferFillStencil,
@@ -222,6 +224,8 @@ namespace NSEOF::ParallelManagers {
                 velocityBufferReadStencil.setVelocityBufferFrontIterator(velocityBufferFront);
             }
         }
+
+        velocityBufferFillStencil.clearVelocityBuffers();
     }
 
 } // namespace NSEOF::ParallelManagers

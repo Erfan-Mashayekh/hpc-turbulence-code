@@ -25,6 +25,8 @@ private:
 
 public:
     explicit PressureBufferFillStencil(const Parameters&);
+
+    void clearPressureBuffers();
     ~PressureBufferFillStencil() override;
 
     /**

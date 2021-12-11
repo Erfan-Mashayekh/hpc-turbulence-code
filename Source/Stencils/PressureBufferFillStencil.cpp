@@ -5,13 +5,17 @@ namespace NSEOF::Stencils {
     PressureBufferFillStencil::PressureBufferFillStencil(const Parameters& parameters)
             : BoundaryStencil<FlowField>(parameters) {}
 
-    PressureBufferFillStencil::~PressureBufferFillStencil() {
+    void PressureBufferFillStencil::clearPressureBuffers() {
         pressureBufferLeft_.clear();
         pressureBufferRight_.clear();
         pressureBufferBottom_.clear();
         pressureBufferTop_.clear();
         pressureBufferFront_.clear();
         pressureBufferBack_.clear();
+    }
+
+    PressureBufferFillStencil::~PressureBufferFillStencil() {
+        clearPressureBuffers();
     }
 
     /**
