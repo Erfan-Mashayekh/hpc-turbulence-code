@@ -20,6 +20,8 @@ public:
     explicit PetscParallelManager(const Parameters&);
     ~PetscParallelManager() = default;
 
+    static void sendRecvBuffers(std::vector<FLOAT>&, int, std::vector<FLOAT>&, int);
+
     void communicatePressure(Stencils::PressureBufferFillStencil&, Stencils::PressureBufferReadStencil&) const;
     void communicateVelocity(Stencils::VelocityBufferFillStencil&, Stencils::VelocityBufferReadStencil&) const;
 };

@@ -5,6 +5,13 @@ namespace NSEOF::ParallelManagers {
     PetscParallelManager::PetscParallelManager(const Parameters& parameters)
             : parameters_(parameters) {}
 
+    void PetscParallelManager::sendRecvBuffers(std::vector<FLOAT>& bufferSent, int receiverRank,
+                                               std::vector<FLOAT>& bufferReceived, int senderRank) {
+        MPI_Sendrecv(&bufferSent[0], (int) bufferSent.size(), MY_MPI_FLOAT, receiverRank, 0,
+                     &bufferReceived[0], (int) bufferReceived.size(), MY_MPI_FLOAT, senderRank, 0,
+                     MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    }
+
     void PetscParallelManager::communicatePressure(Stencils::PressureBufferFillStencil& pressureBufferFillStencil,
                                                    Stencils::PressureBufferReadStencil& pressureBufferReadStencil) const {
         /**
@@ -15,30 +22,28 @@ namespace NSEOF::ParallelManagers {
              * Communication: Send to left, receive from right
              */
 
-            std::vector<FLOAT> SendLeft = pressureBufferFillStencil.getPressureBufferLeft();
-            std::vector<FLOAT> RecvRight = pressureBufferFillStencil.getPressureBufferRight();
+            std::vector<FLOAT> bufferSentToLeft = pressureBufferFillStencil.getPressureBufferLeft();
+            std::vector<FLOAT> bufferReceivedFromRight = pressureBufferFillStencil.getPressureBufferRight();
 
-            MPI_Sendrecv(&SendLeft[0], (int) SendLeft.size(), MY_MPI_FLOAT, parameters_.parallel.leftNb, 0,
-                         &RecvRight[0], (int) RecvRight.size(), MY_MPI_FLOAT, parameters_.parallel.rightNb, 0,
-                         MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            sendRecvBuffers(bufferSentToLeft, parameters_.parallel.leftNb,
+                            bufferReceivedFromRight, parameters_.parallel.rightNb);
 
             if (parameters_.parallel.rightNb != MPI_PROC_NULL) {
-                pressureBufferReadStencil.setPressureBufferRightIterator(RecvRight);
+                pressureBufferReadStencil.setPressureBufferRightIterator(bufferReceivedFromRight);
             }
 
             /**
              * Communication: Send to right, receive from left
              */
 
-            std::vector<FLOAT> SendRight = pressureBufferFillStencil.getPressureBufferRight();
-            std::vector<FLOAT> RecvLeft = pressureBufferFillStencil.getPressureBufferLeft();        
+            std::vector<FLOAT> bufferSentToRight = pressureBufferFillStencil.getPressureBufferRight();
+            std::vector<FLOAT> bufferReceivedFromLeft = pressureBufferFillStencil.getPressureBufferLeft();
 
-            MPI_Sendrecv(&SendRight[0], (int) SendRight.size(), MY_MPI_FLOAT, parameters_.parallel.rightNb, 0,
-                         &RecvLeft[0], (int) RecvLeft.size(), MY_MPI_FLOAT, parameters_.parallel.leftNb, 0,
-                         MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            sendRecvBuffers(bufferSentToRight, parameters_.parallel.rightNb,
+                            bufferReceivedFromLeft, parameters_.parallel.leftNb);
 
             if (parameters_.parallel.leftNb != MPI_PROC_NULL) {
-                pressureBufferReadStencil.setPressureBufferLeftIterator(RecvLeft);
+                pressureBufferReadStencil.setPressureBufferLeftIterator(bufferReceivedFromLeft);
             }
         }
 
@@ -50,30 +55,28 @@ namespace NSEOF::ParallelManagers {
              * Communication: Send to bottom, receive from top
              */
 
-            std::vector<FLOAT> SendBottom = pressureBufferFillStencil.getPressureBufferBottom();
-            std::vector<FLOAT> RecvTop = pressureBufferFillStencil.getPressureBufferTop();
+            std::vector<FLOAT> bufferSentToBottom = pressureBufferFillStencil.getPressureBufferBottom();
+            std::vector<FLOAT> bufferReceivedFromTop = pressureBufferFillStencil.getPressureBufferTop();
 
-            MPI_Sendrecv(&SendBottom[0], (int) SendBottom.size(), MY_MPI_FLOAT,parameters_.parallel.bottomNb, 0,
-                         &RecvTop[0], (int) RecvTop.size(), MY_MPI_FLOAT,parameters_.parallel.topNb, 0,
-                         MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            sendRecvBuffers(bufferSentToBottom, parameters_.parallel.bottomNb,
+                            bufferReceivedFromTop, parameters_.parallel.topNb);
 
             if (parameters_.parallel.topNb != MPI_PROC_NULL) {
-                pressureBufferReadStencil.setPressureBufferTopIterator(RecvTop);
+                pressureBufferReadStencil.setPressureBufferTopIterator(bufferReceivedFromTop);
             }
 
             /**
              * Communication: Send to top, receive from bottom
              */
 
-            std::vector<FLOAT> SendTop = pressureBufferFillStencil.getPressureBufferTop();
-            std::vector<FLOAT> RecvBottom = pressureBufferFillStencil.getPressureBufferBottom();
+            std::vector<FLOAT> bufferSentToTop = pressureBufferFillStencil.getPressureBufferTop();
+            std::vector<FLOAT> bufferReceivedFromBottom = pressureBufferFillStencil.getPressureBufferBottom();
 
-            MPI_Sendrecv(&SendTop[0], (int) SendTop.size(), MY_MPI_FLOAT, parameters_.parallel.topNb, 0,
-                         &RecvBottom[0], (int) RecvBottom.size(), MY_MPI_FLOAT, parameters_.parallel.bottomNb, 0,
-                         MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            sendRecvBuffers(bufferSentToTop, parameters_.parallel.topNb,
+                            bufferReceivedFromBottom, parameters_.parallel.bottomNb);
 
             if (parameters_.parallel.bottomNb != MPI_PROC_NULL) {
-                pressureBufferReadStencil.setPressureBufferBottomIterator(RecvBottom);
+                pressureBufferReadStencil.setPressureBufferBottomIterator(bufferReceivedFromBottom);
             }
         }
 
@@ -85,30 +88,28 @@ namespace NSEOF::ParallelManagers {
              * Communication: Send to front, receive from back
              */
 
-            std::vector<FLOAT> SendFront = pressureBufferFillStencil.getPressureBufferFront();
-            std::vector<FLOAT> RecvBack = pressureBufferFillStencil.getPressureBufferBack();
+            std::vector<FLOAT> bufferSentToFront = pressureBufferFillStencil.getPressureBufferFront();
+            std::vector<FLOAT> bufferReceivedFromBack = pressureBufferFillStencil.getPressureBufferBack();
 
-            MPI_Sendrecv(&SendFront[0], (int) SendFront.size(), MY_MPI_FLOAT, parameters_.parallel.frontNb, 0,
-                         &RecvBack[0], (int) RecvBack.size(), MY_MPI_FLOAT, parameters_.parallel.backNb, 0,
-                         MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            sendRecvBuffers(bufferSentToFront, parameters_.parallel.frontNb,
+                            bufferReceivedFromBack, parameters_.parallel.backNb);
 
             if (parameters_.parallel.backNb != MPI_PROC_NULL) {
-                pressureBufferReadStencil.setPressureBufferBackIterator(RecvBack);
+                pressureBufferReadStencil.setPressureBufferBackIterator(bufferReceivedFromBack);
             }
 
             /**
              * Communication: Send to back, receive from front
              */
 
-            std::vector<FLOAT> SendBack = pressureBufferFillStencil.getPressureBufferBack();
-            std::vector<FLOAT> RecvFront = pressureBufferFillStencil.getPressureBufferFront();
+            std::vector<FLOAT> bufferSentToBack = pressureBufferFillStencil.getPressureBufferBack();
+            std::vector<FLOAT> bufferReceivedFromFront = pressureBufferFillStencil.getPressureBufferFront();
 
-            MPI_Sendrecv(&SendBack[0], (int) SendBack.size(), MY_MPI_FLOAT, parameters_.parallel.backNb, 0,
-                         &RecvFront[0], (int) RecvFront.size(), MY_MPI_FLOAT, parameters_.parallel.frontNb, 0,
-                         MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            sendRecvBuffers(bufferSentToBack, parameters_.parallel.backNb,
+                            bufferReceivedFromFront, parameters_.parallel.frontNb);
 
             if (parameters_.parallel.frontNb != MPI_PROC_NULL) {
-                pressureBufferReadStencil.setPressureBufferFrontIterator(RecvFront);
+                pressureBufferReadStencil.setPressureBufferFrontIterator(bufferReceivedFromFront);
             }
         }
 
@@ -125,30 +126,28 @@ namespace NSEOF::ParallelManagers {
              * Communication: Send to left, receive from right
              */
 
-            std::vector<FLOAT> SendLeft = velocityBufferFillStencil.getVelocityBufferLeft();
-            std::vector<FLOAT> RecvRight = velocityBufferFillStencil.getVelocityBufferRight();
+            std::vector<FLOAT> bufferSentToLeft = velocityBufferFillStencil.getVelocityBufferLeft();
+            std::vector<FLOAT> bufferReceivedFromRight = velocityBufferFillStencil.getVelocityBufferRight();
 
-            MPI_Sendrecv(&SendLeft[0], (int) SendLeft.size(), MY_MPI_FLOAT, parameters_.parallel.leftNb, 0,
-                         &RecvRight[0], (int) RecvRight.size(), MY_MPI_FLOAT, parameters_.parallel.rightNb, 0,
-                         MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            sendRecvBuffers(bufferSentToLeft, parameters_.parallel.leftNb,
+                            bufferReceivedFromRight, parameters_.parallel.rightNb);
 
             if (parameters_.parallel.rightNb != MPI_PROC_NULL) {
-                velocityBufferReadStencil.setVelocityBufferRightIterator(RecvRight);
+                velocityBufferReadStencil.setVelocityBufferRightIterator(bufferReceivedFromRight);
             }
 
             /**
              * Communication: Send to right, receive from left
              */
 
-            std::vector<FLOAT> SendRight = velocityBufferFillStencil.getVelocityBufferRight();
-            std::vector<FLOAT> RecvLeft = velocityBufferFillStencil.getVelocityBufferLeft();
+            std::vector<FLOAT> bufferSentToRight = velocityBufferFillStencil.getVelocityBufferRight();
+            std::vector<FLOAT> bufferReceivedFromLeft = velocityBufferFillStencil.getVelocityBufferLeft();
 
-            MPI_Sendrecv(&SendRight[0], (int) SendRight.size(), MY_MPI_FLOAT, parameters_.parallel.rightNb, 0,
-                         &RecvLeft[0], (int) RecvLeft.size(), MY_MPI_FLOAT, parameters_.parallel.leftNb, 0,
-                         MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            sendRecvBuffers(bufferSentToRight, parameters_.parallel.rightNb,
+                            bufferReceivedFromLeft, parameters_.parallel.leftNb);
 
             if (parameters_.parallel.leftNb != MPI_PROC_NULL) {
-                velocityBufferReadStencil.setVelocityBufferLeftIterator(RecvLeft);
+                velocityBufferReadStencil.setVelocityBufferLeftIterator(bufferReceivedFromLeft);
             }
         }
 
@@ -160,30 +159,28 @@ namespace NSEOF::ParallelManagers {
              * Communication: Send to bottom, receive from top
              */
 
-            std::vector<FLOAT> SendBottom = velocityBufferFillStencil.getVelocityBufferBottom();
-            std::vector<FLOAT> RecvTop = velocityBufferFillStencil.getVelocityBufferTop();
+            std::vector<FLOAT> bufferSentToBottom = velocityBufferFillStencil.getVelocityBufferBottom();
+            std::vector<FLOAT> bufferReceivedFromTop = velocityBufferFillStencil.getVelocityBufferTop();
 
-            MPI_Sendrecv(&SendBottom[0], (int) SendBottom.size(), MY_MPI_FLOAT, parameters_.parallel.bottomNb, 0,
-                         &RecvTop[0], (int) RecvTop.size(), MY_MPI_FLOAT, parameters_.parallel.topNb, 0,
-                         MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            sendRecvBuffers(bufferSentToBottom, parameters_.parallel.bottomNb,
+                            bufferReceivedFromTop, parameters_.parallel.topNb);
 
             if (parameters_.parallel.topNb != MPI_PROC_NULL) {
-                velocityBufferReadStencil.setVelocityBufferTopIterator(RecvTop);
+                velocityBufferReadStencil.setVelocityBufferTopIterator(bufferReceivedFromTop);
             }
 
             /**
              * Communication: Send to top, receive from bottom
              */
 
-            std::vector<FLOAT> SendTop = velocityBufferFillStencil.getVelocityBufferTop();
-            std::vector<FLOAT> RecvBottom = velocityBufferFillStencil.getVelocityBufferBottom();
+            std::vector<FLOAT> bufferSentToTop = velocityBufferFillStencil.getVelocityBufferTop();
+            std::vector<FLOAT> bufferReceivedFromBottom = velocityBufferFillStencil.getVelocityBufferBottom();
 
-            MPI_Sendrecv(&SendTop[0], (int) SendTop.size(), MY_MPI_FLOAT, parameters_.parallel.topNb, 0,
-                         &RecvBottom[0], (int) RecvBottom.size(), MY_MPI_FLOAT, parameters_.parallel.bottomNb, 0,
-                         MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            sendRecvBuffers(bufferSentToTop, parameters_.parallel.topNb,
+                            bufferReceivedFromBottom, parameters_.parallel.bottomNb);
 
             if (parameters_.parallel.bottomNb != MPI_PROC_NULL) {
-                velocityBufferReadStencil.setVelocityBufferBottomIterator(RecvBottom);
+                velocityBufferReadStencil.setVelocityBufferBottomIterator(bufferReceivedFromBottom);
             }
         }
 
@@ -195,30 +192,28 @@ namespace NSEOF::ParallelManagers {
              * Communication: Send to front, receive from back
              */
 
-            std::vector<FLOAT> SendFront = velocityBufferFillStencil.getVelocityBufferFront();
-            std::vector<FLOAT> RecvBack = velocityBufferFillStencil.getVelocityBufferBack();
+            std::vector<FLOAT> bufferSentToFront = velocityBufferFillStencil.getVelocityBufferFront();
+            std::vector<FLOAT> bufferReceivedFromBack = velocityBufferFillStencil.getVelocityBufferBack();
 
-            MPI_Sendrecv(&SendFront[0], (int) SendFront.size(), MY_MPI_FLOAT, parameters_.parallel.frontNb, 0,
-                         &RecvBack[0], (int) RecvBack.size(), MY_MPI_FLOAT, parameters_.parallel.backNb, 0,
-                         MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            sendRecvBuffers(bufferSentToFront, parameters_.parallel.frontNb,
+                            bufferReceivedFromBack, parameters_.parallel.backNb);
 
             if (parameters_.parallel.backNb != MPI_PROC_NULL) {
-                velocityBufferReadStencil.setVelocityBufferBackIterator(RecvBack);
+                velocityBufferReadStencil.setVelocityBufferBackIterator(bufferReceivedFromBack);
             }
 
             /**
              * Communication: Send to back, receive from front
              */
 
-            std::vector<FLOAT> SendBack = velocityBufferFillStencil.getVelocityBufferBack();
-            std::vector<FLOAT> RecvFront = velocityBufferFillStencil.getVelocityBufferFront();
+            std::vector<FLOAT> bufferSentToBack = velocityBufferFillStencil.getVelocityBufferBack();
+            std::vector<FLOAT> bufferReceivedFromFront = velocityBufferFillStencil.getVelocityBufferFront();
 
-            MPI_Sendrecv(&SendBack[0], (int) SendBack.size(), MY_MPI_FLOAT, parameters_.parallel.backNb, 0,
-                         &RecvFront[0], (int) RecvFront.size(), MY_MPI_FLOAT, parameters_.parallel.frontNb, 0,
-                         MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            sendRecvBuffers(bufferSentToBack, parameters_.parallel.backNb,
+                            bufferReceivedFromFront, parameters_.parallel.frontNb);
 
             if (parameters_.parallel.frontNb != MPI_PROC_NULL) {
-                velocityBufferReadStencil.setVelocityBufferFrontIterator(RecvFront);
+                velocityBufferReadStencil.setVelocityBufferFrontIterator(bufferReceivedFromFront);
             }
         }
 
