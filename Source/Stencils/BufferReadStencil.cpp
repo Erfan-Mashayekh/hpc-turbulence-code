@@ -49,12 +49,12 @@ namespace NSEOF::Stencils {
      * Gets the next value in the iterator and increments
      */
 
-    FLOAT BufferReadStencil::getNextInBufferLeftAndIncrement  () { return *(bufferLeftIterator_++);   }
-    FLOAT BufferReadStencil::getNextInBufferRightAndIncrement () { return *(bufferRightIterator_++);  }
-    FLOAT BufferReadStencil::getNextInBufferBottomAndIncrement() { return *(bufferBottomIterator_++); }
-    FLOAT BufferReadStencil::getNextInBufferTopAndIncrement   () { return *(bufferTopIterator_++);    }
-    FLOAT BufferReadStencil::getNextInBufferFrontAndIncrement () { return *(bufferFrontIterator_++);  }
-    FLOAT BufferReadStencil::getNextInBufferBackAndIncrement  () { return *(bufferBackIterator_++);   }
+    FLOAT BufferReadStencil::getNextInBufferLeft  () { return *(bufferLeftIterator_++);   }
+    FLOAT BufferReadStencil::getNextInBufferRight () { return *(bufferRightIterator_++);  }
+    FLOAT BufferReadStencil::getNextInBufferBottom() { return *(bufferBottomIterator_++); }
+    FLOAT BufferReadStencil::getNextInBufferTop   () { return *(bufferTopIterator_++);    }
+    FLOAT BufferReadStencil::getNextInBufferFront () { return *(bufferFrontIterator_++);  }
+    FLOAT BufferReadStencil::getNextInBufferBack  () { return *(bufferBackIterator_++);   }
 
     /**
      * Setters for buffers and their iterators

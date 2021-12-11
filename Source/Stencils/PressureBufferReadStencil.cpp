@@ -10,27 +10,27 @@ namespace NSEOF::Stencils {
      */
 
     void PressureBufferReadStencil::applyLeftWall(FlowField& flowField, int i, int j, int k) {
-        flowField.getPressure().getScalar(i, j, k) = getNextInBufferLeftAndIncrement();
+        flowField.getPressure().getScalar(i, j, k) = getNextInBufferLeft();
     }
 
     void PressureBufferReadStencil::applyRightWall(FlowField& flowField, int i, int j, int k) {
-        flowField.getPressure().getScalar(i, j, k) = getNextInBufferRightAndIncrement();
+        flowField.getPressure().getScalar(i, j, k) = getNextInBufferRight();
     }
 
     void PressureBufferReadStencil::applyBottomWall(FlowField& flowField, int i, int j, int k) {
-        flowField.getPressure().getScalar(i, j, k) = getNextInBufferBottomAndIncrement();
+        flowField.getPressure().getScalar(i, j, k) = getNextInBufferBottom();
     }
 
     void PressureBufferReadStencil::applyTopWall(FlowField& flowField, int i, int j, int k) {
-        flowField.getPressure().getScalar(i, j, k) = getNextInBufferTopAndIncrement();
+        flowField.getPressure().getScalar(i, j, k) = getNextInBufferTop();
     }
 
     void PressureBufferReadStencil::applyFrontWall(FlowField& flowField, int i, int j, int k) {
-        flowField.getPressure().getScalar(i, j, k) = getNextInBufferFrontAndIncrement();
+        flowField.getPressure().getScalar(i, j, k) = getNextInBufferFront();
     }
 
     void PressureBufferReadStencil::applyBackWall(FlowField& flowField, int i, int j, int k) {
-        flowField.getPressure().getScalar(i, j, k) = getNextInBufferBackAndIncrement();
+        flowField.getPressure().getScalar(i, j, k) = getNextInBufferBack();
     }
 
     /**

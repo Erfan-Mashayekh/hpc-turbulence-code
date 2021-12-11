@@ -59,12 +59,12 @@ public:
     /**
      * Gets the next value in the iterator and increments
      */
-    FLOAT getNextInBufferLeftAndIncrement  ();
-    FLOAT getNextInBufferRightAndIncrement ();
-    FLOAT getNextInBufferBottomAndIncrement();
-    FLOAT getNextInBufferTopAndIncrement   ();
-    FLOAT getNextInBufferFrontAndIncrement ();
-    FLOAT getNextInBufferBackAndIncrement  ();
+    FLOAT getNextInBufferLeft  ();
+    FLOAT getNextInBufferRight ();
+    FLOAT getNextInBufferBottom();
+    FLOAT getNextInBufferTop   ();
+    FLOAT getNextInBufferFront ();
+    FLOAT getNextInBufferBack  ();
 
     /**
      * Setters for buffers and their iterators
