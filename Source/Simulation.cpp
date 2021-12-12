@@ -139,15 +139,16 @@ void Simulation::setTimeStep() {
 		minTimeStepIterator_.iterate();
 		// store minimum diffusive timestep
 		FLOAT diffusivetimeStep = minTimeStepStencil_.getDiffusiveTimeStep();
-
+		/*
 		if (parameters_.geometry.dim == 3) {
 		    parameters_.timestep.dt = 1.0 / maxUStencil_.getMaxValues()[2];
 		} else {
 		    parameters_.timestep.dt = 1.0 / maxUStencil_.getMaxValues()[0];
 		}
-
-		localMin = std::min(diffusivetimeStep, std::min(parameters_.timestep.dt, std::min(1 / maxUStencil_.getMaxValues()[0], 1 / maxUStencil_.getMaxValues()[1])));
-
+		*/
+		//localMin = std::min(diffusivetimeStep, std::min(parameters_.timestep.dt, std::min(1 / maxUStencil_.getMaxValues()[0], 1 / maxUStencil_.getMaxValues()[1])));
+		localMin = std::min(diffusivetimeStep, parameters_.timestep.dt);
+		//std::cout << "localMin: " << localMin << "   " << "diffusivetimeStep: " << diffusivetimeStep << "dt: " << parameters_.timestep.dt <<std::endl;
 	}
 	
 	else{
@@ -173,6 +174,7 @@ void Simulation::setTimeStep() {
 
 	parameters_.timestep.dt = globalMin;
 	parameters_.timestep.dt *= parameters_.timestep.tau;
+	parameters_.timestep.dt = 10e-5;
 }
 
 

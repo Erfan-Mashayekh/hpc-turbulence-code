@@ -764,6 +764,7 @@ inline FLOAT computeF2DT(const FLOAT* const localVelocity, const FLOAT* const lo
                        
     FLOAT term1 = FT_term1(localVelocity, localMeshsize, vijk, vi1jk);
     FLOAT term2 = FT_term2(localVelocity, localMeshsize, vtr, vbr);
+    //std::cout << "U velocity: " << localVelocity[mapd(0, 0, 0, 0)] << ", " << "timestep: " << dt << std::endl;
     return localVelocity[mapd(0, 0, 0, 0)] + dt * (term1 + term2 + parameters.environment.gx);
 }
 
@@ -818,13 +819,15 @@ inline FLOAT GT_term1(const FLOAT* const lv, const FLOAT* const lm, FLOAT vtr, F
     const int index4 = mapd(1, 0, 0, 1); //v[i+1,j,k]
     const int index5 = mapd(0, -1, 0, 1); //v[i,j-1,k]
     const int index6 = mapd(1, -1, 0, 1); //v[i+1,j-1,k]
-    
+    const int index7 = mapd(-1, 0, 0, 1); //v[i-1,j,k]
+    const int index8 = mapd(-1, 1, 0, 0); //u[i-1,j+1,k]
+    const int index9 = mapd(-1, 0, 0, 0); //u[i-1,j,k]
     
     // firstTerm: vstar[i+1/2, j+1/2, k] * ((u[i,j+1,k]-u[i,j,k])/dy + (v[i+1,j,k]-v[i,j,k])/dx)
     FLOAT firstTerm = vtr * ((lv[index1]-lv[index0])/lm[index3] + (lv[index4]-lv[index3])/lm[index0]);
     
-    // secondTerm: vstar[i+1/2, j-1/2, k] * ((u[i,j,k]-u[i,j-1,k])/dy + (v[i+1,j-1,k]-v[i,j-1,k])/dx)
-    FLOAT secondTerm = vtl * ((lv[index0]-lv[index2])/lm[index3] + (lv[index6]-lv[index5])/lm[index0]);
+    // secondTerm: vstar[i-1/2, j+1/2, k] * ((v[i,j,k]-v[i-1,j,k])/dx + (u[i-1,j+1,k]-u[i-1,j,k])/dy)
+    FLOAT secondTerm = vtl * ((lv[index3]-lv[index7])/lm[index0] + (lv[index8]-lv[index9])/lm[index3]);
     
   //return (d/dx)(vstar*(dv/dx + du/dy))   
     return (firstTerm - secondTerm)/lm[index0];
@@ -898,7 +901,7 @@ inline FLOAT computeG2DT(const FLOAT* const localVelocity, const FLOAT* const lo
 
     FLOAT term1 = GT_term1(localVelocity, localMeshsize, vtr, vtl);
     FLOAT term2 = GT_term2(localVelocity, localMeshsize, vijk, vij1k);
-    
+    //std::cout << "V velocity: " << localVelocity[mapd(0, 0, 0, 1)] << ", " << "timestep: " << dt << std::endl;
     return localVelocity[mapd(0, 0, 0, 1)] + dt * (term1 + term2 + parameters.environment.gy);
 }
 
@@ -1084,6 +1087,8 @@ inline FLOAT dudy(const FLOAT* const lv, const FLOAT* const lm) {
     // Evaluate dudy in the cell center by a central difference
     const int index0 = mapd(0, 0, 0, 0);
     const int index1 = mapd(0, -1, 0, 0);
+    
+    //std::cout << "dudy: " << (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 1)] << ", " << "u[j]: " << lv[index0] << ", " << "u[j-1]: " << lv[index1] << std::endl;
     return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 1)];
 }
 
@@ -1091,14 +1096,15 @@ inline FLOAT dudy(const FLOAT* const lv, const FLOAT* const lm) {
 inline FLOAT dudz(const FLOAT* const lv, const FLOAT* const lm) {
     // Evaluate dudy in the cell center by a central difference
     const int index0 = mapd(0, 0, 0, 0);
-    const int index1 = mapd(0, 0, 0, -1);
+    const int index1 = mapd(0, 0, -1, 0);
     return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 2)];
 }
 
 // dvdx <-> first derivative of v-component of velocity field w.r.t. x-direction.
 inline FLOAT dvdx(const FLOAT* const lv, const FLOAT* const lm) {
     const int index0 = mapd(0, 0, 0, 1);
-    const int index1 = mapd(-1,0 , 0, 1);
+    const int index1 = mapd(-1,0, 0, 1);
+    //std::cout << "dvdx: " << (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 0)] << ", " << "v[i]: " << lv[index0] << ", " << "v[i-1]: " << lv[index1] << std::endl;
     return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 0)];
 }
 

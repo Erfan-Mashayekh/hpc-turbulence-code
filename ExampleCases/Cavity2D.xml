@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
-    <flow Re="500" />
+    <flow Re="3000" />
     <simulation finalTime="10" >
         <type>dns</type>
         <scenario>cavity</scenario>
     </simulation>
     <turbulence turb_modeling = "1"
-	    turb_viscosity="0.02" 
+	    turb_viscosity="1" 
 	    model = "0"/>
     <timestep dt="1" tau="0.5" />
     <solver gamma="0.5" />
