@@ -662,12 +662,6 @@ inline FLOAT dw2dz ( const FLOAT * const lv, const Parameters & parameters, cons
     return tmp2;
 }
 
-inline FLOAT computeF2D(const FLOAT* const localVelocity, const FLOAT* const localMeshsize, const Parameters& parameters, FLOAT dt) {
-    return localVelocity[mapd(0, 0, 0, 0)]
-        + dt * (1 / parameters.flow.Re * (d2udx2(localVelocity, localMeshsize)
-            + d2udy2(localVelocity, localMeshsize)) - du2dx(localVelocity, parameters, localMeshsize)
-            - duvdy(localVelocity, parameters, localMeshsize) + parameters.environment.gx);
-}
 
 
 
@@ -764,8 +758,9 @@ inline FLOAT computeF2DT(const FLOAT* const localVelocity, const FLOAT* const lo
                        
     FLOAT term1 = FT_term1(localVelocity, localMeshsize, vijk, vi1jk);
     FLOAT term2 = FT_term2(localVelocity, localMeshsize, vtr, vbr);
-    //std::cout << "U velocity: " << localVelocity[mapd(0, 0, 0, 0)] << ", " << "timestep: " << dt << std::endl;
-    return localVelocity[mapd(0, 0, 0, 0)] + dt * (term1 + term2 + parameters.environment.gx);
+
+    return localVelocity[mapd(0, 0, 0, 0)] + dt * (term1 + term2  - du2dx(localVelocity, parameters, localMeshsize)
+            - duvdy(localVelocity, parameters, localMeshsize) + parameters.environment.gx);
 }
 
 inline FLOAT computeF3DT(const FLOAT* const localVelocity, const FLOAT* const localMeshsize, const FLOAT* const localViscosity, const Parameters& parameters, FLOAT dt) {
@@ -800,7 +795,10 @@ inline FLOAT computeF3DT(const FLOAT* const localVelocity, const FLOAT* const lo
     FLOAT term1 = FT_term1(localVelocity, localMeshsize, vijk, vi1jk);
     FLOAT term2 = FT_term2(localVelocity, localMeshsize, vtr, vbr);
     FLOAT term3 = FT_term3(localVelocity, localMeshsize, vrf, vrb);
-    return localVelocity[mapd(0, 0, 0, 0)] + dt * (term1 + term2 + term3 + parameters.environment.gx);
+    return localVelocity[mapd(0, 0, 0, 0)] + dt * (term1 + term2 + term3 
+		    - du2dx(localVelocity, parameters, localMeshsize) 
+		    - duvdy(localVelocity, parameters, localMeshsize) 
+		    - duwdz(localVelocity, parameters, localMeshsize) + parameters.environment.gx);
 }
 
 
@@ -901,8 +899,9 @@ inline FLOAT computeG2DT(const FLOAT* const localVelocity, const FLOAT* const lo
 
     FLOAT term1 = GT_term1(localVelocity, localMeshsize, vtr, vtl);
     FLOAT term2 = GT_term2(localVelocity, localMeshsize, vijk, vij1k);
-    //std::cout << "V velocity: " << localVelocity[mapd(0, 0, 0, 1)] << ", " << "timestep: " << dt << std::endl;
-    return localVelocity[mapd(0, 0, 0, 1)] + dt * (term1 + term2 + parameters.environment.gy);
+
+    return localVelocity[mapd(0, 0, 0, 1)] + dt * (term1 + term2 - duvdx(localVelocity, parameters, localMeshsize)
+            - dv2dy(localVelocity, parameters, localMeshsize) + parameters.environment.gy);
 }
 
 inline FLOAT computeG3DT(const FLOAT* const localVelocity, const FLOAT* const localMeshsize, const FLOAT* const localViscosity, const Parameters& parameters, FLOAT dt) {
@@ -936,7 +935,9 @@ inline FLOAT computeG3DT(const FLOAT* const localVelocity, const FLOAT* const lo
     FLOAT term2 = GT_term2(localVelocity, localMeshsize, vijk, vij1k);
     FLOAT term3 = GT_term3(localVelocity, localMeshsize, vtf, vtb);
     
-    return localVelocity[mapd(0, 0, 0, 1)] + dt * (term1 + term2 + term3 + parameters.environment.gy);
+    return localVelocity[mapd(0, 0, 0, 1)] + dt * (term1 + term2 + term3 
+		    - dv2dy(localVelocity, parameters, localMeshsize) - duvdx(localVelocity, parameters, localMeshsize)
+		    - dvwdz(localVelocity, parameters, localMeshsize) + parameters.environment.gy);
 }
 
 
@@ -1045,9 +1046,18 @@ inline FLOAT computeH3DT(const FLOAT* const localVelocity, const FLOAT* const lo
     FLOAT term1 = HT_term1(localVelocity, localMeshsize, vfr, vfl);
     FLOAT term2 = HT_term2(localVelocity, localMeshsize, vft, vfb);
     FLOAT term3 = HT_term3(localVelocity, localMeshsize, vijk, vijk1);
-    return localVelocity[mapd(0, 0, 0, 2)] + dt * (term1 + term2 + term3 + parameters.environment.gz);
+    return localVelocity[mapd(0, 0, 0, 2)] + dt * (term1 + term2 + term3 
+		    - dw2dz(localVelocity, parameters, localMeshsize) - duwdx(localVelocity, parameters, localMeshsize)
+		    - dvwdy(localVelocity, parameters, localMeshsize)  + parameters.environment.gz);
 }
 
+
+inline FLOAT computeF2D(const FLOAT* const localVelocity, const FLOAT* const localMeshsize, const Parameters& parameters, FLOAT dt) {
+    return localVelocity[mapd(0, 0, 0, 0)]
+        + dt * (1 / parameters.flow.Re * (d2udx2(localVelocity, localMeshsize)
+            + d2udy2(localVelocity, localMeshsize)) - du2dx(localVelocity, parameters, localMeshsize)
+            - duvdy(localVelocity, parameters, localMeshsize) + parameters.environment.gx);
+}
 
 inline FLOAT computeG2D(const FLOAT* const localVelocity, const FLOAT* const localMeshsize, const Parameters& parameters, FLOAT dt) {
     return localVelocity[mapd(0, 0, 0, 1)]
@@ -1087,8 +1097,7 @@ inline FLOAT dudy(const FLOAT* const lv, const FLOAT* const lm) {
     // Evaluate dudy in the cell center by a central difference
     const int index0 = mapd(0, 0, 0, 0);
     const int index1 = mapd(0, -1, 0, 0);
-    
-    //std::cout << "dudy: " << (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 1)] << ", " << "u[j]: " << lv[index0] << ", " << "u[j-1]: " << lv[index1] << std::endl;
+
     return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 1)];
 }
 
@@ -1141,6 +1150,7 @@ inline FLOAT computeStrainTensorSquared2D(const FLOAT* const localVelocity, cons
 	FLOAT S22 = 2 * dvdy(localVelocity, localMeshsize);
 	FLOAT S12 = dudy(localVelocity, localMeshsize) + dvdx(localVelocity, localMeshsize);
 
+	//std::cout << "S11 = " << S11 << "   S22 = " << S22 << "  S12 = "<< S12 << std::endl;
 	return std::pow(S11,2) + std::pow(S22,2) + 2*std::pow(S12,2);
 
 }

@@ -148,7 +148,7 @@ void Simulation::setTimeStep() {
 		*/
 		//localMin = std::min(diffusivetimeStep, std::min(parameters_.timestep.dt, std::min(1 / maxUStencil_.getMaxValues()[0], 1 / maxUStencil_.getMaxValues()[1])));
 		localMin = std::min(diffusivetimeStep, parameters_.timestep.dt);
-		//std::cout << "localMin: " << localMin << "   " << "diffusivetimeStep: " << diffusivetimeStep << "dt: " << parameters_.timestep.dt <<std::endl;
+		std::cout << "localMin: " << localMin << "   " << "diffusivetimeStep: " << diffusivetimeStep << "dt: " << parameters_.timestep.dt <<std::endl;
 	}
 	
 	else{
@@ -174,19 +174,17 @@ void Simulation::setTimeStep() {
 
 	parameters_.timestep.dt = globalMin;
 	parameters_.timestep.dt *= parameters_.timestep.tau;
-	parameters_.timestep.dt = 10e-5;
+	//parameters_.timestep.dt = 10e-5;
 }
 
 
 //*****Distance to nearest wall function
 
 void Simulation::distanceNearestWall() {
-	std::cout << "function called "<<  std::endl;
 	//number of cells in each direction plus the ghost cells 
     const int sizex = flowField_.getNx() + 3;
     const int sizey = flowField_.getNy() + 3;
     const int sizez = flowField_.getNz() + 3; 
-    std::cout << "sizex = " << sizex << "	sizey= " << sizey << "	sizez = " << sizez << std::endl;
     
     // distance to each axis
     FLOAT dx = 0; //dummy values
@@ -207,37 +205,32 @@ void Simulation::distanceNearestWall() {
     	for (int j = 0; j < sizey; j++) {
     		for (int i = 0; i < sizex; i++) {
     			int obstacle = flowField_.getFlags().getValue(i, j);
-    std::cout << "meshsize = " << parameters_.meshsize->getDx(i,j) << " " << parameters_.meshsize->getDy(i,j) << std::endl;
     			//if cell is fluid:
     			if ((obstacle & OBSTACLE_SELF) == 0){
-				std::cout << "obstacle" << std::endl;
+
     				//check right wall is wall and check if cell is more than equal to half the domain width to the right
     				if ((obstacle = flowField_.getFlags().getValue(sizex-1, j) == 0) && (i >= sizex/2)){
     					dx = (sizex-i)*parameters_.meshsize->getDx(i,j) - parameters_.meshsize->getDx(i,j)/2;
-					std::cout << "right wall " << std::endl;
-
     				}
     				//check left wall is wall and check if cell is less than half the domain width to the left
     				else if ((obstacle = flowField_.getFlags().getValue(0, j) == 0) && (i < sizex/2)){
     					dx = (i)*parameters_.meshsize->getDx(i,j) - parameters_.meshsize->getDx(i,j)/2;
-					std::cout << "left wall "<< std::endl;
     				}
     				//check top wall is wall and check if cell is more than equal to half the domain height to the top
     				if ((obstacle = flowField_.getFlags().getValue(i, sizey-1) == 0) && (j >= sizey/2)){
     					dy = (sizey-j)*parameters_.meshsize->getDy(i,j) - parameters_.meshsize->getDy(i,j)/2;
-					std::cout << "top wall " << std::endl;
     				}
     				//check bottom wall is wall and check if cell is less than half the domain height to the bottom
     				else if ((obstacle = flowField_.getFlags().getValue(i, 0) == 0) && (j < sizey/2)){
     					dy = (j)*parameters_.meshsize->getDy(i,j) - parameters_.meshsize->getDy(i,j)/2;
-					std::cout << "bottom wall "<<  std::endl;
-					std::cout << "j = " << j << "	dy = " << parameters_.meshsize->getDy(i,j) << "	i = " << i << std::endl;
     				}
     				
     				//find the distance of cell to nearest wall
     				distance_to_wall.getScalar(i,j) = std::abs(std::min(dx,dy));
 				std::cout << "distance = " << distance_to_wall.getScalar(i,j) << "	dx = " 
 					<< dx << "	dy = " << dy << std::endl;
+
+    				
     				
     				//only goes into these loops if there is a step
     				//top boundary loop
@@ -245,24 +238,27 @@ void Simulation::distanceNearestWall() {
     					FLOAT xdis = (i-x)*parameters_.meshsize->getDx(i,j);
     					FLOAT ydis = (j-stepYBound)*parameters_.meshsize->getDy(i,j);
     					FLOAT stepDis = sqrt((xdis*xdis) + (ydis*ydis));
+
     					distance_to_wall.getScalar(i,j) = std::abs(std::min(distance_to_wall.getScalar(i,j), stepDis));   					
 					std::cout << "distance = " << distance_to_wall.getScalar(i,j) << " stepDis = " 
 					<< stepDis << std::endl;
+
     				}
     				//left boundary loop
     				for (int y=0; y < stepYBound; y++){
     					FLOAT xdis = (i-stepXBound)*parameters_.meshsize->getDx(i,j);
     					FLOAT ydis = (j-y)*parameters_.meshsize->getDy(i,j);
     					FLOAT stepDis = sqrt((xdis*xdis) + (ydis*ydis));
+
     					distance_to_wall.getScalar(i,j) = std::abs(std::min(distance_to_wall.getScalar(i,j), stepDis));   					
 					std::cout << "left boundary distance = " << distance_to_wall.getScalar(i,j) << " stepDis = " 
 					<< stepDis << std::endl;
+
     				}
     			}
     			//if cell is object then distance to wall is zero
     			else if ((obstacle & OBSTACLE_SELF) == 1){
     				distance_to_wall.getScalar(i,j) = 0;
-				std::cout << "else if " << std::endl;
     			}
     			
     			
