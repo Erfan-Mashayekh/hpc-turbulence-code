@@ -9,42 +9,58 @@ namespace NSEOF::Stencils {
      * Functions for 3D
      */
 
-    // TODO: Generalize for 3D (it works for 2D)
-
     void VelocityBufferReadStencil::applyLeftWall(FlowField& flowField, int i, int j, int k) {
         flowField.getVelocity().getVector(i - 1, j, k)[0] = getNextInBufferLeft(); // "u"
-        flowField.getVelocity().getVector(i, j, k)[1]     = getNextInBufferLeft(); // "v"
-        flowField.getVelocity().getVector(i, j, k)[2]     = getNextInBufferLeft(); // "w"
+        flowField.getVelocity().getVector(i, j, k)[1] = getNextInBufferLeft(); // "v"
+
+        if (parameters_.geometry.dim == 3) { // 3D
+            flowField.getVelocity().getVector(i, j, k)[2] = getNextInBufferLeft(); // "w"
+        }
     }
 
     void VelocityBufferReadStencil::applyRightWall(FlowField& flowField, int i, int j, int k) {
         flowField.getVelocity().getVector(i, j, k)[0] = getNextInBufferRight(); // "u"
         flowField.getVelocity().getVector(i, j, k)[1] = getNextInBufferRight(); // "v"
-        flowField.getVelocity().getVector(i, j, k)[2] = getNextInBufferRight(); // "w"
+
+        if (parameters_.geometry.dim == 3) { // 3D
+            flowField.getVelocity().getVector(i, j, k)[2] = getNextInBufferRight(); // "w"
+        }
     }
 
     void VelocityBufferReadStencil::applyBottomWall(FlowField& flowField, int i, int j, int k) {
-        flowField.getVelocity().getVector(i, j, k)[0]     = getNextInBufferBottom(); // "u"
+        flowField.getVelocity().getVector(i, j, k)[0] = getNextInBufferBottom(); // "u"
         flowField.getVelocity().getVector(i, j - 1, k)[1] = getNextInBufferBottom(); // "v"
-        flowField.getVelocity().getVector(i, j, k)[2]     = getNextInBufferBottom(); // "w"
+
+        if (parameters_.geometry.dim == 3) { // 3D
+            flowField.getVelocity().getVector(i, j, k)[2] = getNextInBufferBottom(); // "w"
+        }
     }
 
     void VelocityBufferReadStencil::applyTopWall(FlowField& flowField, int i, int j, int k) {
         flowField.getVelocity().getVector(i, j, k)[0] = getNextInBufferTop(); // "u"
         flowField.getVelocity().getVector(i, j, k)[1] = getNextInBufferTop(); // "v"
-        flowField.getVelocity().getVector(i, j, k)[2] = getNextInBufferTop(); // "w"
+
+        if (parameters_.geometry.dim == 3) { // 3D
+            flowField.getVelocity().getVector(i, j, k)[2] = getNextInBufferTop(); // "w"
+        }
     }
 
     void VelocityBufferReadStencil::applyFrontWall(FlowField& flowField, int i, int j, int k) {
-        flowField.getVelocity().getVector(i, j, k)[0]     = getNextInBufferFront(); // "u"
-        flowField.getVelocity().getVector(i, j, k)[1]     = getNextInBufferFront(); // "v"
-        flowField.getVelocity().getVector(i, j, k - 1)[2] = getNextInBufferFront(); // "w"
+        flowField.getVelocity().getVector(i, j, k)[0] = getNextInBufferFront(); // "u"
+        flowField.getVelocity().getVector(i, j, k)[1] = getNextInBufferFront(); // "v"
+
+        if (parameters_.geometry.dim == 3) { // 3D
+            flowField.getVelocity().getVector(i, j, k - 1)[2] = getNextInBufferFront(); // "w"
+        }
     }
 
     void VelocityBufferReadStencil::applyBackWall(FlowField& flowField, int i, int j, int k) {
         flowField.getVelocity().getVector(i, j, k)[0] = getNextInBufferBack(); // "u"
         flowField.getVelocity().getVector(i, j, k)[1] = getNextInBufferBack(); // "v"
-        flowField.getVelocity().getVector(i, j, k)[2] = getNextInBufferBack(); // "w"
+
+        if (parameters_.geometry.dim == 3) { // 3D
+            flowField.getVelocity().getVector(i, j, k)[2] = getNextInBufferBack(); // "w"
+        }
     }
 
     /**
@@ -52,24 +68,19 @@ namespace NSEOF::Stencils {
      */
 
     void VelocityBufferReadStencil::applyLeftWall(FlowField& flowField, int i, int j) {
-        flowField.getVelocity().getVector(i, j)[0] = getNextInBufferLeft(); // "u-"
-        flowField.getVelocity().getVector(i, j)[1] = getNextInBufferLeft(); // "v"
+        applyLeftWall(flowField, i, j, 0);
     }
 
     void VelocityBufferReadStencil::applyRightWall(FlowField& flowField, int i, int j) {
-        flowField.getVelocity().getVector(i, j)[0] = getNextInBufferRight(); // "u"
-        flowField.getVelocity().getVector(i, j)[1] = getNextInBufferRight(); // "v"
+        applyRightWall(flowField, i, j, 0);
     }
 
     void VelocityBufferReadStencil::applyBottomWall(FlowField& flowField, int i, int j) {
-        flowField.getVelocity().getVector(i, j - 1)[1] = getNextInBufferBottom(); // "v-"
-        flowField.getVelocity().getVector(i, j)[0]     = getNextInBufferBottom(); // "u"
-        flowField.getVelocity().getVector(i, j)[1]     = getNextInBufferBottom(); // "v"
+        applyBottomWall(flowField, i, j, 0);
     }
 
     void VelocityBufferReadStencil::applyTopWall(FlowField& flowField, int i, int j) {
-        flowField.getVelocity().getVector(i, j)[0] = getNextInBufferTop(); // "u"
-        flowField.getVelocity().getVector(i, j)[1] = getNextInBufferTop(); // "v"
+        applyTopWall(flowField, i, j, 0);
     }
 
 } // namespace NSEOF::Stencils
