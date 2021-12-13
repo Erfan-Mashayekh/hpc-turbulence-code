@@ -80,7 +80,11 @@ void Simulation::calculateDistancesToNearestWalls() {
                     distance_to_wall.getScalar(i, j, k) = 0;
                 } else { // If it is a fluid cell, calculate the distance
                 
-                	//Note: To limit if conditions we are only checking for u-velocities on each wall
+                	/**
+                	*
+                	*Note: To limit if conditions we are only 
+                	*	   checking for u-velocities on each wall
+                	*/
                 	//check if left or right wall has u-velocity 
                 	if ((parameters_.walls.vectorLeft[0] == 0) && (parameters_.walls.vectorRight[0] == 0)) {
                     	distX = std::abs((i <= sizeX / 2 ? i : sizeX - i) * parameters_.meshsize->getDx(i, j, k));
