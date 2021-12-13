@@ -1,39 +1,36 @@
-#ifndef __STENCILS_MIN_TIMESTEP_STENCIL_HPP__
-#define __STENCILS_MIN_TIMESTEP_STENCIL_HPP__
+#ifndef __STENCILS_MIN_TIME_STEP_STENCIL_HPP__
+#define __STENCILS_MIN_TIME_STEP_STENCIL_HPP__
 
 #include "Stencil.hpp"
 #include "FlowField.hpp"
 #include "Parameters.hpp"
 
-namespace NSEOF {
-namespace Stencils {
+#include <algorithm>
+#include <math.h>
 
-//This class comutes the minimum diffusive timestep for the turbulent cases
+namespace NSEOF::Stencils {
+
+/**
+ * This class commutes the minimum diffusive timestep for the turbulent cases
+ */
 class MinTimeStepStencil : public FieldStencil<FlowField> {
 private:
-    FLOAT diffusiveTimeStep_; //! Stores the minimum diffusive time step
-    
-    //finds the current cell timestep and changes the diffusiveTimeStep_ to the current timestep, if the current one is smaller
-    void cellMinValue(FlowField& flowField, int i, int j);
-
-    void cellMinValue(FlowField& flowField, int i, int j, int k);
+    FLOAT diffusiveTimeStep_; //! Stores the minimum diffusive timestep
 
 public:
-    MinTimeStepStencil(const Parameters& parameters);
+    explicit MinTimeStepStencil(const Parameters& parameters);
     ~MinTimeStepStencil() override = default;
 
     void apply(FlowField& flowField, int i, int j) override;
     void apply(FlowField& flowField, int i, int j, int k) override;
 
-    /** Resets the minimum value to zero before computing the timestep.
-     */
+    // Resets the minimum value to zero before computing the timestep.
     void reset();
 
     // Returns the minimum timestep over the whole geometry,
-    FLOAT getDiffusiveTimeStep() const;
+    [[nodiscard]] FLOAT getDiffusiveTimeStep() const;
 };
 
-} // namespace Stencils
-} // namespace NSEOF
+} // namespace NSEOF::Stencils
 
-#endif // __STENCILS_MIN_TIMESTEP_STENCIL_HPP__
+#endif // __STENCILS_MIN_TIME_STEP_STENCIL_HPP__

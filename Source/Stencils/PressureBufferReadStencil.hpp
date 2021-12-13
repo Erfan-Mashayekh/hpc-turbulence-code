@@ -9,7 +9,6 @@ namespace NSEOF::Stencils {
  * A boundary stencil that reads the pressure buffer
  */
 class PressureBufferReadStencil : public BufferReadStencil {
-
 public:
     explicit PressureBufferReadStencil(const Parameters&);
     ~PressureBufferReadStencil() override = default;

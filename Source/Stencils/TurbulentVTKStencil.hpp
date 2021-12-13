@@ -1,5 +1,5 @@
-#ifndef __STENCILS_VTK_TURBULENCE_STENCIL_HPP__
-#define __STENCILS_VTK_TURBULENCE_STENCIL_HPP__
+#ifndef __STENCILS_TURBULENT_VTK_STENCIL_HPP__
+#define __STENCILS_TURBULENT_VTK_STENCIL_HPP__
 
 #include "VTKStencil.hpp"
 
@@ -10,8 +10,7 @@ namespace NSEOF::Stencils {
  * When iterated with, creates a VTK file.
  */
 
-class VTKTurbulenceStencil : public VTKStencil {
-
+class TurbulentVTKStencil : public VTKStencil {
 private:
     ScalarField eddyViscosity_;
     ScalarField distanceToWall_;
@@ -23,12 +22,12 @@ protected:
     void writeValues(FILE*) override;
 
 public:
-    explicit VTKTurbulenceStencil(const Parameters&, int, int, int);
-    ~VTKTurbulenceStencil() override = default;
+    explicit TurbulentVTKStencil(const Parameters&, int, int, int);
+    ~TurbulentVTKStencil() override = default;
 
     void apply(FlowField&, int, int, int) override;
 };
 
 } // namespace NSEOF::Stencils
 
-#endif // __STENCILS_VTK_T_STENCIL_HPP__
+#endif // __STENCILS_TURBULENT_VTK_STENCIL_HPP__
