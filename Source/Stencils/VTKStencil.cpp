@@ -60,9 +60,9 @@ namespace NSEOF::Stencils {
     }
 
     void VTKStencil::writePositions_(FILE* filePtr) {
-        const int sizeX = parameters_.geometry.sizeX;
-        const int sizeY = parameters_.geometry.sizeY;
-        const int sizeZ = parameters_.geometry.dim == 3 ? parameters_.geometry.sizeZ : 0;
+        const int sizeX = parameters_.parallel.localSize[0];
+        const int sizeY = parameters_.parallel.localSize[1];
+        const int sizeZ = parameters_.geometry.dim == 3 ? parameters_.parallel.localSize[2] : 0;
 
         fprintf(filePtr, "DATASET %s\n", parameters_.vtk.datasetName.c_str());
         fprintf(filePtr, "DIMENSIONS %d %d %d\n", (sizeX + 1), (sizeY + 1), (sizeZ + 1));
@@ -71,13 +71,13 @@ namespace NSEOF::Stencils {
         auto cellIndexIterator = cellIndices_.begin();
         CellIndex* cellIndex;
 
-        FLOAT posX, posY, posZ = parameters_.parallel.firstCorner[2];
+        FLOAT posX, posY, posZ = parameters_.parallel.firstCorner[2] * parameters_.meshsize->getDz(0,0,0);
 
         for (int k = 0; k <= sizeZ; k++) {
-            posY = parameters_.parallel.firstCorner[1];
+            posY = parameters_.parallel.firstCorner[1] * parameters_.meshsize->getDy(0,0,0);
 
             for (int j = 0; j <= sizeY; j++) {
-                posX = parameters_.parallel.firstCorner[0];
+                posX = parameters_.parallel.firstCorner[0] * parameters_.meshsize->getDx(0,0,0);
 
                 for (int i = 0; i <= sizeX; i++) {
                     cellIndex = &(*cellIndexIterator);
@@ -131,6 +131,7 @@ namespace NSEOF::Stencils {
         // Decide on the filename
         long time = timeStep * parameters_.vtk.interval * 1e6;
         std::string filename = parameters_.vtk.outDir + "/" + parameters_.vtk.prefix + "_" +
+                               std::to_string(parameters_.parallel.rank) + "_" +
                                std::to_string(time) + ".vtk";
 
         // Open the file stream
