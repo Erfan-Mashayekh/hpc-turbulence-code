@@ -10,8 +10,6 @@
 #include "Stencils/MovingWallStencils.hpp"
 #include "Stencils/RHSStencil.hpp"
 #include "Stencils/VelocityStencil.hpp"
-#include "Stencils/ViscosityStencil.hpp"
-#include "Stencils/MinTimeStepStencil.hpp"
 #include "Stencils/ObstacleStencil.hpp"
 #include "Stencils/VTKStencil.hpp"
 #include "Stencils/MaxUStencil.hpp"
@@ -20,6 +18,15 @@
 #include "Stencils/NeumannBoundaryStencils.hpp"
 #include "Stencils/BFInputStencils.hpp"
 #include "Stencils/InitTaylorGreenFlowFieldStencil.hpp"
+#include "Stencils/ViscosityStencil.hpp"
+#include "Stencils/MinTimeStepStencil.hpp"
+
+#include "ParallelManagers/PetscParallelManager.hpp"
+
+#include "Stencils/PressureBufferFillStencil.hpp"
+#include "Stencils/PressureBufferReadStencil.hpp"
+#include "Stencils/VelocityBufferFillStencil.hpp"
+#include "Stencils/VelocityBufferReadStencil.hpp"
 
 #include "Solvers/LinearSolver.hpp"
 
@@ -56,10 +63,22 @@ protected:
 
     Stencils::ViscosityStencil viscosityStencil_;
     FieldIterator<FlowField> viscosityIterator_;
-    
+
     Stencils::MinTimeStepStencil minTimeStepStencil_;
     FieldIterator<FlowField> minTimeStepIterator_;
-    
+
+    ParallelManagers::PetscParallelManager petscParallelManager_;
+
+    Stencils::PressureBufferFillStencil pressureBufferFillStencil_;
+    Stencils::PressureBufferReadStencil pressureBufferReadStencil_;
+    Stencils::VelocityBufferFillStencil velocityBufferFillStencil_;
+    Stencils::VelocityBufferReadStencil velocityBufferReadStencil_;
+
+    ParallelBoundaryIterator<FlowField> pressureBufferFillIterator_;
+    ParallelBoundaryIterator<FlowField> pressureBufferReadIterator_;
+    ParallelBoundaryIterator<FlowField> velocityBufferFillIterator_;
+    ParallelBoundaryIterator<FlowField> velocityBufferReadIterator_;
+
     std::unique_ptr<Solvers::LinearSolver> solver_;
 
     virtual void setTimeStep();
@@ -75,11 +94,10 @@ public:
 
     /** Plots the flow field */
     virtual void plotVTK(int timeStep);
-    
+
     /** calculates distance to nearest wall */
     virtual void distanceNearestWall();
 };
-
 
 } // namespace NSEOF
 

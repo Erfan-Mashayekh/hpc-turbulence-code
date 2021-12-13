@@ -29,6 +29,19 @@ Simulation::Simulation(Parameters& parameters, FlowField& flowField)
     , viscosityIterator_(flowField_, parameters, viscosityStencil_)
     , minTimeStepStencil_(parameters)
     , minTimeStepIterator_(flowField_, parameters, minTimeStepStencil_)
+    , petscParallelManager_(parameters)
+    , pressureBufferFillStencil_(parameters)
+    , pressureBufferReadStencil_(parameters)
+    , velocityBufferFillStencil_(parameters)
+    , velocityBufferReadStencil_(parameters)
+    , pressureBufferFillIterator_(flowField_, parameters, pressureBufferFillStencil_,
+                                  parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
+    , pressureBufferReadIterator_(flowField_, parameters, pressureBufferReadStencil_,
+                                  parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
+    , velocityBufferFillIterator_(flowField_, parameters, velocityBufferFillStencil_,
+                                  parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
+    , velocityBufferReadIterator_(flowField_, parameters, velocityBufferReadStencil_,
+                                  parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
 #ifdef BUILD_WITH_PETSC
     , solver_(std::make_unique<Solvers::PetscSolver>(flowField_, parameters))
 #else
@@ -74,29 +87,37 @@ void Simulation::initializeFlowField() {
     }
 
     solver_->reInitMatrix();
-    
-    //ws2: solve and store the nearest distance calculation
+
+    // TODO WS2: solve and store the nearest distance calculation
     Simulation::distanceNearestWall();
 }
 
 void Simulation::solveTimestep() {
     // Determine and set max. timestep which is allowed in this simulation
     setTimeStep();
-    // Compute eddy viscosity
-    viscosityIterator_.iterate();
-    // Compute FGH
-    fghIterator_.iterate();
-    // Set global boundary values
-    wallFGHIterator_.iterate();
-    // Compute the right hand side (RHS)
-    rhsIterator_.iterate();
-    // Solve for pressure 
+
+    viscosityIterator_.iterate(); // Compute eddy viscosity
+    fghIterator_.iterate(); // Compute FGH
+    wallFGHIterator_.iterate(); // Set global boundary values
+    rhsIterator_.iterate(); // Compute the right-hand side (RHS)
+
+    // Solve for pressure
     solver_->solve();
+
     // TODO WS2: communicate pressure values
+    pressureBufferFillIterator_.iterate();
+    petscParallelManager_.communicatePressure(pressureBufferFillStencil_, pressureBufferReadStencil_);
+    pressureBufferReadIterator_.iterate();
+
     // Compute velocity
     velocityIterator_.iterate();
     obstacleIterator_.iterate();
+
     // TODO WS2: communicate velocity values
+    velocityBufferFillIterator_.iterate();
+    petscParallelManager_.communicateVelocity(velocityBufferFillStencil_, velocityBufferReadStencil_);
+    velocityBufferReadIterator_.iterate();
+
     // Iterate for velocities on the boundary
     wallVelocityIterator_.iterate();
 }
@@ -104,52 +125,57 @@ void Simulation::solveTimestep() {
 void Simulation::plotVTK(int timeStep) {
     // TODO WS1: create VTKStencil and respective iterator; iterate stencil
     //           over flowField_ and write flow field information to VTK file.
-    if(parameters_.turbulence.on == 1){
-	    Stencils::VTK_T_Stencil vtkStencil_(parameters_, flowField_.getCellsX(), flowField_.getCellsY(), flowField_.getCellsZ());
-	    FieldIterator<FlowField> vtkIterator_(flowField_, parameters_, vtkStencil_,
+    Stencils::VTKStencil vtkStencil_(parameters_, flowField_.getCellsX(), flowField_.getCellsY(), flowField_.getCellsZ());
+    FieldIterator<FlowField> vtkIterator_(flowField_, parameters_, vtkStencil_,
                                           parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset);
-	    
-	    vtkIterator_.iterate();
-	    vtkStencil_.write(timeStep);
-    
-    }else{
-	    Stencils::VTKStencil vtkStencil_(parameters_, flowField_.getCellsX(), flowField_.getCellsY(), flowField_.getCellsZ());
-	    FieldIterator<FlowField> vtkIterator_(flowField_, parameters_, vtkStencil_,
-                                          parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset);
-	    
-	    vtkIterator_.iterate();
-	    vtkStencil_.write(timeStep);
-    }
+
+    vtkIterator_.iterate();
+    vtkStencil_.write(timeStep);
+
+//    // TODO: Inheritance!!
+//    if(parameters_.turbulence.on == 1){
+//	    Stencils::VTK_T_Stencil vtkStencil_(parameters_, flowField_.getCellsX(), flowField_.getCellsY(), flowField_.getCellsZ());
+//	    FieldIterator<FlowField> vtkIterator_(flowField_, parameters_, vtkStencil_,
+//                                          parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset);
+//
+//	    vtkIterator_.iterate();
+//	    vtkStencil_.write(timeStep);
+//
+//    }else{
+//	    Stencils::VTKStencil vtkStencil_(parameters_, flowField_.getCellsX(), flowField_.getCellsY(), flowField_.getCellsZ());
+//	    FieldIterator<FlowField> vtkIterator_(flowField_, parameters_, vtkStencil_,
+//                                          parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset);
+//
+//    vtkIterator_.iterate();
+//    vtkStencil_.write(timeStep);
 }
 
 void Simulation::setTimeStep() {
+    ASSERTION(parameters_.geometry.dim == 2 || parameters_.geometry.dim == 3);
 
 	FLOAT localMin, globalMin;
-	ASSERTION(parameters_.geometry.dim == 2 || parameters_.geometry.dim == 3);
-	
+
 	// Determine maximum velocity
 	maxUStencil_.reset();
 	maxUFieldIterator_.iterate();
 	maxUBoundaryIterator_.iterate();
 
-	if(parameters_.turbulence.on == 1){
-		
+	if (parameters_.turbulence.on == 1) {
 		// reset diffusive timestep stencil and determine min diffusive timestep
 		minTimeStepStencil_.reset();
 		minTimeStepIterator_.iterate();
+
 		// store minimum diffusive timestep
 		FLOAT diffusivetimeStep = minTimeStepStencil_.getDiffusiveTimeStep();
-		
+
 		if (parameters_.geometry.dim == 3) {
 		    parameters_.timestep.dt = 1.0 / maxUStencil_.getMaxValues()[2];
 		} else {
 		    parameters_.timestep.dt = 1.0 / maxUStencil_.getMaxValues()[0];
 		}
-		
+
 		localMin = std::min(diffusivetimeStep, std::min(parameters_.timestep.dt, std::min(1 / maxUStencil_.getMaxValues()[0], 1 / maxUStencil_.getMaxValues()[1])));
-	}
-	
-	else{
+	} else {
 		FLOAT factor = 1.0 / (parameters_.meshsize->getDxMin() * parameters_.meshsize->getDxMin()) + 1.0 / (parameters_.meshsize->getDyMin() * parameters_.meshsize->getDyMin());
 
 		if (parameters_.geometry.dim == 3) {
@@ -160,40 +186,39 @@ void Simulation::setTimeStep() {
 		}
 
 		localMin = std::min(parameters_.flow.Re / (2 * factor), std::min(parameters_.timestep.dt, std::min(1 / maxUStencil_.getMaxValues()[0], 1 / maxUStencil_.getMaxValues()[1])));
-		
     }
-    
+
     // Here, we select the type of operation before compiling. This allows to use the correct
 	// data type for MPI. Not a concern for small simulations, but useful if using heterogeneous
 	// machines.
 
-	globalMin = MY_FLOAT_MAX;
-	MPI_Allreduce(&localMin, &globalMin, 1, MY_MPI_FLOAT, MPI_MIN, PETSC_COMM_WORLD);
+    globalMin = MY_FLOAT_MAX;
+    MPI_Allreduce(&localMin, &globalMin, 1, MY_MPI_FLOAT, MPI_MIN, PETSC_COMM_WORLD);
 
-	parameters_.timestep.dt = globalMin;
-	parameters_.timestep.dt *= parameters_.timestep.tau;
+    parameters_.timestep.dt = globalMin;
+    parameters_.timestep.dt *= parameters_.timestep.tau;
 }
 
 
 //*****Distance to nearest wall function
 
 void Simulation::distanceNearestWall() {
-	//number of cells in each direction plus the ghost cells 
+	//number of cells in each direction plus the ghost cells
     const int sizex = flowField_.getNx() + 3;
     const int sizey = flowField_.getNy() + 3;
-    const int sizez = flowField_.getNz() + 3; 
-    
+    const int sizez = flowField_.getNz() + 3;
+
     // distance to each axis
     FLOAT dx = 0; //dummy values
     FLOAT dy = 0; //dummy values
     FLOAT dz = 0; //dummy values;
-    
+
     //in case there is a step geometry
     //number of cells in each direction that make up the step
     //parameters_.bfStep.xRatio and parameters_.bfStep.yRatio are -1 if no step
     int stepXBound = ceil(sizex*parameters_.bfStep.xRatio);
     int stepYBound = ceil(sizey*parameters_.bfStep.yRatio);
-    
+
  	//field to store distance to wall
     ScalarField& distance_to_wall = flowField_.getDistance();
 
@@ -221,14 +246,14 @@ void Simulation::distanceNearestWall() {
     				else if ((obstacle = flowField_.getFlags().getValue(i, 0) == 0) && (j < sizey/2)){
     					dy = (j)*parameters_.meshsize->getDy(i,j) - parameters_.meshsize->getDy(i,j)/2;
     				}
-    				
+
     				//find the distance of cell to nearest wall
     				distance_to_wall.getScalar(i,j) = std::abs(std::min(dx,dy));
-				std::cout << "distance = " << distance_to_wall.getScalar(i,j) << "	dx = " 
+				std::cout << "distance = " << distance_to_wall.getScalar(i,j) << "	dx = "
 					<< dx << "	dy = " << dy << std::endl;
 
-    				
-    				
+
+
     				//only goes into these loops if there is a step
     				//top boundary loop
     				for (int x=0; x < stepXBound; x++){
@@ -236,8 +261,8 @@ void Simulation::distanceNearestWall() {
     					FLOAT ydis = (j-stepYBound)*parameters_.meshsize->getDy(i,j);
     					FLOAT stepDis = sqrt((xdis*xdis) + (ydis*ydis));
 
-    					distance_to_wall.getScalar(i,j) = std::abs(std::min(distance_to_wall.getScalar(i,j), stepDis));   					
-					std::cout << "distance = " << distance_to_wall.getScalar(i,j) << " stepDis = " 
+    					distance_to_wall.getScalar(i,j) = std::abs(std::min(distance_to_wall.getScalar(i,j), stepDis));
+					std::cout << "distance = " << distance_to_wall.getScalar(i,j) << " stepDis = "
 					<< stepDis << std::endl;
 
     				}
@@ -247,8 +272,8 @@ void Simulation::distanceNearestWall() {
     					FLOAT ydis = (j-y)*parameters_.meshsize->getDy(i,j);
     					FLOAT stepDis = sqrt((xdis*xdis) + (ydis*ydis));
 
-    					distance_to_wall.getScalar(i,j) = std::abs(std::min(distance_to_wall.getScalar(i,j), stepDis));   					
-					std::cout << "left boundary distance = " << distance_to_wall.getScalar(i,j) << " stepDis = " 
+    					distance_to_wall.getScalar(i,j) = std::abs(std::min(distance_to_wall.getScalar(i,j), stepDis));
+					std::cout << "left boundary distance = " << distance_to_wall.getScalar(i,j) << " stepDis = "
 					<< stepDis << std::endl;
 
     				}
@@ -257,13 +282,13 @@ void Simulation::distanceNearestWall() {
     			else if ((obstacle & OBSTACLE_SELF) == 1){
     				distance_to_wall.getScalar(i,j) = 0;
     			}
-    			
-    			
+
+
     		}
     	}
-           
+
     }
-    
+
     if (parameters_.geometry.dim == 3) {
     	for (int k = 0; k < sizez; k++) {
 			for (int j = 0; j < sizey; j++) {
@@ -295,10 +320,10 @@ void Simulation::distanceNearestWall() {
 						else if ((obstacle = flowField_.getFlags().getValue(i, j, 0) == 0) && (k < sizez/2)){
 							dz = (k)*parameters_.meshsize->getDz(i,j,k) - parameters_.meshsize->getDz(i,j,k)/2;
 						}
-						
+
 						//find the distance of cell to nearest wall
 						distance_to_wall.getScalar(i,j,k) = std::abs(std::min(std::min(dx,dy),dz));
-						
+
 						//only goes into these loops if there is a step
 						//we check both loops in the same z coordinate as the original point so dont need to count it
 						//There is no step in the Z-axis
@@ -307,27 +332,27 @@ void Simulation::distanceNearestWall() {
 							FLOAT xdis = (i-x)*parameters_.meshsize->getDx(i,j,k);
 							FLOAT ydis = (j-stepYBound)*parameters_.meshsize->getDy(i,j,k);
 							FLOAT stepDis = sqrt((xdis*xdis) + (ydis*ydis));
-							distance_to_wall.getScalar(i,j,k) = std::abs(std::min(distance_to_wall.getScalar(i,j,k), stepDis));   					
+							distance_to_wall.getScalar(i,j,k) = std::abs(std::min(distance_to_wall.getScalar(i,j,k), stepDis));
 						}
 						//left boundary loop
 						for (int y=0; y < stepYBound; y++){
 							FLOAT xdis = (i-stepXBound)*parameters_.meshsize->getDx(i,j,k);
 							FLOAT ydis = (j-y)*parameters_.meshsize->getDy(i,j,k);
 							FLOAT stepDis = sqrt((xdis*xdis) + (ydis*ydis));
-							distance_to_wall.getScalar(i,j,k) = std::abs(std::min(distance_to_wall.getScalar(i,j,k), stepDis));   					
+							distance_to_wall.getScalar(i,j,k) = std::abs(std::min(distance_to_wall.getScalar(i,j,k), stepDis));
 						}
 					}
 					//if cell is object then distance to wall is zero
 					else if ((obstacle & OBSTACLE_SELF) == 1){
 						distance_to_wall.getScalar(i,j,k) = 0;
 					}
-					
-					
+
+
 				}
 			}
-		}       
+		}
     }
-    
+
 }
 //**************************************
 

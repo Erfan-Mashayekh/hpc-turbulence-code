@@ -9,8 +9,8 @@
 #include <iostream>
 #include <iomanip>
 #include <sys/stat.h>
-
 #include <filesystem>
+
 
 int main(int argc, char *argv[]) {
     // Parallelization related. Initialize and identify.
@@ -107,13 +107,12 @@ int main(int argc, char *argv[]) {
     int timeSteps = 0;
 
     // TODO WS1: plot initial state
-    simulation->plotVTK(timeSteps++);
-    
+    //simulation->plotVTK(timeSteps++);
 
     // Time loop
     while (time < parameters.simulation.finalTime) {
         simulation->solveTimestep();
-		
+
         time += parameters.timestep.dt;
 
         // Log the time (Master)
@@ -123,10 +122,10 @@ int main(int argc, char *argv[]) {
         }
 
         // TODO WS1: trigger VTK output
-        if (timeVtk <= time) {
-            simulation->plotVTK(timeSteps);
-            timeVtk += parameters.vtk.interval;
-        }
+        //if (timeVtk <= time) {
+        //    simulation->plotVTK(timeSteps);
+        //    timeVtk += parameters.vtk.interval;
+        //}
 
         timeSteps++;
     }
