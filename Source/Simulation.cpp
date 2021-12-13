@@ -74,19 +74,22 @@ void Simulation::initializeFlowField() {
 void Simulation::solveTimestep() {
     // Determine and set max. timestep which is allowed in this simulation
     setTimeStep();
-    // Compute FGH
-    fghIterator_.iterate();
-    // Set global boundary values
-    wallFGHIterator_.iterate();
-    // Compute the right hand side (RHS)
-    rhsIterator_.iterate();
-    // Solve for pressure 
+
+    fghIterator_.iterate(); // Compute FGH
+    wallFGHIterator_.iterate(); // Set global boundary values
+    rhsIterator_.iterate(); // Compute the right-hand side (RHS)
+
+    // Solve for pressure
     solver_->solve();
+
     // TODO WS2: communicate pressure values
+
     // Compute velocity
     velocityIterator_.iterate();
     obstacleIterator_.iterate();
+
     // TODO WS2: communicate velocity values
+
     // Iterate for velocities on the boundary
     wallVelocityIterator_.iterate();
 }
@@ -103,22 +106,24 @@ void Simulation::plotVTK(int timeStep) {
 }
 
 void Simulation::setTimeStep() {
-    FLOAT localMin, globalMin;
     ASSERTION(parameters_.geometry.dim == 2 || parameters_.geometry.dim == 3);
+
+	FLOAT localMin, globalMin;
     FLOAT factor = 1.0 / (parameters_.meshsize->getDxMin() * parameters_.meshsize->getDxMin()) + 1.0 / (parameters_.meshsize->getDyMin() * parameters_.meshsize->getDyMin());
 
-    // Determine maximum velocity
-    maxUStencil_.reset();
-    maxUFieldIterator_.iterate();
-    maxUBoundaryIterator_.iterate();
-    if (parameters_.geometry.dim == 3) {
+	// Determine maximum velocity
+	maxUStencil_.reset();
+	maxUFieldIterator_.iterate();
+	maxUBoundaryIterator_.iterate();
+
+    if (parameters_.geometry.dim == 3) { // 3D
         factor += 1.0 / (parameters_.meshsize->getDzMin() * parameters_.meshsize->getDzMin());
         parameters_.timestep.dt = 1.0 / maxUStencil_.getMaxValues()[2];
-    } else {
+    } else { // 2D
         parameters_.timestep.dt = 1.0 / maxUStencil_.getMaxValues()[0];
     }
 
-    //localMin = std::min(parameters_.timestep.dt, std::min(std::min(parameters_.flow.Re/(2 * factor), 1.0 / maxUStencil_.getMaxValues()[0]), 1.0 / maxUStencil_.getMaxValues()[1]));
+    // localMin = std::min(parameters_.timestep.dt, std::min(std::min(parameters_.flow.Re/(2 * factor), 1.0 / maxUStencil_.getMaxValues()[0]), 1.0 / maxUStencil_.getMaxValues()[1]));
     localMin = std::min(parameters_.flow.Re / (2 * factor), std::min(parameters_.timestep.dt, std::min(1 / maxUStencil_.getMaxValues()[0], 1 / maxUStencil_.getMaxValues()[1])));
 
     // Here, we select the type of operation before compiling. This allows to use the correct
