@@ -13,7 +13,7 @@
 
 namespace NSEOF::Stencils {
 
-/** TODO WS1: Stencil for writting VTK files
+/** TODO WS1: Stencil for writing VTK files
  *
  * When iterated with, creates a VTK file.
  */
@@ -36,6 +36,11 @@ private:
     void writePositions_(FILE*);
     void writePressures_(FILE*);
     void writeVelocities_(FILE*);
+
+protected:
+    virtual void writeValues(FILE*);
+
+    [[nodiscard]] const std::vector<CellIndex>& getCellIndices() const;
 
 public:
     explicit VTKStencil(const Parameters&, int, int, int);

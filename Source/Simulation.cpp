@@ -1,7 +1,7 @@
 #include "Simulation.hpp"
 
 #include "Stencils/VTKStencil.hpp"
-#include "Stencils/VTK_T_Stencil.hpp"
+#include "Stencils/VTKTurbulenceStencil.hpp"
 
 #include "Solvers/SORSolver.hpp"
 #include "Solvers/PetscSolver.hpp"
@@ -125,29 +125,23 @@ void Simulation::solveTimestep() {
 void Simulation::plotVTK(int timeStep) {
     // TODO WS1: create VTKStencil and respective iterator; iterate stencil
     //           over flowField_ and write flow field information to VTK file.
-    Stencils::VTKStencil vtkStencil_(parameters_, flowField_.getCellsX(), flowField_.getCellsY(), flowField_.getCellsZ());
-    FieldIterator<FlowField> vtkIterator_(flowField_, parameters_, vtkStencil_,
+    Stencils::VTKStencil* vtkStencil_;
+
+    if (parameters_.turbulence.on == 1) { // Turbulence Model
+        vtkStencil_ = new Stencils::VTKTurbulenceStencil(
+                parameters_, flowField_.getCellsX(), flowField_.getCellsY(), flowField_.getCellsZ());
+    } else { // Laminar Model
+        vtkStencil_ = new Stencils::VTKStencil(
+                parameters_, flowField_.getCellsX(), flowField_.getCellsY(), flowField_.getCellsZ());
+    }
+
+    FieldIterator<FlowField> vtkIterator_(flowField_, parameters_, *vtkStencil_,
                                           parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset);
 
     vtkIterator_.iterate();
-    vtkStencil_.write(timeStep);
+    vtkStencil_->write(timeStep);
 
-//    // TODO: Inheritance!!
-//    if(parameters_.turbulence.on == 1){
-//	    Stencils::VTK_T_Stencil vtkStencil_(parameters_, flowField_.getCellsX(), flowField_.getCellsY(), flowField_.getCellsZ());
-//	    FieldIterator<FlowField> vtkIterator_(flowField_, parameters_, vtkStencil_,
-//                                          parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset);
-//
-//	    vtkIterator_.iterate();
-//	    vtkStencil_.write(timeStep);
-//
-//    }else{
-//	    Stencils::VTKStencil vtkStencil_(parameters_, flowField_.getCellsX(), flowField_.getCellsY(), flowField_.getCellsZ());
-//	    FieldIterator<FlowField> vtkIterator_(flowField_, parameters_, vtkStencil_,
-//                                          parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset);
-//
-//    vtkIterator_.iterate();
-//    vtkStencil_.write(timeStep);
+    delete vtkStencil_;
 }
 
 void Simulation::setTimeStep() {
@@ -160,29 +154,26 @@ void Simulation::setTimeStep() {
 	maxUFieldIterator_.iterate();
 	maxUBoundaryIterator_.iterate();
 
+    if (parameters_.geometry.dim == 3) { // 3D
+        parameters_.timestep.dt = 1.0 / maxUStencil_.getMaxValues()[2];
+    } else { // 2D
+        parameters_.timestep.dt = 1.0 / maxUStencil_.getMaxValues()[0];
+    }
+
 	if (parameters_.turbulence.on == 1) {
 		// reset diffusive timestep stencil and determine min diffusive timestep
 		minTimeStepStencil_.reset();
 		minTimeStepIterator_.iterate();
 
 		// store minimum diffusive timestep
-		FLOAT diffusivetimeStep = minTimeStepStencil_.getDiffusiveTimeStep();
+		FLOAT diffusiveTimeStep = minTimeStepStencil_.getDiffusiveTimeStep();
 
-		if (parameters_.geometry.dim == 3) {
-		    parameters_.timestep.dt = 1.0 / maxUStencil_.getMaxValues()[2];
-		} else {
-		    parameters_.timestep.dt = 1.0 / maxUStencil_.getMaxValues()[0];
-		}
-
-		localMin = std::min(diffusivetimeStep, std::min(parameters_.timestep.dt, std::min(1 / maxUStencil_.getMaxValues()[0], 1 / maxUStencil_.getMaxValues()[1])));
+		localMin = std::min(diffusiveTimeStep, std::min(parameters_.timestep.dt, std::min(1 / maxUStencil_.getMaxValues()[0], 1 / maxUStencil_.getMaxValues()[1])));
 	} else {
 		FLOAT factor = 1.0 / (parameters_.meshsize->getDxMin() * parameters_.meshsize->getDxMin()) + 1.0 / (parameters_.meshsize->getDyMin() * parameters_.meshsize->getDyMin());
 
-		if (parameters_.geometry.dim == 3) {
+		if (parameters_.geometry.dim == 3) { // 3D
 		    factor += 1.0 / (parameters_.meshsize->getDzMin() * parameters_.meshsize->getDzMin());
-		    parameters_.timestep.dt = 1.0 / maxUStencil_.getMaxValues()[2];
-		} else {
-		    parameters_.timestep.dt = 1.0 / maxUStencil_.getMaxValues()[0];
 		}
 
 		localMin = std::min(parameters_.flow.Re / (2 * factor), std::min(parameters_.timestep.dt, std::min(1 / maxUStencil_.getMaxValues()[0], 1 / maxUStencil_.getMaxValues()[1])));

@@ -127,6 +127,12 @@ namespace NSEOF::Stencils {
         fprintf(filePtr, "\n");
     }
 
+    void VTKStencil::writeValues(FILE* filePtr) {
+        writePositions_(filePtr);
+        writePressures_(filePtr);
+        writeVelocities_(filePtr);
+    }
+
     void VTKStencil::write(int timeStep) {
         // Decide on the filename
         long time = timeStep * parameters_.vtk.interval * 1e6;
@@ -141,12 +147,14 @@ namespace NSEOF::Stencils {
         fprintf(filePtr, "%s\n", parameters_.vtk.vtkFileHeader.c_str());
 
         // Write data to the file
-        writePositions_(filePtr);
-        writePressures_(filePtr);
-        writeVelocities_(filePtr);
+        writeValues(filePtr);
 
         // Close the file stream
         fclose(filePtr);
+    }
+
+    const std::vector<CellIndex>& VTKStencil::getCellIndices() const {
+        return cellIndices_;
     }
 
 } // namespace NSEOF::Stencils

@@ -814,7 +814,7 @@ inline FLOAT GT_term1(const FLOAT* const lv, const FLOAT* const lm, FLOAT vtr, F
     const int index1 = mapd(0, 1, 0, 0); //u[i,j+1,k]
     const int index2 = mapd(0, -1, 0, 0); //u[i,j-1,k]
     const int index3 = mapd(0, 0, 0, 1); //v[i,j,k]
-    //const int index4 = mapd(1, 0, 0, 1); //v[i+1,j,k]
+    const int index4 = mapd(1, 0, 0, 1); //v[i+1,j,k]
     //const int index5 = mapd(0, -1, 0, 1); //v[i,j-1,k]
     //const int index6 = mapd(1, -1, 0, 1); //v[i+1,j-1,k]
     const int index7 = mapd(-1, 0, 0, 1); //v[i-1,j,k]
