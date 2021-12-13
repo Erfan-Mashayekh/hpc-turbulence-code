@@ -79,14 +79,50 @@ void Simulation::calculateDistancesToNearestWalls() {
                 if ((obstacle & OBSTACLE_SELF) != 0) { // If it is not a fluid cell, the dist is zero.
                     distance_to_wall.getScalar(i, j, k) = 0;
                 } else { // If it is a fluid cell, calculate the distance
-                    distX = (i <= sizeX / 2 ? i : sizeX - i) *
-                            parameters_.meshsize->getDx(i, j, k) - parameters_.meshsize->getDx(i, j, k) / 2;
-                    distY = (j <= sizeY / 2 ? j : sizeY - j) *
-                            parameters_.meshsize->getDy(i, j, k) - parameters_.meshsize->getDy(i, j, k) / 2;
+                
+                	//Note: To limit if conditions we are only checking for u-velocities on each wall
+                	//check if left or right wall has u-velocity 
+                	if ((parameters_.walls.vectorLeft[0] == 0) && (parameters_.walls.vectorRight[0] == 0)) {
+                    	distX = std::abs((i <= sizeX / 2 ? i : sizeX - i) * parameters_.meshsize->getDx(i, j, k));
+                    }
+                    else if ((parameters_.walls.vectorLeft[0] == 0) && (parameters_.walls.vectorRight[0] != 0)) {
+                    	distX = std::abs(i * parameters_.meshsize->getDx(i, j, k));	
+                    }
+                    else if ((parameters_.walls.vectorLeft[0] != 0) && (parameters_.walls.vectorRight[0] == 0)) {
+                    	distX = std::abs((sizeX - i) * parameters_.meshsize->getDx(i, j, k));	
+                    }
+                    else {
+                    	distX = std::numeric_limits<FLOAT>::infinity();
+                    }
+                    
+                    //check if top or bottom wall has u-velocity 
+                	if ((parameters_.walls.vectorBottom[0] == 0) && (parameters_.walls.vectorTop[0] == 0)) {
+                    	distY = std::abs((j <= sizeY / 2 ? j : sizeY - j) * parameters_.meshsize->getDy(i, j, k));
+                    }
+                    else if ((parameters_.walls.vectorBottom[0] == 0) && (parameters_.walls.vectorTop[0] != 0)) {
+                    	distY = std::abs(j * parameters_.meshsize->getDy(i, j, k));	
+                    }
+                    else if ((parameters_.walls.vectorBottom[0] != 0) && (parameters_.walls.vectorTop[0] == 0)) {
+                    	distY = std::abs((sizeY - j) * parameters_.meshsize->getDy(i, j, k));
+                    }
+                    else {
+                    	distY = std::numeric_limits<FLOAT>::infinity();
+                    }
 
                     if (parameters_.geometry.dim == 3) { // 3D
-                        distZ = (k <= sizeZ / 2 ? k : sizeZ - k) *
-                                parameters_.meshsize->getDz(i, j, k) - parameters_.meshsize->getDz(i, j, k) / 2;
+                        //check if front or back wall has u-velocity 
+		            	if ((parameters_.walls.vectorBack[0] == 0) && (parameters_.walls.vectorFront[0] == 0)) {
+		                	distZ = std::abs((k <= sizeZ / 2 ? k : sizeZ - k) * parameters_.meshsize->getDz(i, j, k));
+		                }
+		                else if ((parameters_.walls.vectorBack[0] == 0) && (parameters_.walls.vectorFront[0] != 0)) {
+		                	distZ = std::abs(k * parameters_.meshsize->getDz(i, j, k));	
+		                }
+		                else if ((parameters_.walls.vectorBottom[0] != 0) && (parameters_.walls.vectorTop[0] == 0)) {
+		                	distZ = std::abs((sizeZ - k) * parameters_.meshsize->getDz(i, j, k));
+		                }
+		                else{
+		                	distZ = std::numeric_limits<FLOAT>::infinity();
+		                }
                     }
 
                     // Find the distance of cell to the nearest wall
@@ -117,6 +153,7 @@ void Simulation::calculateDistancesToNearestWalls() {
                         distance_to_wall.getScalar(i, j, k) = std::abs(std::min(distance_to_wall.getScalar(i, j, k), stepDis));
                     }
                 }
+                std::cout << "distance to wall " << distance_to_wall.getScalar(i, j, k) << "	dx " << distX <<"	dy " << distY << "	dz " << distZ << "	i " << i << "	j " << j << "	k " << k << std::endl;
             }
         }
     }
