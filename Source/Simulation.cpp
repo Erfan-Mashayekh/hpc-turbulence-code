@@ -51,16 +51,58 @@ Simulation::Simulation(Parameters& parameters, FlowField& flowField)
 #endif
     {}
 
-bool isWallXFluid(FlowField& flowField, int j, int k, int sizeX) {
-    return flowField.getFlags().getValue(0, j, k) || flowField.getFlags().getValue(sizeX - 1, j, k);
+void calculateDistancesToBothWalls(const int* wallObstacles, FLOAT* distancesToWalls, int idx, int gridSize, FLOAT cellSize) {
+    for (int w = 0; w < 2; w += gridSize - 1) {
+        bool isWall = (wallObstacles[w] & OBSTACLE_SELF) != 0;
+
+        if (isWall) {
+            distancesToWalls[w] = (FLOAT) ((w == 0) ? idx : gridSize - idx) * cellSize - cellSize / 2;
+        } else {
+            distancesToWalls[w] = std::numeric_limits<FLOAT>::infinity();
+        }
+    }
 }
 
-bool isWallYFluid(FlowField& flowField, int i, int k, int sizeY) {
-    return flowField.getFlags().getValue(i, 0, k) || flowField.getFlags().getValue(i, sizeY - 1, k);
+FLOAT getClosestDistanceToWallX(FlowField& flowField, int i, int j, int k, int sizeX, FLOAT dx) {
+    // 0th index is left, 1st index is right!
+    int wallObstacles[2] = {
+            flowField.getFlags().getValue(0, j, k), flowField.getFlags().getValue(sizeX - 1, j, k)
+    };
+    FLOAT distancesToWalls[2] = { 0, 0 };
+
+    // Calculate distances to left and right walls
+    calculateDistancesToBothWalls(wallObstacles, distancesToWalls, i, sizeX, dx);
+
+    // Return the min
+    return std::min(distancesToWalls[0], distancesToWalls[1]);
 }
 
-bool isWallZFluid(FlowField& flowField, int i, int j, int sizeZ) {
-    return flowField.getFlags().getValue(i, j, 0) || flowField.getFlags().getValue(i, j, sizeZ - 1);
+FLOAT getClosestDistanceToWallY(FlowField& flowField, int i, int j, int k, int sizeY, FLOAT dy) {
+    // 0th index is bottom, 1st index is top!
+    int wallObstacles[2] = {
+            flowField.getFlags().getValue(i, 0, k), flowField.getFlags().getValue(i, sizeY - 1, k)
+    };
+    FLOAT distancesToWalls[2] = { 0, 0 };
+
+    // Calculate distances to left and right walls
+    calculateDistancesToBothWalls(wallObstacles, distancesToWalls, j, sizeY, dy);
+
+    // Return the min
+    return std::min(distancesToWalls[0], distancesToWalls[1]);
+}
+
+FLOAT getClosestDistanceToWallZ(FlowField& flowField, int i, int j, int k, int sizeZ, FLOAT dz) {
+    // 0th index is front, 1st index is back!
+    int wallObstacles[2] = {
+            flowField.getFlags().getValue(i, j, 0), flowField.getFlags().getValue(i, j, sizeZ - 1)
+    };
+    FLOAT distancesToWalls[2] = { 0, 0 };
+
+    // Calculate distances to left and right walls
+    calculateDistancesToBothWalls(wallObstacles, distancesToWalls, k, sizeZ, dz);
+
+    // Return the min
+    return std::min(distancesToWalls[0], distancesToWalls[1]);
 }
 
 void Simulation::calculateDistancesToNearestWall() {
@@ -70,7 +112,7 @@ void Simulation::calculateDistancesToNearestWall() {
     const int sizeZ = parameters_.geometry.dim == 3 ? flowField_.getNz() + 3 : 1;
 
     // Distance to each axis
-    FLOAT dx, dy, dz = 0;
+    FLOAT distX, distY, distZ = std::numeric_limits<FLOAT>::infinity();
 
     /**
      * In case there is a step geometry,
@@ -91,25 +133,15 @@ void Simulation::calculateDistancesToNearestWall() {
                 if ((obstacle & OBSTACLE_SELF) != 0) { // If it is not a fluid cell, the dist is zero.
                     distance_to_wall.getScalar(i, j, k) = 0;
                 } else { // If it is a fluid cell, calculate the distance
-                    if (isWallXFluid(flowField_, j, k, sizeX)) {
-                        dx = parameters_.meshsize->getDx(i, j, k) - parameters_.meshsize->getDx(i, j, k) / 2;
-                        dx *= (i <= sizeX / 2) ? i : sizeX - i;
-                    }
+                    distX = getClosestDistanceToWallX(flowField_, i, j, k, sizeX, parameters_.meshsize->getDx(i, j, k));
+                    distY = getClosestDistanceToWallY(flowField_, i, j, k, sizeY, parameters_.meshsize->getDy(i, j, k));
 
-                    if (isWallYFluid(flowField_, i, k, sizeY)) {
-                        dy = parameters_.meshsize->getDy(i, j, k) - parameters_.meshsize->getDy(i, j, k) / 2;
-                        dy *= (j <= sizeY / 2) ? j : sizeY - j;
-                    }
-
-                    if (parameters_.geometry.dim == 2) { // 2D
-                        dz = std::numeric_limits<FLOAT>::infinity();
-                    } else if (isWallZFluid(flowField_, i, j, sizeZ)) {
-                        dz = parameters_.meshsize->getDx(i, j, k) - parameters_.meshsize->getDz(i, j, k) / 2;
-                        dz *= (k <= sizeZ / 2) ? k : sizeZ - k;
+                    if (parameters_.geometry.dim == 3) { // 3D
+                        distZ = getClosestDistanceToWallZ(flowField_, i, j, k, sizeZ, parameters_.meshsize->getDz(i, j, k));
                     }
 
                     // Find the distance of cell to the nearest wall
-                    distance_to_wall.getScalar(i, j, k) = std::abs(std::min(std::min(dx, dy), dz));
+                    distance_to_wall.getScalar(i, j, k) = std::abs(std::min(std::min(distX, distY), distZ));
 
                     /**
                      * Only goes into the following loops if there is a step
