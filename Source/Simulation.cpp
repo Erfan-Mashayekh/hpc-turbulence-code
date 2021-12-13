@@ -225,6 +225,7 @@ void Simulation::setTimeStep() {
     ASSERTION(parameters_.geometry.dim == 2 || parameters_.geometry.dim == 3);
 
 	FLOAT localMin, globalMin;
+    FLOAT factor = 1.0 / (parameters_.meshsize->getDxMin() * parameters_.meshsize->getDxMin()) + 1.0 / (parameters_.meshsize->getDyMin() * parameters_.meshsize->getDyMin());
 
 	// Determine maximum velocity
 	maxUStencil_.reset();
@@ -232,6 +233,7 @@ void Simulation::setTimeStep() {
 	maxUBoundaryIterator_.iterate();
 
     if (parameters_.geometry.dim == 3) { // 3D
+        factor += 1.0 / (parameters_.meshsize->getDzMin() * parameters_.meshsize->getDzMin());
         parameters_.timestep.dt = 1.0 / maxUStencil_.getMaxValues()[2];
     } else { // 2D
         parameters_.timestep.dt = 1.0 / maxUStencil_.getMaxValues()[0];
@@ -247,12 +249,6 @@ void Simulation::setTimeStep() {
 
 		localMin = std::min(diffusiveTimeStep, std::min(parameters_.timestep.dt, std::min(1 / maxUStencil_.getMaxValues()[0], 1 / maxUStencil_.getMaxValues()[1])));
 	} else {
-		FLOAT factor = 1.0 / (parameters_.meshsize->getDxMin() * parameters_.meshsize->getDxMin()) + 1.0 / (parameters_.meshsize->getDyMin() * parameters_.meshsize->getDyMin());
-
-		if (parameters_.geometry.dim == 3) { // 3D
-		    factor += 1.0 / (parameters_.meshsize->getDzMin() * parameters_.meshsize->getDzMin());
-		}
-
 		localMin = std::min(parameters_.flow.Re / (2 * factor), std::min(parameters_.timestep.dt, std::min(1 / maxUStencil_.getMaxValues()[0], 1 / maxUStencil_.getMaxValues()[1])));
     }
 

@@ -13,8 +13,9 @@ inline void loadLocalVelocity2D(FlowField& flowField, FLOAT* const localVelocity
     for (int row = -1; row <= 1; row++) {
         for (int column = -1; column <= 1; column ++) {
             const FLOAT* const point = flowField.getVelocity().getVector(i + column, j + row);
-            localVelocity[39 + 9*row + 3*column]     = point[0]; // x-component
-            localVelocity[39 + 9*row + 3*column + 1] = point[1]; // y-component
+
+            localVelocity[39 + 9 * row + 3 * column]     = point[0]; // x-component
+            localVelocity[39 + 9 * row + 3 * column + 1] = point[1]; // y-component
         }
     }
 }
@@ -25,9 +26,10 @@ inline void loadLocalVelocity3D(FlowField& flowField, FLOAT* const localVelocity
         for (int row = -1; row <= 1; row++) {
             for (int column = -1; column <= 1; column++) {
                 const FLOAT* const point = flowField.getVelocity().getVector(i + column, j + row, k + layer);
-                localVelocity[39 + 27*layer + 9*row + 3*column    ] = point[0]; // x-component
-                localVelocity[39 + 27*layer + 9*row + 3*column + 1] = point[1]; // y-component
-                localVelocity[39 + 27*layer + 9*row + 3*column + 2] = point[2]; // z-component
+
+                localVelocity[39 + 27 * layer + 9 * row + 3 * column    ] = point[0]; // x-component
+                localVelocity[39 + 27 * layer + 9 * row + 3 * column + 1] = point[1]; // y-component
+                localVelocity[39 + 27 * layer + 9 * row + 3 * column + 2] = point[2]; // z-component
             }
         }
     }
@@ -37,8 +39,8 @@ inline void loadLocalVelocity3D(FlowField& flowField, FLOAT* const localVelocity
 inline void loadLocalMeshsize2D(const Parameters& parameters, FLOAT* const localMeshsize, int i, int j) {
     for (int row = -1; row <= 1; row++) {
         for (int column = -1; column <= 1; column++) {
-            localMeshsize[39 + 9*row + 3*column]     = parameters.meshsize->getDx(i + column, j + row);
-            localMeshsize[39 + 9*row + 3*column + 1] = parameters.meshsize->getDy(i + column, j + row);
+            localMeshsize[39 + 9 * row + 3 * column]     = parameters.meshsize->getDx(i + column, j + row);
+            localMeshsize[39 + 9 * row + 3 * column + 1] = parameters.meshsize->getDy(i + column, j + row);
         }
     }
 }
@@ -48,9 +50,9 @@ inline void loadLocalMeshsize3D(const Parameters& parameters, FLOAT* const local
     for (int layer = -1; layer <= 1; layer++) {
         for (int row = -1; row <= 1; row++) {
             for (int column = -1; column <= 1; column++) {
-                localMeshsize[39 + 27*layer + 9*row + 3*column    ] = parameters.meshsize->getDx(i + column, j + row, k + layer);
-                localMeshsize[39 + 27*layer + 9*row + 3*column + 1] = parameters.meshsize->getDy(i + column, j + row, k + layer);
-                localMeshsize[39 + 27*layer + 9*row + 3*column + 2] = parameters.meshsize->getDz(i + column, j + row, k + layer);
+                localMeshsize[39 + 27 * layer + 9 * row + 3 * column    ] = parameters.meshsize->getDx(i + column, j + row, k + layer);
+                localMeshsize[39 + 27 * layer + 9 * row + 3 * column + 1] = parameters.meshsize->getDy(i + column, j + row, k + layer);
+                localMeshsize[39 + 27 * layer + 9 * row + 3 * column + 2] = parameters.meshsize->getDz(i + column, j + row, k + layer);
             }
         }
     }
@@ -91,7 +93,7 @@ inline void loadLocalViscosity3D(const Parameters& parameters, FlowField& flowFi
 }
 // Maps an index and a component to the corresponding value in the cube.
 inline int mapd(int i, int j, int k, int component) {
-    return 39 + 27*k + 9*j + 3*i + component;
+    return 39 + 27 * k + 9 * j + 3 * i + component;
 }
 
 // Derivative functions. They are applied to a cube of 3x3x3 cells. lv stands for the local velocity, lm represents the local mesh sizes
@@ -100,18 +102,21 @@ inline FLOAT dudx(const FLOAT* const lv, const FLOAT* const lm) {
     // Evaluate dudx in the cell center by a central difference
     const int index0 = mapd(0, 0, 0, 0);
     const int index1 = mapd(-1, 0, 0, 0);
+
     return (lv[index0] - lv[index1]) / lm[index0];
 }
 
 inline FLOAT dvdy(const FLOAT* const lv, const FLOAT* const lm) {
     const int index0 = mapd(0, 0, 0, 1);
     const int index1 = mapd(0, -1, 0, 1);
+
     return (lv[index0] - lv[index1]) / lm[index0];
 }
 
 inline FLOAT dwdz(const FLOAT* const lv, const FLOAT* const lm) {
     const int index0 = mapd(0, 0, 0, 2);
     const int index1 = mapd(0, 0, -1, 2);
+
     return (lv[index0] - lv[index1]) / lm[index0];
 }
 
@@ -128,6 +133,7 @@ inline FLOAT d2udx2(const FLOAT* const lv, const FLOAT* const lm) {
     const FLOAT dx0 = lm[index0];
     const FLOAT dx1 = lm[indexP1];
     const FLOAT dxSum = dx0 + dx1;
+
     return 2.0 * (lv[indexP1] / (dx1 * dxSum) - lv[index0] / (dx1 * dx0) + lv[indexM1] / (dx0 * dxSum));
 }
 
@@ -139,6 +145,7 @@ inline FLOAT d2udy2(const FLOAT* const lv, const FLOAT* const lm) {
     const FLOAT dy0 = 0.5 * (dy_0 + dy_M1);
     const FLOAT dy1 = 0.5 * (dy_0 + dy_P1);
     const FLOAT dySum = dy0 + dy1;
+
     return 2.0 * (lv[mapd(0, 1, 0, 0)] / (dy1 * dySum) - lv[mapd(0, 0, 0, 0)] / (dy1 * dy0) + lv[mapd(0, -1, 0, 0)] / (dy0 * dySum));
 }
 
@@ -149,6 +156,7 @@ inline FLOAT d2udz2(const FLOAT* const lv, const FLOAT* const lm) {
     const FLOAT dz0 = 0.5 * (dz_0 + dz_M1);
     const FLOAT dz1 = 0.5 * (dz_0 + dz_P1);
     const FLOAT dzSum = dz0 + dz1;
+
     return 2.0 * (lv[mapd(0, 0, 1, 0)] / (dz1 * dzSum) - lv[mapd(0,0,0,0)] / (dz1 * dz0) + lv[mapd(0, 0, -1, 0)] / (dz0 * dzSum));
 }
 
@@ -160,6 +168,7 @@ inline FLOAT d2vdx2(const FLOAT* const lv, const FLOAT* const lm) {
     const FLOAT dx0 = 0.5 * (dx_0 + dx_M1);
     const FLOAT dx1 = 0.5 * (dx_0 + dx_P1);
     const FLOAT dxSum = dx0 + dx1;
+
     return 2.0 * (lv[mapd(1, 0, 0, 1)] / (dx1 * dxSum) - lv[mapd(0, 0, 0, 1)] / (dx1 * dx0) + lv[mapd(-1, 0, 0, 1)] / (dx0 * dxSum));
 }
 
@@ -171,6 +180,7 @@ inline FLOAT d2vdy2 (const FLOAT* const lv, const FLOAT* const lm) {
     const FLOAT dy0 = lm[index0];
     const FLOAT dy1 = lm[indexP1];
     const FLOAT dySum = dy0 + dy1;
+
     return 2.0 * (lv[indexP1] / (dy1 * dySum) - lv[index0] / (dy1 * dy0) + lv[indexM1] / (dy0 * dySum));
 }
 
@@ -181,6 +191,7 @@ inline FLOAT d2vdz2(const FLOAT* const lv, const FLOAT* const lm) {
     const FLOAT dz0 = 0.5 * (dz_0 + dz_M1);
     const FLOAT dz1 = 0.5 * (dz_0 + dz_P1);
     const FLOAT dzSum = dz0 + dz1;
+
     return 2.0 * (lv[mapd(0, 0, 1, 1)] / (dz1 * dzSum) - lv[mapd(0, 0, 0, 1)] / (dz1 * dz0) + lv[mapd(0, 0, -1, 1)] / (dz0 * dzSum));
 }
 
@@ -192,6 +203,7 @@ inline FLOAT d2wdx2(const FLOAT* const lv, const FLOAT* const lm) {
     const FLOAT dx0 = 0.5 * (dx_0 + dx_M1);
     const FLOAT dx1 = 0.5 * (dx_0 + dx_P1);
     const FLOAT dxSum = dx0 + dx1;
+
     return 2.0 * (lv[mapd(1, 0, 0, 2)] / (dx1 * dxSum) - lv[mapd(0, 0, 0, 2)] / (dx1 * dx0) + lv[mapd(-1, 0, 0, 2)] / (dx0 * dxSum));
 }
 
@@ -202,6 +214,7 @@ inline FLOAT d2wdy2(const FLOAT* const lv, const FLOAT* const lm) {
     const FLOAT dy0 = 0.5 * (dy_0 + dy_M1);
     const FLOAT dy1 = 0.5 * (dy_0 + dy_P1);
     const FLOAT dySum = dy0 + dy1;
+
     return 2.0 * (lv[mapd(0, 1, 0, 2)] / (dy1 * dySum) - lv[mapd(0, 0, 0, 2)] / (dy1 * dy0) + lv[mapd(0, -1, 0, 2)] / (dy0 * dySum));
 }
 
@@ -213,6 +226,7 @@ inline FLOAT d2wdz2(const FLOAT* const lv, const FLOAT* const lm) {
     const FLOAT dz0 = lm[index_0];
     const FLOAT dz1 = lm[index_P1];
     const FLOAT dzSum = dz0 + dz1;
+
     return 2.0 * (lv[index_P1] / (dz1 * dzSum) - lv[index_0] / (dz1 * dz0) + lv[index_M1] / (dz0 * dzSum));
 }
 
@@ -532,24 +546,24 @@ inline FLOAT du2dx(const FLOAT* const lv, const Parameters& parameters, const FL
 #endif
 
     const FLOAT dxShort = 0.5 * lm[mapd(0, 0, 0, 0)];
-    //const FLOAT dxLong0 = 0.5*(lm[mapd(-1,0,0,0)] + lm[mapd(0,0,0,0)]);
+    // const FLOAT dxLong0 = 0.5*(lm[mapd(-1,0,0,0)] + lm[mapd(0,0,0,0)]);
     const FLOAT dxLong1 = 0.5 * (lm[mapd(0, 0, 0, 0)] + lm[mapd(1, 0, 0, 0)]);
 
     const FLOAT u0 = lv[mapd(0, 0, 0, 0)];
     const FLOAT uM1 = lv[mapd(-1, 0, 0, 0)];
     const FLOAT u1 = lv[mapd(1, 0, 0, 0)];
 
-    //const FLOAT kr = (dxLong1 - dxShort) / dxLong1 * u0 + dxShort / dxLong1 * u1;
-    //const FLOAT kl = (dxLong0 - dxShort) / dxLong0 * u0 + dxShort / dxLong0 * uM1;
+    // const FLOAT kr = (dxLong1 - dxShort) / dxLong1 * u0 + dxShort / dxLong1 * u1;
+    // const FLOAT kl = (dxLong0 - dxShort) / dxLong0 * u0 + dxShort / dxLong0 * uM1;
     const FLOAT kr = (u0 + u1) / 2;
     const FLOAT kl = (u0 + uM1) / 2;
 
     // Central difference expression which is second-order accurate for uniform meshes. We interpolate u half-way between
     // neighboured u-component values and afterwards build the central difference for u*u.
 
-    /*const FLOAT secondOrder = (((dxLong1 - dxShort) / dxLong1 * u0 + dxShort / dxLong1 * u1) * ((dxLong1 - dxShort) / dxLong1 * u0 + dxShort / dxLong1 * u1)
+    /* const FLOAT secondOrder = (((dxLong1 - dxShort) / dxLong1 * u0 + dxShort / dxLong1 * u1) * ((dxLong1 - dxShort) / dxLong1 * u0 + dxShort / dxLong1 * u1)
         - ((dxLong0 - dxShort) / dxLong0 * u0 + dxShort / dxLong0 * uM1) * ((dxLong0 - dxShort) / dxLong0 * u0 + dxShort / dxLong0 * uM1)
-        ) / (2.0 * dxShort);*/
+        ) / (2.0 * dxShort); */
 
     const FLOAT secondOrder = ((u0 + u1) * (u0 + u1) - (u0 + uM1) * (u0 + uM1)) / (4 * dxLong1);
 
@@ -584,21 +598,21 @@ inline FLOAT dv2dy(const FLOAT* const lv, const Parameters& parameters, const FL
 #endif
 
     const FLOAT dyShort = 0.5 * lm[mapd(0, 0, 0, 1)];
-    //const FLOAT dyLong0 = 0.5*(lm[mapd(0,-1,0,1)] + lm[mapd(0,0,0,1)]);
+    // const FLOAT dyLong0 = 0.5*(lm[mapd(0,-1,0,1)] + lm[mapd(0,0,0,1)]);
     const FLOAT dyLong1 = 0.5 * (lm[mapd(0, 0, 0, 1)] + lm[mapd(0, 1, 0, 1)]);
 
     const FLOAT v0 = lv[mapd(0, 0, 0, 1)];
     const FLOAT vM1 = lv[mapd(0, -1, 0, 1)];
     const FLOAT v1 = lv[mapd(0, 1, 0, 1)];
 
-    //const FLOAT kr = (dyLong1 - dyShort) / dyLong1 * v0 + dyShort / dyLong1 * v1;
-    //const FLOAT kl = (dyLong0 - dyShort) / dyLong0 * v0 + dyShort / dyLong0 * vM1;
+    // const FLOAT kr = (dyLong1 - dyShort) / dyLong1 * v0 + dyShort / dyLong1 * v1;
+    // const FLOAT kl = (dyLong0 - dyShort) / dyLong0 * v0 + dyShort / dyLong0 * vM1;
     const FLOAT kr = (v0 + v1) / 2;
     const FLOAT kl = (v0 + vM1) / 2;
 
-    /*const FLOAT secondOrder = (((dyLong1 - dyShort) / dyLong1 * v0 + dyShort / dyLong1 * v1) * ((dyLong1 - dyShort) / dyLong1 * v0 + dyShort / dyLong1 * v1)
+    /* const FLOAT secondOrder = (((dyLong1 - dyShort) / dyLong1 * v0 + dyShort / dyLong1 * v1) * ((dyLong1 - dyShort) / dyLong1 * v0 + dyShort / dyLong1 * v1)
         - ((dyLong0 - dyShort) / dyLong0 * v0 + dyShort / dyLong0 * vM1) * ((dyLong0 - dyShort) / dyLong0 * v0 + dyShort / dyLong0 * vM1)
-        ) / (2.0 * dyShort);*/
+        ) / (2.0 * dyShort); */
 
     const FLOAT secondOrder = ((v0 + v1) * (v0 + v1) - (v0 + vM1) * (v0 + vM1)) / (4 * dyLong1);
 
@@ -631,21 +645,21 @@ inline FLOAT dw2dz ( const FLOAT * const lv, const Parameters & parameters, cons
 #endif
 
     const FLOAT dzShort = 0.5 * lm[mapd(0, 0, 0, 2)];
-    //const FLOAT dzLong0 = 0.5 * (lm[mapd(0, 0, -1, 2)] + lm[mapd(0, 0, 0, 2)]);
+    // const FLOAT dzLong0 = 0.5 * (lm[mapd(0, 0, -1, 2)] + lm[mapd(0, 0, 0, 2)]);
     const FLOAT dzLong1 = 0.5 * (lm[mapd(0, 0, 0, 2)] + lm[mapd(0, 0, 1, 2)]);
 
     const FLOAT w0 = lv[mapd(0, 0, 0, 2)];
     const FLOAT wM1 = lv[mapd(0, 0, -1, 2)];
     const FLOAT w1 = lv[mapd(0, 0, 1, 2)];
 
-    //const FLOAT kr = (dzLong1 - dzShort) / dzLong1 * w0 + dzShort / dzLong1 * w1;
-    //const FLOAT kl = (dzLong0 - dzShort) / dzLong0 * w0 + dzShort / dzLong0 * wM1;
+    // const FLOAT kr = (dzLong1 - dzShort) / dzLong1 * w0 + dzShort / dzLong1 * w1;
+    // const FLOAT kl = (dzLong0 - dzShort) / dzLong0 * w0 + dzShort / dzLong0 * wM1;
     const FLOAT kr = (w0 + w1) / 2;
     const FLOAT kl = (w0 + wM1) / 2;
 
-    /*const FLOAT secondOrder = (((dzLong1 - dzShort) / dzLong1 * w0 + dzShort / dzLong1 * w1) * ((dzLong1 - dzShort) / dzLong1 * w0 + dzShort / dzLong1 * w1)
+    /* const FLOAT secondOrder = (((dzLong1 - dzShort) / dzLong1 * w0 + dzShort / dzLong1 * w1) * ((dzLong1 - dzShort) / dzLong1 * w0 + dzShort / dzLong1 * w1)
         - ((dzLong0 - dzShort) / dzLong0 * w0 + dzShort / dzLong0 * wM1) * ((dzLong0 - dzShort) / dzLong0 * w0 + dzShort / dzLong0 * wM1)
-        ) / (2.0 * dzShort);*/
+        ) / (2.0 * dzShort); */
 
     const FLOAT secondOrder = ((w0 + w1) * (w0 + w1) - (w0 + wM1) * (w0 + wM1)) / (4 * dzLong1);
 
@@ -796,9 +810,9 @@ inline FLOAT computeF3DT(const FLOAT* const localVelocity, const FLOAT* const lo
     FLOAT term2 = FT_term2(localVelocity, localMeshsize, vtr, vbr);
     FLOAT term3 = FT_term3(localVelocity, localMeshsize, vrf, vrb);
 
-    return localVelocity[mapd(0, 0, 0, 0)] + dt * (term1 + term2 + term3 
-		    - du2dx(localVelocity, parameters, localMeshsize) 
-		    - duvdy(localVelocity, parameters, localMeshsize) 
+    return localVelocity[mapd(0, 0, 0, 0)] + dt * (term1 + term2 + term3
+		    - du2dx(localVelocity, parameters, localMeshsize)
+		    - duvdy(localVelocity, parameters, localMeshsize)
 		    - duwdz(localVelocity, parameters, localMeshsize) + parameters.environment.gx);
 }
 
@@ -877,16 +891,16 @@ inline FLOAT computeG2DT(const FLOAT* const localVelocity, const FLOAT* const lo
     const int index3 = mapd(1, 1, 0, 0); // vstar[i+1,j+1,k]
     const int index4 = mapd(-1, 0, 0, 0); // vstar[i-1,j,k]
     const int index5 = mapd(-1, 1, 0, 0); // vstar[i-1,j+1,k]
-    
+
     // vijk: total viscosity: vstar[i,j,k]
     FLOAT vijk =  localViscosity[index0];
     // vij1k: total viscosity: vstar[i,j+1,k]
-    FLOAT vij1k =  localViscosity[index2]; 
+    FLOAT vij1k =  localViscosity[index2];
     // vtr: viscosity at top right corner: v*[i+1/2, j+1/2, k]
     FLOAT vtr = (localViscosity[index3] + localViscosity[index2] + localViscosity[index1] + localViscosity[index0])/4;
     // vtl: viscosity at top left corner: v*[i-1/2, j+1/2, k]
-    FLOAT vtl = (localViscosity[index0] + localViscosity[index2] + localViscosity[index4] + localViscosity[index5])/4;      
-          
+    FLOAT vtl = (localViscosity[index0] + localViscosity[index2] + localViscosity[index4] + localViscosity[index5])/4;
+
 
     FLOAT term1 = GT_term1(localVelocity, localMeshsize, vtr, vtl);
     FLOAT term2 = GT_term2(localVelocity, localMeshsize, vijk, vij1k);
@@ -907,10 +921,10 @@ inline FLOAT computeG3DT(const FLOAT* const localVelocity, const FLOAT* const lo
     const int index4 = mapd(-1, 0, 0, 0); // vstar[i-1,j,k]
     const int index5 = mapd(-1, 1, 0, 0); // vstar[i-1,j+1,k]
     const int index6 = mapd(0, 0, 1, 0); // vstar[i,j,k+1]
-    const int index7 = mapd(0, 1, 1, 0); // vstar[i,j+1,k+1] 
+    const int index7 = mapd(0, 1, 1, 0); // vstar[i,j+1,k+1]
     const int index8 = mapd(0, 0, -1, 0); // vstar[i,j,k-1]
     const int index9 = mapd(0, 1, -1, 0); // vstar[i,j+1,k-1]
-    
+
     // vijk: total viscosity: vstar[i,j,k]
     FLOAT vijk =  localViscosity[index0];
 
@@ -928,12 +942,12 @@ inline FLOAT computeG3DT(const FLOAT* const localVelocity, const FLOAT* const lo
 
     // vtb: viscosity at top back corner: v*[i, j+1/2, k-1/2]
     FLOAT vtb = (localViscosity[index0] + localViscosity[index2] + localViscosity[index8] + localViscosity[index9]) / 4;
-    
+
     FLOAT term1 = GT_term1(localVelocity, localMeshsize, vtr, vtl);
     FLOAT term2 = GT_term2(localVelocity, localMeshsize, vijk, vij1k);
     FLOAT term3 = GT_term3(localVelocity, localMeshsize, vtf, vtb);
-    
-    return localVelocity[mapd(0, 0, 0, 1)] + dt * (term1 + term2 + term3 
+
+    return localVelocity[mapd(0, 0, 0, 1)] + dt * (term1 + term2 + term3
 		    - dv2dy(localVelocity, parameters, localMeshsize) - duvdx(localVelocity, parameters, localMeshsize)
 		    - dvwdz(localVelocity, parameters, localMeshsize) + parameters.environment.gy);
 }
@@ -1016,13 +1030,13 @@ inline FLOAT computeH3DT(const FLOAT* const localVelocity, const FLOAT* const lo
 
     const int index8 = mapd(0, -1, 0, 0); // vstar[i,j-1,k]
     const int index9 = mapd(0, -1, 1, 0); // vstar[i,j-1,k+1]
-    
+
     // vijk: total viscosity: vstar[i,j,k]
     FLOAT vijk =  localViscosity[index0];
 
     // vijk1: total viscosity: vstar[i,j,k+1]
     FLOAT vijk1 =  localViscosity[index6];
-    
+
     // vfr: viscosity at front right corner: v*[i+1/2, j, k+1/2]
     FLOAT vfr = (localViscosity[index0] + localViscosity[index6] + localViscosity[index1] + localViscosity[index3]) / 4;
 
@@ -1034,12 +1048,12 @@ inline FLOAT computeH3DT(const FLOAT* const localVelocity, const FLOAT* const lo
 
     // vfb: viscosity at front bottom corner: v*[i, j-1/2, k+1/2]
     FLOAT vfb = (localViscosity[index0] + localViscosity[index6] + localViscosity[index8] + localViscosity[index9]) / 4;
-    
+
     FLOAT term1 = HT_term1(localVelocity, localMeshsize, vfr, vfl);
     FLOAT term2 = HT_term2(localVelocity, localMeshsize, vft, vfb);
     FLOAT term3 = HT_term3(localVelocity, localMeshsize, vijk, vijk1);
 
-    return localVelocity[mapd(0, 0, 0, 2)] + dt * (term1 + term2 + term3 
+    return localVelocity[mapd(0, 0, 0, 2)] + dt * (term1 + term2 + term3
 		    - dw2dz(localVelocity, parameters, localMeshsize) - duwdx(localVelocity, parameters, localMeshsize)
 		    - dvwdy(localVelocity, parameters, localMeshsize)  + parameters.environment.gz);
 }

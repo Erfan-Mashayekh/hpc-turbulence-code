@@ -20,12 +20,6 @@ namespace NSEOF::Stencils {
             : FieldStencil<FlowField>(parameters)
             , pressure_(ScalarField(Nx, Ny, parameters.geometry.dim == 3 ? Nz : 1))
             , velocity_(VectorField(Nx, Ny, parameters.geometry.dim == 3 ? Nz : 1)) {
-        // Check if the dimensions are valid!
-        if (parameters_.geometry.dim != 2 && parameters_.geometry.dim != 3) { // If not 2D or 3D
-            std::cerr << "This app only supports 2D and 3D geometry" << std::endl;
-            exit(1);
-        }
-
         // Pre-allocate the space needed for storing the cell indices!
         cellIndices_.reserve(getNumCellsExpected(parameters));
     }
