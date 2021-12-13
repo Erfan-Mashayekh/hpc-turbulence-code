@@ -30,7 +30,6 @@
 
 #include "Solvers/LinearSolver.hpp"
 
-
 #include <memory>
 
 namespace NSEOF {
@@ -87,6 +86,9 @@ public:
     Simulation(Parameters& parameters, FlowField& flowField);
     virtual ~Simulation() = default;
 
+    /** Calculates the distances to nearest walls */
+    void calculateDistancesToNearestWalls();
+
     /** Initialises the flow field according to the scenario */
     virtual void initializeFlowField();
 
@@ -94,9 +96,6 @@ public:
 
     /** Plots the flow field */
     virtual void plotVTK(int timeStep);
-
-    /** Calculates distance to nearest wall */
-    void calculateDistancesToNearestWall();
 };
 
 } // namespace NSEOF

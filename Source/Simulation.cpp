@@ -51,61 +51,7 @@ Simulation::Simulation(Parameters& parameters, FlowField& flowField)
 #endif
     {}
 
-void calculateDistancesToBothWalls(const int* wallObstacles, FLOAT* distancesToWalls, int idx, int gridSize, FLOAT cellSize) {
-    for (int w = 0; w < 2; w += gridSize - 1) {
-        bool isWall = (wallObstacles[w] & OBSTACLE_SELF) != 0;
-
-        if (isWall) {
-            distancesToWalls[w] = (FLOAT) ((w == 0) ? idx : gridSize - idx) * cellSize - cellSize / 2;
-        } else {
-            distancesToWalls[w] = std::numeric_limits<FLOAT>::infinity();
-        }
-    }
-}
-
-FLOAT getClosestDistanceToWallX(FlowField& flowField, int i, int j, int k, int sizeX, FLOAT dx) {
-    // 0th index is left, 1st index is right!
-    int wallObstacles[2] = {
-            flowField.getFlags().getValue(0, j, k), flowField.getFlags().getValue(sizeX - 1, j, k)
-    };
-    FLOAT distancesToWalls[2] = { 0, 0 };
-
-    // Calculate distances to left and right walls
-    calculateDistancesToBothWalls(wallObstacles, distancesToWalls, i, sizeX, dx);
-
-    // Return the min
-    return std::min(distancesToWalls[0], distancesToWalls[1]);
-}
-
-FLOAT getClosestDistanceToWallY(FlowField& flowField, int i, int j, int k, int sizeY, FLOAT dy) {
-    // 0th index is bottom, 1st index is top!
-    int wallObstacles[2] = {
-            flowField.getFlags().getValue(i, 0, k), flowField.getFlags().getValue(i, sizeY - 1, k)
-    };
-    FLOAT distancesToWalls[2] = { 0, 0 };
-
-    // Calculate distances to left and right walls
-    calculateDistancesToBothWalls(wallObstacles, distancesToWalls, j, sizeY, dy);
-
-    // Return the min
-    return std::min(distancesToWalls[0], distancesToWalls[1]);
-}
-
-FLOAT getClosestDistanceToWallZ(FlowField& flowField, int i, int j, int k, int sizeZ, FLOAT dz) {
-    // 0th index is front, 1st index is back!
-    int wallObstacles[2] = {
-            flowField.getFlags().getValue(i, j, 0), flowField.getFlags().getValue(i, j, sizeZ - 1)
-    };
-    FLOAT distancesToWalls[2] = { 0, 0 };
-
-    // Calculate distances to left and right walls
-    calculateDistancesToBothWalls(wallObstacles, distancesToWalls, k, sizeZ, dz);
-
-    // Return the min
-    return std::min(distancesToWalls[0], distancesToWalls[1]);
-}
-
-void Simulation::calculateDistancesToNearestWall() {
+void Simulation::calculateDistancesToNearestWalls() {
     // Number of cells in each direction plus the ghost cells
     const int sizeX = flowField_.getNx() + 3;
     const int sizeY = flowField_.getNy() + 3;
@@ -117,7 +63,7 @@ void Simulation::calculateDistancesToNearestWall() {
     /**
      * In case there is a step geometry,
      * number of cells in each direction that make up the step
-     * parameters_.bfStep.xRatio and parameters_.bfStep.yRatio are -1 if no step
+     * parameters.bfStep.xRatio and parameters.bfStep.yRatio are -1 if no step
      */
     int stepXBound = ceil(sizeX * parameters_.bfStep.xRatio);
     int stepYBound = ceil(sizeY * parameters_.bfStep.yRatio);
@@ -133,11 +79,14 @@ void Simulation::calculateDistancesToNearestWall() {
                 if ((obstacle & OBSTACLE_SELF) != 0) { // If it is not a fluid cell, the dist is zero.
                     distance_to_wall.getScalar(i, j, k) = 0;
                 } else { // If it is a fluid cell, calculate the distance
-                    distX = getClosestDistanceToWallX(flowField_, i, j, k, sizeX, parameters_.meshsize->getDx(i, j, k));
-                    distY = getClosestDistanceToWallY(flowField_, i, j, k, sizeY, parameters_.meshsize->getDy(i, j, k));
+                    distX = (i <= sizeX / 2 ? i : sizeX - i) *
+                            parameters_.meshsize->getDx(i, j, k) - parameters_.meshsize->getDx(i, j, k) / 2;
+                    distY = (j <= sizeY / 2 ? j : sizeY - j) *
+                            parameters_.meshsize->getDy(i, j, k) - parameters_.meshsize->getDy(i, j, k) / 2;
 
                     if (parameters_.geometry.dim == 3) { // 3D
-                        distZ = getClosestDistanceToWallZ(flowField_, i, j, k, sizeZ, parameters_.meshsize->getDz(i, j, k));
+                        distZ = (k <= sizeZ / 2 ? k : sizeZ - k) *
+                                parameters_.meshsize->getDz(i, j, k) - parameters_.meshsize->getDz(i, j, k) / 2;
                     }
 
                     // Find the distance of cell to the nearest wall
@@ -152,18 +101,18 @@ void Simulation::calculateDistancesToNearestWall() {
 
                     // top boundary loop
                     for (int x = 0; x < stepXBound; x++) {
-                        FLOAT xDis = (i - x) * parameters_.meshsize->getDx(i, j, k);
-                        FLOAT yDis = (j - stepYBound) * parameters_.meshsize->getDy(i, j, k);
-                        FLOAT stepDis = sqrt((xDis * xDis) + (yDis * yDis));
+                        FLOAT dx = (i - x) * parameters_.meshsize->getDx(i, j, k);
+                        FLOAT dy = (j - stepYBound) * parameters_.meshsize->getDy(i, j, k);
+                        FLOAT stepDis = sqrt((dx * dx) + (dy * dy));
 
                         distance_to_wall.getScalar(i, j, k) = std::abs(std::min(distance_to_wall.getScalar(i, j, k), stepDis));
                     }
 
                     // left boundary loop
                     for (int y = 0; y < stepYBound; y++) {
-                        FLOAT xDis = (i - stepXBound) * parameters_.meshsize->getDx(i, j, k);
-                        FLOAT yDis = (j - y) * parameters_.meshsize->getDy(i, j, k);
-                        FLOAT stepDis = sqrt((xDis * xDis) + (yDis * yDis));
+                        FLOAT dx = (i - stepXBound) * parameters_.meshsize->getDx(i, j, k);
+                        FLOAT dy = (j - y) * parameters_.meshsize->getDy(i, j, k);
+                        FLOAT stepDis = sqrt((dx * dx) + (dy * dy));
 
                         distance_to_wall.getScalar(i, j, k) = std::abs(std::min(distance_to_wall.getScalar(i, j, k), stepDis));
                     }
@@ -217,7 +166,7 @@ void Simulation::initializeFlowField() {
     solver_->reInitMatrix();
 
     // TODO WS2: solve and store the nearest distance calculation
-    Simulation::calculateDistancesToNearestWall();
+    Simulation::calculateDistancesToNearestWalls();
 }
 
 void Simulation::solveTimestep() {
