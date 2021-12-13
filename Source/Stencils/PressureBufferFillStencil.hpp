@@ -9,7 +9,6 @@ namespace NSEOF::Stencils {
  * A boundary stencil that fills the pressure buffer
  */
 class PressureBufferFillStencil : public BufferFillStencil {
-
 public:
     explicit PressureBufferFillStencil(const Parameters&);
     ~PressureBufferFillStencil() override = default;

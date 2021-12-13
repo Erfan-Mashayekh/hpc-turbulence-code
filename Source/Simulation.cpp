@@ -1,7 +1,7 @@
 #include "Simulation.hpp"
 
 #include "Stencils/VTKStencil.hpp"
-#include "Stencils/VTKTurbulenceStencil.hpp"
+#include "Stencils/TurbulentVTKStencil.hpp"
 
 #include "Solvers/SORSolver.hpp"
 #include "Solvers/PetscSolver.hpp"
@@ -205,7 +205,7 @@ void Simulation::plotVTK(int timeStep) {
     Stencils::VTKStencil* vtkStencil_;
 
     if (parameters_.turbulence.on == 1) { // Turbulence Model
-        vtkStencil_ = new Stencils::VTKTurbulenceStencil(
+        vtkStencil_ = new Stencils::TurbulentVTKStencil(
                 parameters_, flowField_.getCellsX(), flowField_.getCellsY(), flowField_.getCellsZ());
     } else { // Laminar Model
         vtkStencil_ = new Stencils::VTKStencil(

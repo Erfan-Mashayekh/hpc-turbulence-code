@@ -26,7 +26,6 @@ void FGHStencil::apply(FlowField& flowField, int i, int j) {
 
 void FGHStencil::apply(FlowField& flowField, int i, int j, int k) {
     // The same as in 2D, with slight modifications.
-
     const int obstacle = flowField.getFlags().getValue(i, j, k);
     FLOAT* const values = flowField.getFGH().getVector(i, j, k);
 

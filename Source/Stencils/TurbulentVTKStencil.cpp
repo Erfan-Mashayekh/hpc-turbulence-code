@@ -1,15 +1,15 @@
-#include "VTKTurbulenceStencil.hpp"
+#include "TurbulentVTKStencil.hpp"
 #include "StencilFunctions.hpp"
 #include "Definitions.hpp"
 
 namespace NSEOF::Stencils {
 
-    VTKTurbulenceStencil::VTKTurbulenceStencil(const Parameters &parameters, int Nx, int Ny, int Nz)
+    TurbulentVTKStencil::TurbulentVTKStencil(const Parameters &parameters, int Nx, int Ny, int Nz)
             : VTKStencil(parameters, Nx, Ny, Nz)
             , eddyViscosity_(ScalarField(Nx, Ny, parameters.geometry.dim == 3 ? Nz : 1))
             , distanceToWall_(ScalarField(Nx, Ny, parameters.geometry.dim == 3 ? Nz : 1)) {}
 
-    void VTKTurbulenceStencil::apply(FlowField& flowField, int i, int j, int k) {
+    void TurbulentVTKStencil::apply(FlowField& flowField, int i, int j, int k) {
         // Apply function of VTKStencil that's used for positions, pressures and velocities
         VTKStencil::apply(flowField, i, j, k);
 
@@ -27,7 +27,7 @@ namespace NSEOF::Stencils {
         cellDistanceToWall = flowField.getDistance().getScalar(i, j, k);
     }
 
-    void VTKTurbulenceStencil::writeEddyViscosities_(FILE* filePtr) {
+    void TurbulentVTKStencil::writeEddyViscosities_(FILE* filePtr) {
         fprintf(filePtr, "SCALARS eddy_viscosity float 1\n");
         fprintf(filePtr, "LOOKUP_TABLE default\n");
 
@@ -40,7 +40,7 @@ namespace NSEOF::Stencils {
         fprintf(filePtr, "\n");
     }
 
-    void VTKTurbulenceStencil::writeDistanceToWalls_(FILE* filePtr) {
+    void TurbulentVTKStencil::writeDistanceToWalls_(FILE* filePtr) {
         fprintf(filePtr, "SCALARS distance float 1\n");
         fprintf(filePtr, "LOOKUP_TABLE default\n");
 
@@ -53,7 +53,7 @@ namespace NSEOF::Stencils {
         fprintf(filePtr, "\n");
     }
 
-    void VTKTurbulenceStencil::writeValues(FILE* filePtr) {
+    void TurbulentVTKStencil::writeValues(FILE* filePtr) {
         // Write positions, pressures and velocities
         VTKStencil::writeValues(filePtr);
 

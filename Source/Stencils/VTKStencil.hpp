@@ -19,7 +19,6 @@ namespace NSEOF::Stencils {
  */
 
 struct CellIndex {
-
 public:
     int i, j, k;
 
@@ -27,7 +26,6 @@ public:
 };
 
 class VTKStencil : public FieldStencil<FlowField> {
-
 private:
     std::vector<CellIndex> cellIndices_;
     ScalarField pressure_;

@@ -12,7 +12,6 @@
 namespace NSEOF::ParallelManagers {
 
 class PetscParallelManager {
-
 private:
     const Parameters& parameters_;
 

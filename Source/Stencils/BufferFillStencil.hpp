@@ -14,7 +14,6 @@ namespace NSEOF::Stencils {
  * A boundary stencil that fills the buffer
  */
 class BufferFillStencil : public BoundaryStencil<FlowField> {
-
 private:
     std::vector<FLOAT> bufferLeft_;
     std::vector<FLOAT> bufferRight_;
