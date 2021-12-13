@@ -32,8 +32,9 @@ void MinTimeStepStencil::cellMinValue(FlowField& flowField, int i, int j) {
     //Reynolds number new
     FLOAT ReynoldsNew = 1/totalViscosity;
     FLOAT factor = 1.0 / (dx * dx) + 1.0 / (dy * dy);
+    FLOAT factor2 = 1.0 / (dx * dx) + 1.0 / (dy * dy) + 1/ ( dx * dy);
     //time step minimum in current cell:
-    FLOAT cellTimeStep = (ReynoldsNew/(2*factor));
+    FLOAT cellTimeStep = std::min((ReynoldsNew/(2*factor)), ReynoldsNew/(2*factor2));
     
     
     if (cellTimeStep < diffusiveTimeStep_) {
@@ -53,8 +54,9 @@ void MinTimeStepStencil::cellMinValue(FlowField& flowField, int i, int j, int k)
     //Reynolds number new
     FLOAT ReynoldsNew = 1/totalViscosity;
     FLOAT factor = 1.0 / (dx * dx) + 1.0 / (dy * dy) + 1.0 / (dz * dz);
+    FLOAT factor2 = 1.0 / (dx * dx) + 1.0 / (dy * dy) + 1/ ( dx * dy) + 1/(dx * dz) + 1/(dy * dz);
     //time step minimum in current cell:
-    FLOAT cellTimeStep = (ReynoldsNew/(2*factor));
+    FLOAT cellTimeStep = std::min((ReynoldsNew/(2*factor)), ReynoldsNew/(2*factor2));
     
     if (std::abs(cellTimeStep) < diffusiveTimeStep_) {
         diffusiveTimeStep_ = cellTimeStep;
@@ -63,7 +65,8 @@ void MinTimeStepStencil::cellMinValue(FlowField& flowField, int i, int j, int k)
 
 void MinTimeStepStencil::reset() {
 	//initially set diffusive time step to the given one from the user
-    diffusiveTimeStep_ = FieldStencil<FlowField>::parameters_.timestep.dt;
+	//hard coded, because parameters_.timestep.dt is changed during the simulation
+    diffusiveTimeStep_ = 1.; //FieldStencil<FlowField>::parameters_.timestep.dt;
 }
 
 FLOAT MinTimeStepStencil::getDiffusiveTimeStep() const {

@@ -80,13 +80,6 @@ public:
     virtual void distanceNearestWall();
 };
 
-/*
-//TODO: is this right?!
-class TurbulentSimulation:public Simulation{
-	public:
-		TurbulentSimulation(Parameters& parameters, FlowField& flowField):Simulation(parameters, flowField);
-};
-*/
 
 } // namespace NSEOF
 

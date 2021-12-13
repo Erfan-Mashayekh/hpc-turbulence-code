@@ -814,9 +814,9 @@ inline FLOAT GT_term1(const FLOAT* const lv, const FLOAT* const lm, FLOAT vtr, F
     const int index1 = mapd(0, 1, 0, 0); //u[i,j+1,k]
     const int index2 = mapd(0, -1, 0, 0); //u[i,j-1,k]
     const int index3 = mapd(0, 0, 0, 1); //v[i,j,k]
-    const int index4 = mapd(1, 0, 0, 1); //v[i+1,j,k]
-    const int index5 = mapd(0, -1, 0, 1); //v[i,j-1,k]
-    const int index6 = mapd(1, -1, 0, 1); //v[i+1,j-1,k]
+    //const int index4 = mapd(1, 0, 0, 1); //v[i+1,j,k]
+    //const int index5 = mapd(0, -1, 0, 1); //v[i,j-1,k]
+    //const int index6 = mapd(1, -1, 0, 1); //v[i+1,j-1,k]
     const int index7 = mapd(-1, 0, 0, 1); //v[i-1,j,k]
     const int index8 = mapd(-1, 1, 0, 0); //u[i-1,j+1,k]
     const int index9 = mapd(-1, 0, 0, 0); //u[i-1,j,k]
@@ -1097,7 +1097,6 @@ inline FLOAT dudy(const FLOAT* const lv, const FLOAT* const lm) {
     // Evaluate dudy in the cell center by a central difference
     const int index0 = mapd(0, 0, 0, 0);
     const int index1 = mapd(0, -1, 0, 0);
-
     return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 1)];
 }
 
@@ -1112,8 +1111,7 @@ inline FLOAT dudz(const FLOAT* const lv, const FLOAT* const lm) {
 // dvdx <-> first derivative of v-component of velocity field w.r.t. x-direction.
 inline FLOAT dvdx(const FLOAT* const lv, const FLOAT* const lm) {
     const int index0 = mapd(0, 0, 0, 1);
-    const int index1 = mapd(-1,0, 0, 1);
-    //std::cout << "dvdx: " << (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 0)] << ", " << "v[i]: " << lv[index0] << ", " << "v[i-1]: " << lv[index1] << std::endl;
+    const int index1 = mapd(-1, 0, 0, 1);
     return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 0)];
 }
 
@@ -1150,7 +1148,6 @@ inline FLOAT computeStrainTensorSquared2D(const FLOAT* const localVelocity, cons
 	FLOAT S22 = 2 * dvdy(localVelocity, localMeshsize);
 	FLOAT S12 = dudy(localVelocity, localMeshsize) + dvdx(localVelocity, localMeshsize);
 
-	//std::cout << "S11 = " << S11 << "   S22 = " << S22 << "  S12 = "<< S12 << std::endl;
 	return std::pow(S11,2) + std::pow(S22,2) + 2*std::pow(S12,2);
 
 }

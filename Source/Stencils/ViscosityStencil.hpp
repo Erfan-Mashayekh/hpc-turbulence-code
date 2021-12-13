@@ -13,7 +13,7 @@ namespace Stencils {
 class ViscosityStencil : public FieldStencil<FlowField> {
 private:
 	// A local velocity variable that will be used to approximate derivatice. Size matches 3D
-	// casesm but can be used for 2D as well.
+	// cases but can be used for 2D as well.
 	FLOAT localVelocity_[27 * 3];
     	FLOAT localMeshsize_[27 * 3];
 public:

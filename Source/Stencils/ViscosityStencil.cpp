@@ -10,7 +10,6 @@ ViscosityStencil::ViscosityStencil(const Parameters& parameters)
 
 void ViscosityStencil::apply(FlowField& flowField, int i, int j) {
 	FLOAT viscosity = 1/parameters_.flow.Re;
-	// is that a right value for u_0?
 	int u0 = 1;
 	FLOAT kappa = 0.41;
 	FLOAT mixing_length = 0.;
@@ -24,7 +23,7 @@ void ViscosityStencil::apply(FlowField& flowField, int i, int j) {
 	}else if(parameters_.turbulence.model ==1){
 		// boundary layer thickness of a laminar flat plate
 		FLOAT x = parameters_.meshsize->getPosX(i,j);
-		//TODO: different calculation for nackward facing step?
+		//TODO: different calculation for backward facing step?
 		FLOAT Re_x = u0 * x/viscosity;
 		FLOAT boundary_thickness = 4.91 * x / std::sqrt(Re_x);
 		mixing_length = 0.09 * boundary_thickness;	
@@ -32,13 +31,14 @@ void ViscosityStencil::apply(FlowField& flowField, int i, int j) {
 	}else if(parameters_.turbulence.model == 2){
 		// boundary layer thickness of a turbulent flat plate
 		FLOAT x = parameters_.meshsize->getPosX(i,j);
-		//TODO: different calculation for nackward facing step?
+		//TODO: different calculation for backward facing step?
 		FLOAT Re_x = u0 * x/viscosity;
 		FLOAT boundary_thickness = 0.382 * x / std::pow(Re_x, 0.2);
 		mixing_length = 0.09 * boundary_thickness;	
 
 	}else if(parameters_.turbulence.model == 3){
 		//TODO: extract local boundary thickness from laminar reference case
+		//only 2 model necessary
 
 	}else{ 
 		std::cout << "invalid input for turbulence model" << std::endl;
