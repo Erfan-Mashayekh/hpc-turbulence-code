@@ -12,7 +12,7 @@ void FGHStencil::apply(FlowField& flowField, int i, int j) {
 
     FLOAT* const values = flowField.getFGH().getVector(i, j);
  
-    if (parameters_.turbulence.on == 1) {
+    if (parameters_.turbulence.on == 1) { // TODO: Replace "if" with inheritance
         loadLocalViscosity2D(parameters_, flowField, localViscosity_, i,j);
 
         values[0] = computeF2DT(localVelocity_, localMeshsize_, localViscosity_, parameters_, parameters_.timestep.dt);
