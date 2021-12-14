@@ -41,7 +41,7 @@ void TurbulentSimulation::solveTimestep() {
     viscosityIterator_.iterate(); // Compute eddy viscosities
     distanceIterator_.iterate(); // Compute distances to the closest walls
 
-    // communicate viscosity values
+    // Communicate viscosity values
     viscosityBufferFillIterator_.iterate();
     turbulentPetscParallelManager_.communicateViscosity(viscosityBufferFillStencil_, viscosityBufferReadStencil_);
     viscosityBufferReadIterator_.iterate();
