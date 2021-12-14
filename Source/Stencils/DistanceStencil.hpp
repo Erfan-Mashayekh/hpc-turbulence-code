@@ -9,7 +9,8 @@
 
 namespace NSEOF::Stencils {
 
-/** Stencil to compute the distances to the nearest walls
+/**
+ * Stencil to compute the distances to the nearest walls
  */
 class DistanceStencil : public FieldStencil<FlowField> {
 private:

@@ -121,10 +121,10 @@ void Simulation::setTimestep_() {
     maxUFieldIterator_.iterate();
     maxUBoundaryIterator_.iterate();
 
-    if (parameters_.geometry.dim == 3) { // 3D
-        parameters_.timestep.dt = 1.0 / maxUStencil_.getMaxValues()[2];
-    } else { // 2D
+    if (parameters_.geometry.dim == 2) { // 2D
         parameters_.timestep.dt = 1.0 / maxUStencil_.getMaxValues()[0];
+    } else { // 3D
+        parameters_.timestep.dt = 1.0 / maxUStencil_.getMaxValues()[2];
     }
 
     // Gets the diffusive timestep and uses that to get the local min

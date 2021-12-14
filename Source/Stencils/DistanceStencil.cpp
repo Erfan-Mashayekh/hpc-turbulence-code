@@ -14,17 +14,17 @@ DistanceStencil::DistanceStencil(const Parameters& parameters, const int cellsX,
  */
 FLOAT DistanceStencil::calculateDistToNearestWallInGivenDir_(const FLOAT firstWallU, const FLOAT secondWallU,
                                                              const int idx, const FLOAT cellSize, const FLOAT sizeInOneDir) {
-    const FLOAT leftDist = idx;
-    const FLOAT rightDist = sizeInOneDir - idx;
+    const FLOAT firstDist = idx;
+    const FLOAT secondDist = sizeInOneDir - idx;
 
     // check if a wall has u-velocity
     if (firstWallU == 0 && secondWallU == 0) {
-        const int closestDist = idx <= sizeInOneDir / 2 ? leftDist : rightDist;
+        const int closestDist = idx <= sizeInOneDir / 2 ? firstDist : secondDist;
         return std::abs(closestDist * cellSize);
     } else if (firstWallU == 0 && secondWallU != 0) {
-        return std::abs(leftDist * cellSize);
+        return std::abs(firstDist * cellSize);
     } else if (firstWallU != 0 && secondWallU == 0) {
-        return std::abs(rightDist * cellSize);
+        return std::abs(secondDist * cellSize);
     }
 
     // distance is maximal if both walls are not actually walls!
