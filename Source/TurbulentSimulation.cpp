@@ -11,13 +11,12 @@ TurbulentSimulation::TurbulentSimulation(Parameters& parameters, FlowField& flow
     , distanceStencil_(parameters, flowField.getCellsX(), flowField.getCellsY(), flowField.getCellsZ())
     , distanceIterator_(flowField, parameters, distanceStencil_)
     , turbulentPetscParallelManager_(parameters)
-    // TODO: Implement the following communication files for Viscosity and uncomment!
-    //  , viscosityBufferFillStencil_(parameters)
-    //  , viscosityBufferReadStencil_(parameters)
-    //  , viscosityBufferFillIterator_(flowField, parameters, viscosityBufferFillStencil_,
-    //                                 parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
-    //  , viscosityBufferReadIterator_(flowField, parameters, viscosityBufferReadStencil_,
-    //
+    , viscosityBufferFillStencil_(parameters)
+    , viscosityBufferReadStencil_(parameters)
+    , viscosityBufferFillIterator_(flowField, parameters, viscosityBufferFillStencil_,
+                                   parameters.vtk.whiteRegionLowOffset, parameters.vtk.whiteRegionHighOffset)
+    , viscosityBufferReadIterator_(flowField, parameters, viscosityBufferReadStencil_,
+                                   parameters.vtk.whiteRegionLowOffset, parameters.vtk.whiteRegionHighOffset)
 {
     fghStencil_  = new Stencils::TurbulentFGHStencil(parameters_);
     fghIterator_ = new FieldIterator<FlowField>(flowField_, parameters_, *fghStencil_);
@@ -42,10 +41,10 @@ void TurbulentSimulation::solveTimestep() {
     viscosityIterator_.iterate(); // Compute eddy viscosities
     distanceIterator_.iterate(); // Compute distances to the closest walls
 
-    // TODO WS2: communicate viscosity values
-    //  viscosityBufferFillIterator_.iterate();
-    //  turbulentPetscParallelManager_.communicateViscosity(viscosityBufferFillStencil_, viscosityBufferReadStencil_);
-    //  viscosityBufferReadIterator_.iterate();
+    // communicate viscosity values
+    viscosityBufferFillIterator_.iterate();
+    turbulentPetscParallelManager_.communicateViscosity(viscosityBufferFillStencil_, viscosityBufferReadStencil_);
+    viscosityBufferReadIterator_.iterate();
 }
 
 } // namespace NSEOF

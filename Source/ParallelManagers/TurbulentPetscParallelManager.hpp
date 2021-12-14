@@ -3,6 +3,9 @@
 
 #include "PetscParallelManager.hpp"
 
+#include "Stencils/ViscosityBufferFillStencil.hpp"
+#include "Stencils/ViscosityBufferReadStencil.hpp"
+
 namespace NSEOF::ParallelManagers {
 
 class TurbulentPetscParallelManager : public PetscParallelManager {
@@ -10,8 +13,7 @@ public:
     explicit TurbulentPetscParallelManager(const Parameters&);
     ~TurbulentPetscParallelManager() override = default;
 
-    // TODO: Implement the following communication files for Viscosity and uncomment!
-    //  void communicateViscosity(Stencils::PressureBufferFillStencil&, Stencils::PressureBufferReadStencil&) const;
+    void communicateViscosity(Stencils::ViscosityBufferFillStencil&, Stencils::ViscosityBufferReadStencil&) const;
 };
 
 } // namespace NSEOF::ParallelManagers

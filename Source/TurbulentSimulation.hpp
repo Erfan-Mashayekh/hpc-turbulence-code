@@ -12,9 +12,8 @@
 
 #include "ParallelManagers/TurbulentPetscParallelManager.hpp"
 
-// TODO: Implement the following communication files for Viscosity and uncomment!
-//  #include "Stencils/ViscosityBufferFillStencil.hpp"
-//  #include "Stencils/ViscosityBufferReadStencil.hpp"
+#include "Stencils/ViscosityBufferFillStencil.hpp"
+#include "Stencils/ViscosityBufferReadStencil.hpp"
 
 namespace NSEOF {
 
@@ -31,9 +30,11 @@ private:
 
     ParallelManagers::TurbulentPetscParallelManager turbulentPetscParallelManager_;
 
-    // TODO: Implement the following communication files for Viscosity and uncomment!
-    //  Stencils::ViscosityBufferFillStencil viscosityBufferFillStencil_;
-    //  Stencils::ViscosityBufferReadStencil viscosityBufferReadStencil_;
+    Stencils::ViscosityBufferFillStencil viscosityBufferFillStencil_;
+    Stencils::ViscosityBufferReadStencil viscosityBufferReadStencil_;
+
+    ParallelBoundaryIterator<FlowField> viscosityBufferFillIterator_;
+    ParallelBoundaryIterator<FlowField> viscosityBufferReadIterator_;
 
 protected:
     /** Gets the diffusive timestep for setting the timestep before solving */
