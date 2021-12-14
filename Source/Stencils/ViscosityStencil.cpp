@@ -2,110 +2,91 @@
 #include "StencilFunctions.hpp"
 
 
-namespace NSEOF {
-namespace Stencils {
+namespace NSEOF::Stencils {
+
+FLOAT getReynoldsXPow(const Parameters& parameters) {
+    const int turbulenceModel = parameters.turbulence.model;
+
+    if (turbulenceModel == 1) {
+        return 0.5;
+    } else if (turbulenceModel == 2) {
+        return 0.2;
+    }
+
+    return 0.0; // TODO: (turbulentModel == 3) extract local boundary thickness from laminar reference case
+}
+
+FLOAT getBoundaryThicknessMultiplier(const Parameters& parameters) {
+    const int turbulenceModel = parameters.turbulence.model;
+
+    if (turbulenceModel == 1) {
+        return 4.910;
+    } else if (turbulenceModel == 2) {
+        return 0.382;
+    }
+
+    return 0.0; // TODO: (turbulentModel == 3) extract local boundary thickness from laminar reference case
+}
 
 ViscosityStencil::ViscosityStencil(const Parameters& parameters)
-    : FieldStencil<FlowField>(parameters) {}
+    : FieldStencil<FlowField>(parameters)
+    , VISCOSITY_CONSTANT(1 / parameters.flow.Re)
+    , REYNOLDS_X_POW(getReynoldsXPow(parameters))
+    , BOUNDARY_THICKNESS_MULTIPLIER(getBoundaryThicknessMultiplier(parameters)) {}
+
+FLOAT ViscosityStencil::calculateMixingLength_(FlowField& flowField, int i, int j, int k = 0) {
+    /**
+     * Turbulence Model == 0: Prandtl mixing length is kappa times distance to the nearest wall
+     * Turbulence Model == 1: Boundary layer thickness of a laminar flat plate
+     * Turbulence Model == 2: Boundary layer thickness of a turbulent flat plate
+     * Turbulence Model == 3: TODO ???
+     */
+
+    // Compute Prandtl mixing length
+    if (parameters_.turbulence.model == 0) {
+        return KAPPA * flowField.getDistance().getScalar(i, j);
+    } else if (parameters_.turbulence.model == 1 || parameters_.turbulence.model == 2) {
+        FLOAT x = parameters_.meshsize->getPosX(i, j, k);
+
+        // TODO: different calculation for backward facing step?
+        FLOAT reynoldsX = U0 * x / VISCOSITY_CONSTANT;
+        FLOAT boundary_thickness = BOUNDARY_THICKNESS_MULTIPLIER * x / std::pow(reynoldsX, REYNOLDS_X_POW);
+
+        return MIXING_LENGTH_MULTIPLIER * boundary_thickness;
+    } else if (parameters_.turbulence.model == 3) {
+        // TODO: extract local boundary thickness from laminar reference case. Only 2 model necessary..
+    }
+
+    std::cerr << "Invalid input for turbulence model in viscosity!" << std::endl;
+    return 0.0;
+}
 
 void ViscosityStencil::apply(FlowField& flowField, int i, int j) {
-	FLOAT viscosity = 1/parameters_.flow.Re;
-	int u0 = 1;
-	FLOAT kappa = 0.41;
-	FLOAT mixing_length = 0.;
-	FLOAT& eddy_viscosity = flowField.getEddyViscosity().getScalar(i,j);
+    FLOAT& eddyViscosity = flowField.getEddyViscosity().getScalar(i, j);
 
-	// compute Prandtl mixing length
-	if(parameters_.turbulence.model == 0){
-		// Prandtl mixing length is kappa times distance to nearest wall
-		mixing_length = kappa * flowField.getDistance().getScalar(i,j);
-		
-	}else if(parameters_.turbulence.model ==1){
-		// boundary layer thickness of a laminar flat plate
-		FLOAT x = parameters_.meshsize->getPosX(i,j);
-		//TODO: different calculation for backward facing step?
-		FLOAT Re_x = u0 * x/viscosity;
-		FLOAT boundary_thickness = 4.91 * x / std::sqrt(Re_x);
-		mixing_length = 0.09 * boundary_thickness;	
+    // Compute strain tensor
+    loadLocalVelocity2D(flowField, localVelocity_, i, j);
+    loadLocalMeshsize2D(parameters_, localMeshsize_, i, j);
 
-	}else if(parameters_.turbulence.model == 2){
-		// boundary layer thickness of a turbulent flat plate
-		FLOAT x = parameters_.meshsize->getPosX(i,j);
-		//TODO: different calculation for backward facing step?
-		FLOAT Re_x = u0 * x/viscosity;
-		FLOAT boundary_thickness = 0.382 * x / std::pow(Re_x, 0.2);
-		mixing_length = 0.09 * boundary_thickness;	
+    FLOAT strain_tensor_squared = computeStrainTensorSquared2D(localVelocity_, localMeshsize_);
 
-	}else if(parameters_.turbulence.model == 3){
-		//TODO: extract local boundary thickness from laminar reference case
-		//only 2 model necessary
-
-	}else{ 
-		std::cout << "invalid input for turbulence model" << std::endl;
-	}
-
-	//compute strain tensor
-	loadLocalVelocity2D(flowField, localVelocity_, i, j);
-	loadLocalMeshsize2D(parameters_, localMeshsize_, i, j);
-	
-	FLOAT strain_tensor_squared = computeStrainTensorSquared2D(localVelocity_, localMeshsize_);
-	
-	//compute eddy vicosity
-	if(parameters_.turbulence.turb_viscosity == 0){
-		eddy_viscosity = 0.0;
-	}else{
-		eddy_viscosity = std::pow(mixing_length,2) * std::sqrt(2 * strain_tensor_squared);
-	}
-
+    // Compute eddy viscosity
+    const FLOAT mixingLength = calculateMixingLength_(flowField, i, j);
+    eddyViscosity = std::pow(mixingLength, 2) * std::sqrt(2 * strain_tensor_squared);
 }
 
 void ViscosityStencil::apply(FlowField& flowField, int i, int j, int k) {
+    FLOAT& eddyViscosity = flowField.getEddyViscosity().getScalar(i, j, k);
 
-	FLOAT viscosity = 1/parameters_.flow.Re;
-	int u0 = 1;
-	FLOAT kappa = 0.41;
-	FLOAT mixing_length = 0.;
-	FLOAT& eddy_viscosity = flowField.getEddyViscosity().getScalar(i,j,k);
+    // Compute strain tensor
+    loadLocalVelocity3D(flowField, localVelocity_, i, j, k);
+    loadLocalMeshsize3D(parameters_, localMeshsize_, i, j, k);
 
-	// compute Prandtl mixing length
-	if(parameters_.turbulence.model == 0){
-		//Prandtl mixing length is kappa times distance to nearest wall
-		mixing_length = kappa * flowField.getDistance().getScalar(i,j,k);
-		
-	}else if(parameters_.turbulence.model ==1){
-		// boundary layer thickness of a laminar flat plate
-		FLOAT x = parameters_.meshsize->getPosX(i,j,k);
-		FLOAT Re_x = u0 * x/viscosity;
-		FLOAT boundary_thickness = 4.91 * x / std::sqrt(Re_x);
-		mixing_length = 0.09 * boundary_thickness;	
+    FLOAT strain_tensor_squared = computeStrainTensorSquared3D(localVelocity_, localMeshsize_);
 
-	}else if(parameters_.turbulence.model == 2){
-		// boundary layer thickness of a turbulent flat plate
-		FLOAT x = parameters_.meshsize->getPosX(i,j,k);
-		FLOAT Re_x = u0 * x/viscosity;
-		FLOAT boundary_thickness = 0.382 * x / std::pow(Re_x, 0.2);
-		mixing_length = 0.09 * boundary_thickness;	
-
-	}else if(parameters_.turbulence.model == 3){
-		//TODO: extract local boundary thickness from laminar reference case
-
-	}else{ 
-		std::cout << "invalid input for turbulence model" << std::endl;
-	}
-
-	//compute strain tensor
-	loadLocalVelocity3D(flowField, localVelocity_, i, j, k);
-	loadLocalMeshsize3D(parameters_, localMeshsize_, i, j, k);
-	
-	FLOAT strain_tensor_squared = computeStrainTensorSquared3D(localVelocity_, localMeshsize_);
-	
-	//compute eddy vicosity
-	if(parameters_.turbulence.turb_viscosity == 0){
-		eddy_viscosity = 0.0;
-	}else{
-		eddy_viscosity = std::pow(mixing_length,2) * std::sqrt(2 * strain_tensor_squared);
-	}
+    // Compute eddy viscosity
+    const FLOAT mixingLength = calculateMixingLength_(flowField, i, j, k);
+    eddyViscosity = std::pow(mixingLength, 2) * std::sqrt(2 * strain_tensor_squared);
 }
 
-} // namespace Stencils
-} // namespace NSEOF
+} // namespace NSEOF::Stencils
