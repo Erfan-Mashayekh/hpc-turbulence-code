@@ -9,7 +9,16 @@ TurbulentSimulation::TurbulentSimulation(Parameters& parameters, FlowField& flow
     , viscosityStencil_(parameters)
     , viscosityIterator_(flowField, parameters, viscosityStencil_)
     , minTimeStepStencil_(parameters)
-    , minTimeStepIterator_(flowField, parameters, minTimeStepStencil_) {}
+    , minTimeStepIterator_(flowField, parameters, minTimeStepStencil_)
+    , turbulentPetscParallelManager_(parameters)
+    // TODO: Implement the following communication files for Viscosity and uncomment!
+    //  , viscosityBufferFillStencil_(parameters)
+    //  , viscosityBufferReadStencil_(parameters)
+    //  , viscosityBufferFillIterator_(flowField, parameters, viscosityBufferFillStencil_,
+    //                                 parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
+    //  , viscosityBufferReadIterator_(flowField, parameters, viscosityBufferReadStencil_,
+    //                                 parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
+    {}
 
 // TODO: Needs refactoring! Maybe create a SimulationMechanics class..
 void TurbulentSimulation::calculateDistancesToNearestWalls() {
@@ -125,6 +134,9 @@ void TurbulentSimulation::iterateFGHValues_() {
     turbulentFghIterator_.iterate(); // Compute FGH
 
     // TODO WS2: communicate viscosity values
+    //  viscosityBufferFillIterator_.iterate();
+    //  turbulentPetscParallelManager_.communicatePressure(viscosityBufferFillStencil_, viscosityBufferReadStencil_);
+    //  viscosityBufferReadIterator_.iterate();
 }
 
 FLOAT TurbulentSimulation::getDiffusiveTimestep_() {

@@ -12,7 +12,7 @@ namespace NSEOF::ParallelManagers {
                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     }
 
-    void PetscParallelManager::communicate(Stencils::BufferFillStencil& bufferFillStencil,
+    void PetscParallelManager::communicate_(Stencils::BufferFillStencil& bufferFillStencil,
                                            Stencils::BufferReadStencil& bufferReadStencil) const {
         /**
          * Communication: Left & Right
@@ -118,12 +118,12 @@ namespace NSEOF::ParallelManagers {
 
     void PetscParallelManager::communicatePressure(Stencils::PressureBufferFillStencil& pressureBufferFillStencil,
                                                    Stencils::PressureBufferReadStencil& pressureBufferReadStencil) const {
-        communicate(pressureBufferFillStencil, pressureBufferReadStencil);
+        communicate_(pressureBufferFillStencil, pressureBufferReadStencil);
     }
 
     void PetscParallelManager::communicateVelocity(Stencils::VelocityBufferFillStencil& velocityBufferFillStencil,
                                                    Stencils::VelocityBufferReadStencil& velocityBufferReadStencil) const {
-        communicate(velocityBufferFillStencil, velocityBufferReadStencil);
+        communicate_(velocityBufferFillStencil, velocityBufferReadStencil);
     }
 
 } // namespace NSEOF::ParallelManagers
