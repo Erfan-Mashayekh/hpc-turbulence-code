@@ -5,11 +5,6 @@
 
 namespace NSEOF::Stencils {
 
-/** TODO WS1: Stencil for writing VTK files for Turbulence Model
- *
- * When iterated with, creates a VTK file.
- */
-
 class TurbulentVTKStencil : public VTKStencil {
 private:
     ScalarField eddyViscosity_;

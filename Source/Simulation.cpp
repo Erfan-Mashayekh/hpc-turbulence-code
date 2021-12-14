@@ -51,6 +51,7 @@ Simulation::Simulation(Parameters& parameters, FlowField& flowField)
 #endif
     {}
 
+// TODO: Needs refactoring! Maybe create a SimulationMechanics class..
 void Simulation::calculateDistancesToNearestWalls() {
     // Number of cells in each direction plus the ghost cells
     const int sizeX = flowField_.getNx() + 3;
@@ -79,52 +80,41 @@ void Simulation::calculateDistancesToNearestWalls() {
                 if ((obstacle & OBSTACLE_SELF) != 0) { // If it is not a fluid cell, the dist is zero.
                     distance_to_wall.getScalar(i, j, k) = 0;
                 } else { // If it is a fluid cell, calculate the distance
-                
                 	/**
-                	*
-                	*Note: To limit if conditions we are only 
-                	*	   checking for u-velocities on each wall
+                	* Note: To limit if conditions we are only checking for u-velocities on each wall
                 	*/
-                	//check if left or right wall has u-velocity 
+
+                	// check if left or right wall has u-velocity
                 	if ((parameters_.walls.vectorLeft[0] == 0) && (parameters_.walls.vectorRight[0] == 0)) {
                     	distX = std::abs((i <= sizeX / 2 ? i : sizeX - i) * parameters_.meshsize->getDx(i, j, k));
-                    }
-                    else if ((parameters_.walls.vectorLeft[0] == 0) && (parameters_.walls.vectorRight[0] != 0)) {
+                    } else if ((parameters_.walls.vectorLeft[0] == 0) && (parameters_.walls.vectorRight[0] != 0)) {
                     	distX = std::abs(i * parameters_.meshsize->getDx(i, j, k));	
-                    }
-                    else if ((parameters_.walls.vectorLeft[0] != 0) && (parameters_.walls.vectorRight[0] == 0)) {
+                    } else if ((parameters_.walls.vectorLeft[0] != 0) && (parameters_.walls.vectorRight[0] == 0)) {
                     	distX = std::abs((sizeX - i) * parameters_.meshsize->getDx(i, j, k));	
-                    }
-                    else {
+                    } else {
                     	distX = std::numeric_limits<FLOAT>::infinity();
                     }
                     
-                    //check if top or bottom wall has u-velocity 
+                    // check if top or bottom wall has u-velocity
                 	if ((parameters_.walls.vectorBottom[0] == 0) && (parameters_.walls.vectorTop[0] == 0)) {
                     	distY = std::abs((j <= sizeY / 2 ? j : sizeY - j) * parameters_.meshsize->getDy(i, j, k));
-                    }
-                    else if ((parameters_.walls.vectorBottom[0] == 0) && (parameters_.walls.vectorTop[0] != 0)) {
+                    } else if ((parameters_.walls.vectorBottom[0] == 0) && (parameters_.walls.vectorTop[0] != 0)) {
                     	distY = std::abs(j * parameters_.meshsize->getDy(i, j, k));	
-                    }
-                    else if ((parameters_.walls.vectorBottom[0] != 0) && (parameters_.walls.vectorTop[0] == 0)) {
+                    } else if ((parameters_.walls.vectorBottom[0] != 0) && (parameters_.walls.vectorTop[0] == 0)) {
                     	distY = std::abs((sizeY - j) * parameters_.meshsize->getDy(i, j, k));
-                    }
-                    else {
+                    } else {
                     	distY = std::numeric_limits<FLOAT>::infinity();
                     }
 
                     if (parameters_.geometry.dim == 3) { // 3D
-                        //check if front or back wall has u-velocity 
+                        // check if front or back wall has u-velocity
 		            	if ((parameters_.walls.vectorBack[0] == 0) && (parameters_.walls.vectorFront[0] == 0)) {
 		                	distZ = std::abs((k <= sizeZ / 2 ? k : sizeZ - k) * parameters_.meshsize->getDz(i, j, k));
-		                }
-		                else if ((parameters_.walls.vectorBack[0] == 0) && (parameters_.walls.vectorFront[0] != 0)) {
+		                } else if ((parameters_.walls.vectorBack[0] == 0) && (parameters_.walls.vectorFront[0] != 0)) {
 		                	distZ = std::abs(k * parameters_.meshsize->getDz(i, j, k));	
-		                }
-		                else if ((parameters_.walls.vectorBottom[0] != 0) && (parameters_.walls.vectorTop[0] == 0)) {
+		                } else if ((parameters_.walls.vectorBottom[0] != 0) && (parameters_.walls.vectorTop[0] == 0)) {
 		                	distZ = std::abs((sizeZ - k) * parameters_.meshsize->getDz(i, j, k));
-		                }
-		                else{
+		                } else {
 		                	distZ = std::numeric_limits<FLOAT>::infinity();
 		                }
                     }
@@ -157,6 +147,8 @@ void Simulation::calculateDistancesToNearestWalls() {
                         distance_to_wall.getScalar(i, j, k) = std::abs(std::min(distance_to_wall.getScalar(i, j, k), stepDis));
                     }
                 }
+
+                // TODO: Remove the following print!
                 std::cout << "distance to wall " << distance_to_wall.getScalar(i, j, k) << "	dx " << distX <<"	dy " << distY << "	dz " << distZ << "	i " << i << "	j " << j << "	k " << k << std::endl;
             }
         }
