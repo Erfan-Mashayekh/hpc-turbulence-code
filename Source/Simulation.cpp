@@ -1,8 +1,5 @@
 #include "Simulation.hpp"
 
-#include "Stencils/VTKStencil.hpp"
-#include "Stencils/TurbulentVTKStencil.hpp"
-
 #include "Solvers/SORSolver.hpp"
 #include "Solvers/PetscSolver.hpp"
 
@@ -19,8 +16,6 @@ Simulation::Simulation(Parameters& parameters, FlowField& flowField)
     , globalBoundaryFactory_(parameters)
     , wallVelocityIterator_(globalBoundaryFactory_.getGlobalBoundaryVelocityIterator(flowField_))
     , wallFGHIterator_(globalBoundaryFactory_.getGlobalBoundaryFGHIterator(flowField_))
-    , fghStencil_(parameters)
-    , fghIterator_(flowField_, parameters, fghStencil_)
     , rhsStencil_(parameters)
     , rhsIterator_(flowField_, parameters, rhsStencil_)
     , velocityStencil_(parameters)
@@ -43,9 +38,24 @@ Simulation::Simulation(Parameters& parameters, FlowField& flowField)
 #ifdef BUILD_WITH_PETSC
     , solver_(std::make_unique<Solvers::PetscSolver>(flowField_, parameters))
 #else
-    , solver_(std::make_unique<Solvers::SORSolver>(flowField_, parameters))
+    , solver_(std::make_unique<Solvers::SORSolver>(flowField_, parameters)) {
 #endif
-    {}
+{
+    fghStencil_  = new Stencils::FGHStencil(parameters_);
+    fghIterator_ = new FieldIterator<FlowField>(flowField_, parameters_, *fghStencil_);
+
+    vtkStencil_  = new Stencils::VTKStencil(parameters_,
+                                            flowField_.getCellsX(), flowField_.getCellsY(), flowField_.getCellsZ());
+    vtkIterator_ = new FieldIterator<FlowField>(flowField_, parameters_, *vtkStencil_);
+}
+
+Simulation::~Simulation() {
+    delete fghStencil_;
+    delete fghIterator_;
+
+    delete vtkStencil_;
+    delete vtkIterator_;
+}
 
 void Simulation::initializeFlowField() {
     if (parameters_.simulation.scenario == "taylor-green") {
@@ -134,17 +144,11 @@ void Simulation::setTimestep_() {
     parameters_.timestep.dt *= parameters_.timestep.tau;
 }
 
-void Simulation::iterateFGHValues_() {
-    fghIterator_.iterate(); // Compute FGH
-}
-
 void Simulation::solveTimestep() {
     // Determine and set max timestep which is allowed in this simulation
     setTimestep_();
 
-    // Iterates and computes FGH values and communicates if needed
-    iterateFGHValues_();
-
+    fghIterator_->iterate(); // Compute FGH
     wallFGHIterator_.iterate(); // Set global boundary values
     rhsIterator_.iterate(); // Compute the right-hand side (RHS)
 
@@ -169,14 +173,11 @@ void Simulation::solveTimestep() {
     wallVelocityIterator_.iterate();
 }
 
-void Simulation::plotVTK(int timeStep) {
-    Stencils::VTKStencil vtkStencil(parameters_,
-                                    flowField_.getCellsX(), flowField_.getCellsY(), flowField_.getCellsZ());
-    FieldIterator<FlowField> vtkIterator(flowField_, parameters_, vtkStencil,
-                                         parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset);
+void Simulation::plotVTK(int timestep) {
+    vtkIterator_->iterate();
 
-    vtkIterator.iterate();
-    vtkStencil.write(timeStep);
+    vtkStencil_->write(timestep);
+    vtkStencil_->clearValues(true);
 }
 
 } // namespace NSEOF

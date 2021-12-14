@@ -4,8 +4,6 @@ namespace NSEOF {
 
 TurbulentSimulation::TurbulentSimulation(Parameters& parameters, FlowField& flowField)
     : Simulation(parameters, flowField)
-    , turbulentFghStencil_(parameters)
-    , turbulentFghIterator_(flowField, parameters, turbulentFghStencil_)
     , viscosityStencil_(parameters)
     , viscosityIterator_(flowField, parameters, viscosityStencil_)
     , minTimeStepStencil_(parameters)
@@ -17,8 +15,15 @@ TurbulentSimulation::TurbulentSimulation(Parameters& parameters, FlowField& flow
     //  , viscosityBufferFillIterator_(flowField, parameters, viscosityBufferFillStencil_,
     //                                 parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
     //  , viscosityBufferReadIterator_(flowField, parameters, viscosityBufferReadStencil_,
-    //                                 parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
-    {}
+    //
+{
+    fghStencil_  = new Stencils::TurbulentFGHStencil(parameters_);
+    fghIterator_ = new FieldIterator<FlowField>(flowField_, parameters_, *fghStencil_);
+
+    vtkStencil_  = new Stencils::TurbulentVTKStencil(parameters_,
+                                                     flowField_.getCellsX(), flowField_.getCellsY(), flowField_.getCellsZ());
+    vtkIterator_ = new FieldIterator<FlowField>(flowField_, parameters_, *vtkStencil_);
+}
 
 // TODO: Needs refactoring! Maybe create a SimulationMechanics class..
 void TurbulentSimulation::calculateDistancesToNearestWalls() {
@@ -129,16 +134,6 @@ void TurbulentSimulation::initializeFlowField() {
     TurbulentSimulation::calculateDistancesToNearestWalls();
 }
 
-void TurbulentSimulation::iterateFGHValues_() {
-    viscosityIterator_.iterate(); // Compute eddy viscosity
-    turbulentFghIterator_.iterate(); // Compute FGH
-
-    // TODO WS2: communicate viscosity values
-    //  viscosityBufferFillIterator_.iterate();
-    //  turbulentPetscParallelManager_.communicatePressure(viscosityBufferFillStencil_, viscosityBufferReadStencil_);
-    //  viscosityBufferReadIterator_.iterate();
-}
-
 FLOAT TurbulentSimulation::getDiffusiveTimestep_() {
     // reset diffusive timestep stencil and determine min diffusive timestep
     minTimeStepStencil_.reset();
@@ -148,14 +143,15 @@ FLOAT TurbulentSimulation::getDiffusiveTimestep_() {
     return minTimeStepStencil_.getDiffusiveTimeStep();
 }
 
-void TurbulentSimulation::plotVTK(int timeStep) {
-    Stencils::TurbulentVTKStencil turbulentVtkStencil(parameters_,
-                                                      flowField_.getCellsX(), flowField_.getCellsY(), flowField_.getCellsZ());
-    FieldIterator<FlowField> turbulentVtkIterator(flowField_, parameters_, turbulentVtkStencil,
-                                                  parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset);
+void TurbulentSimulation::solveTimestep() {
+    Simulation::solveTimestep();
 
-    turbulentVtkIterator.iterate();
-    turbulentVtkStencil.write(timeStep);
+    viscosityIterator_.iterate(); // Compute eddy viscosity
+
+    // TODO WS2: communicate viscosity values
+    //  viscosityBufferFillIterator_.iterate();
+    //  turbulentPetscParallelManager_.communicateViscosity(viscosityBufferFillStencil_, viscosityBufferReadStencil_);
+    //  viscosityBufferReadIterator_.iterate();
 }
 
 } // namespace NSEOF

@@ -6,7 +6,6 @@
 #include "Definitions.hpp"
 #include "GlobalBoundaryFactory.hpp"
 
-#include "Stencils/FGHStencil.hpp"
 #include "Stencils/MovingWallStencils.hpp"
 #include "Stencils/RHSStencil.hpp"
 #include "Stencils/VelocityStencil.hpp"
@@ -18,6 +17,9 @@
 #include "Stencils/NeumannBoundaryStencils.hpp"
 #include "Stencils/BFInputStencils.hpp"
 #include "Stencils/InitTaylorGreenFlowFieldStencil.hpp"
+
+#include "Stencils/FGHStencil.hpp"
+#include "Stencils/VTKStencil.hpp"
 
 #include "ParallelManagers/PetscParallelManager.hpp"
 
@@ -47,11 +49,14 @@ protected:
     GlobalBoundaryIterator<FlowField> wallVelocityIterator_;
     GlobalBoundaryIterator<FlowField> wallFGHIterator_;
 
-    Stencils::FGHStencil fghStencil_;
-    FieldIterator<FlowField> fghIterator_;
-
     Stencils::RHSStencil rhsStencil_;
     FieldIterator<FlowField> rhsIterator_;
+
+    Stencils::FGHStencil* fghStencil_;
+    FieldIterator<FlowField>* fghIterator_;
+
+    Stencils::VTKStencil* vtkStencil_;
+    FieldIterator<FlowField>* vtkIterator_;
 
     Stencils::VelocityStencil velocityStencil_;
     Stencils::ObstacleStencil obstacleStencil_;
@@ -76,21 +81,18 @@ protected:
     virtual FLOAT getDiffusiveTimestep_();
     void setTimestep_();
 
-    /** Iterates and computes FGH values and communicates if needed */
-    virtual void iterateFGHValues_();
-
 public:
-    Simulation(Parameters& parameters, FlowField& flowField);
-    virtual ~Simulation() = default;
+    Simulation(Parameters&, FlowField&);
+    virtual ~Simulation();
 
     /** Initialises the flow field according to the scenario */
     virtual void initializeFlowField();
 
     /** Solves */
-    void solveTimestep();
+    virtual void solveTimestep();
 
     /** Plots the flow field */
-    virtual void plotVTK(int timeStep);
+    void plotVTK(int);
 };
 
 } // namespace NSEOF

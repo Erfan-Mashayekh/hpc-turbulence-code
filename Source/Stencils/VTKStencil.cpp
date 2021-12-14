@@ -24,22 +24,34 @@ namespace NSEOF::Stencils {
         cellIndices_.reserve(getNumCellsExpected(parameters));
     }
 
-    VTKStencil::~VTKStencil() {
+    void VTKStencil::clearValues(bool valuesReserved = false) {
         cellIndices_.clear();
+
+        // Re-allocate the space needed for storing the cell indices!
+        if (valuesReserved) {
+            cellIndices_.reserve(getNumCellsExpected(parameters_));
+        }
+    }
+
+    VTKStencil::~VTKStencil() {
+        clearValues();
     }
 
     void VTKStencil::apply(FlowField& flowField, int i, int j, int k) {
         // Store the cell indices
         cellIndices_.emplace_back(i, j, k);
 
-        // Make sure that it is a fluid cell, and if it is not, stop the computation and store 0s instead!
-        if ((flowField.getFlags().getValue(i, j, k) & OBSTACLE_SELF) != 0) {
-            return;
-        }
-
         // Get the data structures stored
         FLOAT& cellPressure = pressure_.getScalar(i, j, k);
         FLOAT* cellVelocity = velocity_.getVector(i, j, k);
+
+        // Make sure that it is a fluid cell, and if it is not, stop the computation and store 0s instead!
+        if ((flowField.getFlags().getValue(i, j, k) & OBSTACLE_SELF) != 0) {
+            cellPressure = 0.0;
+            for (int dim = 0; dim < parameters_.geometry.dim; dim++) cellVelocity[dim] = 0.0;
+
+            return;
+        }
 
         // Get the pressure and velocity
         if (parameters_.geometry.dim == 2) { // 2D
@@ -127,9 +139,9 @@ namespace NSEOF::Stencils {
         writeVelocities_(filePtr);
     }
 
-    void VTKStencil::write(int timeStep) {
+    void VTKStencil::write(int timestep) {
         // Decide on the filename
-        long time = timeStep * parameters_.vtk.interval * 1e6;
+        long time = timestep * parameters_.vtk.interval * 1e6;
         std::string filename = parameters_.vtk.outDir + "/" + parameters_.vtk.prefix + "_" +
                                std::to_string(parameters_.parallel.rank) + "_" +
                                std::to_string(time) + ".vtk";

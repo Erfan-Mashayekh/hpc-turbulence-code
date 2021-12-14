@@ -3,11 +3,11 @@
 
 #include "Simulation.hpp"
 
-#include "Stencils/TurbulentFGHStencil.hpp"
-#include "Stencils/TurbulentVTKStencil.hpp"
-
 #include "Stencils/ViscosityStencil.hpp"
 #include "Stencils/MinTimeStepStencil.hpp"
+
+#include "Stencils/TurbulentFGHStencil.hpp"
+#include "Stencils/TurbulentVTKStencil.hpp"
 
 #include "ParallelManagers/TurbulentPetscParallelManager.hpp"
 
@@ -21,9 +21,6 @@ namespace NSEOF {
 
 class TurbulentSimulation : public Simulation {
 private:
-    Stencils::TurbulentFGHStencil turbulentFghStencil_;
-    FieldIterator<FlowField> turbulentFghIterator_;
-
     Stencils::ViscosityStencil viscosityStencil_;
     FieldIterator<FlowField> viscosityIterator_;
 
@@ -40,11 +37,8 @@ protected:
     /** Gets the diffusive timestep for setting the timestep before solving */
     FLOAT getDiffusiveTimestep_() override;
 
-    /** Iterates and computes FGH values and communicates if needed */
-    void iterateFGHValues_() override;
-
 public:
-    TurbulentSimulation(Parameters& parameters, FlowField& flowField);
+    TurbulentSimulation(Parameters&, FlowField&);
     ~TurbulentSimulation() override = default;
 
     /** Calculates the distances to the nearest walls */
@@ -53,8 +47,8 @@ public:
     /** Initialises the flow field according to the scenario */
     void initializeFlowField() override;
 
-    /** Plots the flow field */
-    void plotVTK(int timeStep) override;
+    /** Solves */
+    void solveTimestep() override;
 };
 
 } // namespace NSEOF

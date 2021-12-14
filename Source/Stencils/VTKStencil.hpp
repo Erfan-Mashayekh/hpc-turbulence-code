@@ -39,6 +39,8 @@ public:
     explicit VTKStencil(const Parameters&, int, int, int);
     ~VTKStencil() override;
 
+    void clearValues(bool);
+
     void apply(FlowField&, int, int, int) override;
     void apply(FlowField&, int, int) override;
 

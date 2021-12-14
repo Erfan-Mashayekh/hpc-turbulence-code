@@ -13,14 +13,17 @@ namespace NSEOF::Stencils {
         // Apply function of VTKStencil that's used for positions, pressures and velocities
         VTKStencil::apply(flowField, i, j, k);
 
-        // Make sure that it is a fluid cell, and if it is not, stop the computation and store 0s instead!
-        if ((flowField.getFlags().getValue(i, j, k) & OBSTACLE_SELF) != 0) {
-            return;
-        }
-
         // Get the data structures stored
         FLOAT& cellEddyViscosity = eddyViscosity_.getScalar(i, j, k);
         FLOAT& cellDistanceToWall = distanceToWall_.getScalar(i, j, k);
+
+        // Make sure that it is a fluid cell, and if it is not, stop the computation and store 0s instead!
+        if ((flowField.getFlags().getValue(i, j, k) & OBSTACLE_SELF) != 0) {
+            cellEddyViscosity = 0.0;
+            cellDistanceToWall = 0.0;
+
+            return;
+        }
 
         // Get the eddy viscosity and distance to wall
         cellEddyViscosity = flowField.getEddyViscosity().getScalar(i, j, k);
