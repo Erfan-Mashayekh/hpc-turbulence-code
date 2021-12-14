@@ -1,4 +1,6 @@
 #include "Simulation.hpp"
+#include "TurbulentSimulation.hpp"
+
 #include "Configuration.hpp"
 #include "MeshsizeFactory.hpp"
 
@@ -68,17 +70,19 @@ int main(int argc, char *argv[]) {
     std::cout << "Min. meshsizes: " << parameters.meshsize->getDxMin() << ", " << parameters.meshsize->getDyMin() << ", " << parameters.meshsize->getDzMin() << std::endl;
 #endif
 
+    if (rank==0) {
+        std::cout << "Start DNS simulation in " << parameters.geometry.dim << "D" << std::endl;
+    }
+
+    flowField = new NSEOF::FlowField(parameters);
+    if (flowField == NULL) {
+        HANDLE_ERROR(1, "flowField == NULL!");
+    }
+
     // Initialise simulation
-    if (parameters.simulation.type == "turbulence") {
-        // TODO WS2: initialise turbulent flow field and turbulent simulation object
-    } else if (parameters.simulation.type == "dns") {
-        if (rank==0) {
-            std::cout << "Start DNS simulation in " << parameters.geometry.dim << "D" << std::endl;
-        }
-        flowField = new NSEOF::FlowField(parameters);
-        if (flowField == NULL) {
-            HANDLE_ERROR(1, "flowField == NULL!");
-        }
+    if (parameters.simulation.type == "turbulence") { // Turbulence Model
+        simulation = new NSEOF::TurbulentSimulation(parameters, *flowField);
+    } else if (parameters.simulation.type == "dns") { // Laminar Model
         simulation = new NSEOF::Simulation(parameters, *flowField);
     } else {
         HANDLE_ERROR(1, "Unknown simulation type! Currently supported: dns, turbulence");
@@ -88,6 +92,7 @@ int main(int argc, char *argv[]) {
     if (simulation == NULL) {
         HANDLE_ERROR(1, "simulation == NULL!");
     }
+
     simulation->initializeFlowField();
 
     // flowField->getFlags().show();

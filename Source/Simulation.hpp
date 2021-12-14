@@ -18,8 +18,6 @@
 #include "Stencils/NeumannBoundaryStencils.hpp"
 #include "Stencils/BFInputStencils.hpp"
 #include "Stencils/InitTaylorGreenFlowFieldStencil.hpp"
-#include "Stencils/ViscosityStencil.hpp"
-#include "Stencils/MinTimeStepStencil.hpp"
 
 #include "ParallelManagers/PetscParallelManager.hpp"
 
@@ -60,12 +58,6 @@ protected:
     FieldIterator<FlowField> velocityIterator_;
     FieldIterator<FlowField> obstacleIterator_;
 
-    Stencils::ViscosityStencil viscosityStencil_;
-    FieldIterator<FlowField> viscosityIterator_;
-
-    Stencils::MinTimeStepStencil minTimeStepStencil_;
-    FieldIterator<FlowField> minTimeStepIterator_;
-
     ParallelManagers::PetscParallelManager petscParallelManager_;
 
     Stencils::PressureBufferFillStencil pressureBufferFillStencil_;
@@ -80,19 +72,22 @@ protected:
 
     std::unique_ptr<Solvers::LinearSolver> solver_;
 
-    virtual void setTimeStep();
+    /** Gets the diffusive timestep and uses that to set the timestep before solving */
+    virtual FLOAT getDiffusiveTimestep_();
+    void setTimestep_();
+
+    /** Iterates and computes FGH values and communicates if needed */
+    virtual void iterateFGHValues_();
 
 public:
     Simulation(Parameters& parameters, FlowField& flowField);
     virtual ~Simulation() = default;
 
-    /** Calculates the distances to nearest walls */
-    void calculateDistancesToNearestWalls();
-
     /** Initialises the flow field according to the scenario */
     virtual void initializeFlowField();
 
-    virtual void solveTimestep();
+    /** Solves */
+    void solveTimestep();
 
     /** Plots the flow field */
     virtual void plotVTK(int timeStep);
