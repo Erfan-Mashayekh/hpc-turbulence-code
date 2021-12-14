@@ -13,11 +13,6 @@
 
 namespace NSEOF::Stencils {
 
-/** TODO WS1: Stencil for writting VTK files
- *
- * When iterated with, creates a VTK file.
- */
-
 struct CellIndex {
 public:
     int i, j, k;

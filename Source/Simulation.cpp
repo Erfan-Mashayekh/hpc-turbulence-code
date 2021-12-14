@@ -95,8 +95,6 @@ void Simulation::solveTimestep() {
 }
 
 void Simulation::plotVTK(int timeStep) {
-    // TODO WS1: create VTKStencil and respective iterator; iterate stencil
-    //           over flowField_ and write flow field information to VTK file.
     Stencils::VTKStencil vtkStencil_(parameters_, flowField_.getCellsX(), flowField_.getCellsY(), flowField_.getCellsZ());
     FieldIterator<FlowField> vtkIterator_(flowField_, parameters_, vtkStencil_,
                                           parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset);
