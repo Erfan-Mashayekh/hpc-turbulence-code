@@ -16,10 +16,10 @@ namespace NSEOF::Stencils {
         return numCellsExpected;
     }
 
-    VTKStencil::VTKStencil(const Parameters &parameters, int Nx, int Ny, int Nz)
+    VTKStencil::VTKStencil(const Parameters &parameters, const int cellsX, const int cellsY, const int cellsZ)
         : FieldStencil<FlowField>(parameters)
-        , pressure_(ScalarField(Nx, Ny, parameters.geometry.dim == 3 ? Nz : 1))
-        , velocity_(VectorField(Nx, Ny, parameters.geometry.dim == 3 ? Nz : 1)) {
+        , pressure_(ScalarField(cellsX, cellsY, parameters.geometry.dim == 3 ? cellsZ : 1))
+        , velocity_(VectorField(cellsX, cellsY, parameters.geometry.dim == 3 ? cellsZ : 1)) {
         // Pre-allocate the space needed for storing the cell indices!
         cellIndices_.reserve(getNumCellsExpected(parameters));
     }

@@ -3,8 +3,9 @@
 
 #include "Simulation.hpp"
 
-#include "Stencils/ViscosityStencil.hpp"
 #include "Stencils/MinTimeStepStencil.hpp"
+#include "Stencils/ViscosityStencil.hpp"
+#include "Stencils/DistanceStencil.hpp"
 
 #include "Stencils/TurbulentFGHStencil.hpp"
 #include "Stencils/TurbulentVTKStencil.hpp"
@@ -15,17 +16,18 @@
 //  #include "Stencils/ViscosityBufferFillStencil.hpp"
 //  #include "Stencils/ViscosityBufferReadStencil.hpp"
 
-#include <limits>
-
 namespace NSEOF {
 
 class TurbulentSimulation : public Simulation {
 private:
+    Stencils::MinTimeStepStencil minTimeStepStencil_;
+    FieldIterator<FlowField> minTimeStepIterator_;
+
     Stencils::ViscosityStencil viscosityStencil_;
     FieldIterator<FlowField> viscosityIterator_;
 
-    Stencils::MinTimeStepStencil minTimeStepStencil_;
-    FieldIterator<FlowField> minTimeStepIterator_;
+    Stencils::DistanceStencil distanceStencil_;
+    FieldIterator<FlowField> distanceIterator_;
 
     ParallelManagers::TurbulentPetscParallelManager turbulentPetscParallelManager_;
 
@@ -40,12 +42,6 @@ protected:
 public:
     TurbulentSimulation(Parameters&, FlowField&);
     ~TurbulentSimulation() override = default;
-
-    /** Calculates the distances to the nearest walls */
-    void calculateDistancesToNearestWalls();
-
-    /** Initialises the flow field according to the scenario */
-    void initializeFlowField() override;
 
     /** Solves */
     void solveTimestep() override;
