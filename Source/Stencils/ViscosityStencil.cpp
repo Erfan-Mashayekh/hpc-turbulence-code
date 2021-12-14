@@ -44,7 +44,7 @@ FLOAT ViscosityStencil::calculateMixingLength_(FlowField& flowField, int i, int 
 
     // Compute Prandtl mixing length
     if (parameters_.turbulence.model == 0) {
-        return KAPPA * flowField.getDistance().getScalar(i, j);
+        return KAPPA * flowField.getDistance().getScalar(i, j, k);
     } else if (parameters_.turbulence.model == 1 || parameters_.turbulence.model == 2) {
         FLOAT x = parameters_.meshsize->getPosX(i, j, k);
 
