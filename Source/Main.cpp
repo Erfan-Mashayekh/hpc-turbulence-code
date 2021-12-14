@@ -111,8 +111,8 @@ int main(int argc, char *argv[]) {
     FLOAT timeVtk = parameters.vtk.interval;
     int timeSteps = 0;
 
-    // TODO WS1: plot initial state
-    //simulation->plotVTK(timeSteps++);
+    // Plot initial state
+    // simulation->plotVTK(timeSteps++);
 
     // Time loop
     while (time < parameters.simulation.finalTime) {
@@ -126,17 +126,17 @@ int main(int argc, char *argv[]) {
             timeStdOut += parameters.stdOut.interval;
         }
 
-        // TODO WS1: trigger VTK output
-        //if (timeVtk <= time) {
-        //    simulation->plotVTK(timeSteps);
-        //    timeVtk += parameters.vtk.interval;
-        //}
+        // Trigger VTK output
+        // if (timeVtk <= time) {
+        //     simulation->plotVTK(timeSteps);
+        //     timeVtk += parameters.vtk.interval;
+        // }
 
         timeSteps++;
     }
 
-    // TODO WS1: plot final output
-    simulation->plotVTK(timeSteps);
+    // Plot final output
+    // simulation->plotVTK(timeSteps);
 
     delete simulation;
     simulation = NULL;
