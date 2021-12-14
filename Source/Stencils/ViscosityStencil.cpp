@@ -65,10 +65,6 @@ FLOAT ViscosityStencil::calculateMixingLength_(FlowField& flowField, int i, int 
 void ViscosityStencil::apply(FlowField& flowField, int i, int j) {
     FLOAT& eddyViscosity = flowField.getEddyViscosity().getScalar(i, j);
 
-    if (parameters_.turbulence.turb_viscosity == 0) {
-        return;
-    }
-
     // Compute strain tensor
     loadLocalVelocity2D(flowField, localVelocity_, i, j);
     loadLocalMeshsize2D(parameters_, localMeshsize_, i, j);
