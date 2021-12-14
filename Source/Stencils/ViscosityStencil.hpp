@@ -7,7 +7,8 @@
 
 namespace NSEOF::Stencils {
 
-/** Stencil to compute the turbulence/eddy viscosity for a chosen turbulence model
+/**
+ * Stencil to compute the turbulence/eddy viscosity for a chosen turbulence model
  */
 class ViscosityStencil : public FieldStencil<FlowField> {
 private:
