@@ -3,7 +3,7 @@
 namespace NSEOF::ParallelManagers {
 
     PetscParallelManager::PetscParallelManager(const Parameters& parameters)
-            : parameters_(parameters) {}
+        : parameters_(parameters) {}
 
     void PetscParallelManager::sendRecvBuffers(std::vector<FLOAT>& bufferSent, int receiverRank,
                                                std::vector<FLOAT>& bufferReceived, int senderRank) {

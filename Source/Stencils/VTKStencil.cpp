@@ -17,9 +17,9 @@ namespace NSEOF::Stencils {
     }
 
     VTKStencil::VTKStencil(const Parameters &parameters, int Nx, int Ny, int Nz)
-            : FieldStencil<FlowField>(parameters)
-            , pressure_(ScalarField(Nx, Ny, parameters.geometry.dim == 3 ? Nz : 1))
-            , velocity_(VectorField(Nx, Ny, parameters.geometry.dim == 3 ? Nz : 1)) {
+        : FieldStencil<FlowField>(parameters)
+        , pressure_(ScalarField(Nx, Ny, parameters.geometry.dim == 3 ? Nz : 1))
+        , velocity_(VectorField(Nx, Ny, parameters.geometry.dim == 3 ? Nz : 1)) {
         // Pre-allocate the space needed for storing the cell indices!
         cellIndices_.reserve(getNumCellsExpected(parameters));
     }
@@ -121,7 +121,7 @@ namespace NSEOF::Stencils {
         fprintf(filePtr, "\n");
     }
 
-    void VTKStencil::writeValues(FILE* filePtr) {
+    void VTKStencil::writeValues_(FILE* filePtr) {
         writePositions_(filePtr);
         writePressures_(filePtr);
         writeVelocities_(filePtr);
@@ -141,13 +141,13 @@ namespace NSEOF::Stencils {
         fprintf(filePtr, "%s\n", parameters_.vtk.vtkFileHeader.c_str());
 
         // Write data to the file
-        writeValues(filePtr);
+        writeValues_(filePtr);
 
         // Close the file stream
         fclose(filePtr);
     }
 
-    const std::vector<CellIndex>& VTKStencil::getCellIndices() const {
+    const std::vector<CellIndex>& VTKStencil::getCellIndices_() const {
         return cellIndices_;
     }
 

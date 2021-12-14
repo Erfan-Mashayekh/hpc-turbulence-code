@@ -14,7 +14,7 @@ private:
     void writeDistanceToWalls_(FILE*);
 
 protected:
-    void writeValues(FILE*) override;
+    void writeValues_(FILE*) override;
 
 public:
     explicit TurbulentVTKStencil(const Parameters&, int, int, int);

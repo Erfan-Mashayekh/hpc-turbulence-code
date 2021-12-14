@@ -3,7 +3,7 @@
 namespace NSEOF::Stencils {
 
     PressureBufferReadStencil::PressureBufferReadStencil(const Parameters& parameters)
-            : BufferReadStencil(parameters) {}
+        : BufferReadStencil(parameters) {}
 
     /**
      * Functions for 3D

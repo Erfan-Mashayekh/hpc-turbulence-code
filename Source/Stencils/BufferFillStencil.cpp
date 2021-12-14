@@ -3,7 +3,7 @@
 namespace NSEOF::Stencils {
 
     BufferFillStencil::BufferFillStencil(const Parameters& parameters)
-            : BoundaryStencil<FlowField>(parameters) {}
+        : BoundaryStencil<FlowField>(parameters) {}
 
     void BufferFillStencil::clearBuffers() {
         bufferLeft_.clear();

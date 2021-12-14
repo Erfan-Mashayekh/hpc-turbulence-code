@@ -5,9 +5,9 @@
 namespace NSEOF::Stencils {
 
     TurbulentVTKStencil::TurbulentVTKStencil(const Parameters &parameters, int Nx, int Ny, int Nz)
-            : VTKStencil(parameters, Nx, Ny, Nz)
-            , eddyViscosity_(ScalarField(Nx, Ny, parameters.geometry.dim == 3 ? Nz : 1))
-            , distanceToWall_(ScalarField(Nx, Ny, parameters.geometry.dim == 3 ? Nz : 1)) {}
+        : VTKStencil(parameters, Nx, Ny, Nz)
+        , eddyViscosity_(ScalarField(Nx, Ny, parameters.geometry.dim == 3 ? Nz : 1))
+        , distanceToWall_(ScalarField(Nx, Ny, parameters.geometry.dim == 3 ? Nz : 1)) {}
 
     void TurbulentVTKStencil::apply(FlowField& flowField, int i, int j, int k) {
         // Apply function of VTKStencil that's used for positions, pressures and velocities
@@ -32,7 +32,7 @@ namespace NSEOF::Stencils {
         fprintf(filePtr, "LOOKUP_TABLE default\n");
 
         FLOAT cellEddyViscosity;
-        for (auto& cellIndex : getCellIndices()) {
+        for (auto& cellIndex : getCellIndices_()) {
             cellEddyViscosity = eddyViscosity_.getScalar(cellIndex.i, cellIndex.j, cellIndex.k);
             fprintf(filePtr, "%f\n", cellEddyViscosity);
         }
@@ -45,7 +45,7 @@ namespace NSEOF::Stencils {
         fprintf(filePtr, "LOOKUP_TABLE default\n");
 
         FLOAT cellDistanceToWall;
-        for (auto& cellIndex : getCellIndices()) {
+        for (auto& cellIndex : getCellIndices_()) {
             cellDistanceToWall = distanceToWall_.getScalar(cellIndex.i, cellIndex.j, cellIndex.k);
             fprintf(filePtr, "%f\n", cellDistanceToWall);
         }
@@ -53,9 +53,9 @@ namespace NSEOF::Stencils {
         fprintf(filePtr, "\n");
     }
 
-    void TurbulentVTKStencil::writeValues(FILE* filePtr) {
+    void TurbulentVTKStencil::writeValues_(FILE* filePtr) {
         // Write positions, pressures and velocities
-        VTKStencil::writeValues(filePtr);
+        VTKStencil::writeValues_(filePtr);
 
         // Write eddy viscosity and distance to wall
         writeEddyViscosities_(filePtr);

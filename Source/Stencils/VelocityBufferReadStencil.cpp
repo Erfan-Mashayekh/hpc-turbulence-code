@@ -3,7 +3,7 @@
 namespace NSEOF::Stencils {
 
     VelocityBufferReadStencil::VelocityBufferReadStencil(const Parameters& parameters)
-            : BufferReadStencil(parameters) {}
+        : BufferReadStencil(parameters) {}
 
     /**
      * Functions for 3D

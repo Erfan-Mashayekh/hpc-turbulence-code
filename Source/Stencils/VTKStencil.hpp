@@ -31,9 +31,9 @@ private:
     void writeVelocities_(FILE*);
 
 protected:
-    virtual void writeValues(FILE*);
+    virtual void writeValues_(FILE*);
 
-    [[nodiscard]] const std::vector<CellIndex>& getCellIndices() const;
+    [[nodiscard]] const std::vector<CellIndex>& getCellIndices_() const;
 
 public:
     explicit VTKStencil(const Parameters&, int, int, int);

@@ -3,7 +3,7 @@
 namespace NSEOF::Stencils {
 
     PressureBufferFillStencil::PressureBufferFillStencil(const Parameters& parameters)
-            : BufferFillStencil(parameters) {}
+        : BufferFillStencil(parameters) {}
 
     /**
      * Functions for 3D
