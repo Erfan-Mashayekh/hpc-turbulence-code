@@ -27,12 +27,12 @@ void MinTimeStepStencil::apply(FlowField& flowField, int i, int j, int k) {
     FLOAT factor2 = 1.0 / (dx * dx) + 1.0 / (dy * dy) + 1 / (dx * dy);
 
     if (parameters_.geometry.dim == 3) { // 3D
-        factor1 += 1.0 / (dz * dz);
-        factor2 += 1 / (dx * dz) + 1 / (dy * dz);
+        factor1 += 1.0 / (dz * dz); // TODO: Remove this unused factor1 and rename factor2 as factor!
+        factor2 += 1 / (dx * dz) + 1 / (dy * dz) + 1.0 / (dz * dz);
     }
 
     // Timestep minimum in current cell
-    FLOAT cellTimeStep = std::min((reynoldsNew / (2 * factor1)), reynoldsNew / (2 * factor2));
+    FLOAT cellTimeStep = reynoldsNew / (2 * factor2);
 
     if (std::abs(cellTimeStep) < diffusiveTimeStep_) {
         diffusiveTimeStep_ = cellTimeStep;
