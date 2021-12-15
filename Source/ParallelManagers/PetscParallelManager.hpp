@@ -15,6 +15,7 @@ class PetscParallelManager {
 private:
     const Parameters& parameters_;
 
+protected:
     void communicate_(Stencils::BufferFillStencil&, Stencils::BufferReadStencil&) const;
 
 public:
