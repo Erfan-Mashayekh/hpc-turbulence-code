@@ -6,7 +6,7 @@
 namespace NSEOF::Stencils {
 
 /**
- * A boundary stencil that reads the pressure buffer
+ * A boundary stencil that reads the viscosity buffer
  */
 class ViscosityBufferReadStencil : public BufferReadStencil {
 public:
