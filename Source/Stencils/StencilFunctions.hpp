@@ -822,7 +822,7 @@ inline FLOAT GT_term1(const FLOAT* const lv, const FLOAT* const lm, FLOAT vtr, F
 
     const int index0 = mapd(0, 0, 0, 0); // u[i,j,k]
     const int index1 = mapd(0, 1, 0, 0); // u[i,j+1,k]
-    //const int index2 = mapd(0, -1, 0, 0); // u[i,j-1,k]
+    // Not used: const int index2 = mapd(0, -1, 0, 0); // u[i,j-1,k]
     const int index3 = mapd(0, 0, 0, 1); // v[i,j,k]
     const int index4 = mapd(1, 0, 0, 1); // v[i+1,j,k]
     // Not used: const int index5 = mapd(0, -1, 0, 1); // v[i,j-1,k]
@@ -946,7 +946,7 @@ inline FLOAT computeG3DT(const FLOAT* const localVelocity, const FLOAT* const lo
     FLOAT term1 = GT_term1(localVelocity, localMeshsize, vtr, vtl);
     FLOAT term2 = GT_term2(localVelocity, localMeshsize, vijk, vij1k);
     FLOAT term3 = GT_term3(localVelocity, localMeshsize, vtf, vtb);
-    
+
     return localVelocity[mapd(0, 0, 0, 1)] + dt * (term1 + term2 + term3
 		    - dv2dy(localVelocity, parameters, localMeshsize) - duvdx(localVelocity, parameters, localMeshsize)
 		    - dvwdz(localVelocity, parameters, localMeshsize) + parameters.environment.gy);
@@ -956,13 +956,13 @@ inline FLOAT HT_term1(const FLOAT* const lv, const FLOAT* const lm, FLOAT vfr, F
     // vfr: viscosity at front right corner: v*[i+1/2, j, k+1/2]
     // vfl: viscosity at front left corner: v*[i-1/2, j, k+1/2]
 
-    const int index0 = mapd(0, 0, 0, 0); //u[i,j,k]
-    const int index1 = mapd(0, 0, 1, 0); //u[i,j,k+1]
-    const int index2 = mapd(-1, 0, 0, 2); //w[i-1,j,k]
-    const int index3 = mapd(0, 0, 0, 2); //w[i,j,k]
-    const int index4 = mapd(1, 0, 0, 2); //w[i+1,j,k]
-    const int index5 = mapd(-1, 0, 0, 0); //u[i-1,j,k]
-    const int index6 = mapd(-1, 0, 1, 0); //u[i-1,j,k+1]
+    const int index0 = mapd(0, 0, 0, 0); // u[i,j,k]
+    const int index1 = mapd(0, 0, 1, 0); // u[i,j,k+1]
+    const int index2 = mapd(-1, 0, 0, 2); // w[i-1,j,k]
+    const int index3 = mapd(0, 0, 0, 2); // w[i,j,k]
+    const int index4 = mapd(1, 0, 0, 2); // w[i+1,j,k]
+    const int index5 = mapd(-1, 0, 0, 0); // u[i-1,j,k]
+    const int index6 = mapd(-1, 0, 1, 0); // u[i-1,j,k+1]
 
     // firstTerm: vstar[i+1/2, j, k+1/2] * ((u[i,j,k+1]-u[i,j,k])/dz + (w[i+1,j,k]-w[i,j,k])/dx)
     FLOAT firstTerm = vfr * ((lv[index1] - lv[index0]) / lm[index3] + (lv[index4] - lv[index3]) / lm[index0]);
