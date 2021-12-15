@@ -34,6 +34,17 @@ ViscosityStencil::ViscosityStencil(const Parameters& parameters)
     , REYNOLDS_X_POW(getReynoldsXPow(parameters))
     , BOUNDARY_THICKNESS_MULTIPLIER(getBoundaryThicknessMultiplier(parameters)) {}
 
+FLOAT ViscosityStencil::calculateBoundaryThickness(int i, int j, int k) {
+    if (x == 0) {
+        return 0.0;
+    }
+
+    const FLOAT x = parameters_.meshsize->getPosX(i, j, k);
+    const FLOAT reynoldsX = std::min(U0 * x / VISCOSITY_CONSTANT, parameters_.flow.Re);
+
+    return BOUNDARY_THICKNESS_MULTIPLIER * x / std::pow(reynoldsX, REYNOLDS_X_POW);
+}
+
 FLOAT ViscosityStencil::calculateMixingLength_(FlowField& flowField, int i, int j, int k = 0) {
     /**
      * Turbulence Model == 0: Prandtl mixing length is kappa times distance to the nearest wall
@@ -47,11 +58,8 @@ FLOAT ViscosityStencil::calculateMixingLength_(FlowField& flowField, int i, int 
     if (parameters_.turbulence.model == 0) {
         return kappaH;
     } else if (parameters_.turbulence.model == 1 || parameters_.turbulence.model == 2) {
-        FLOAT x = parameters_.meshsize->getPosX(i, j, k);
-        FLOAT reynoldsX = U0 * x / VISCOSITY_CONSTANT;
-        FLOAT boundary_thickness = BOUNDARY_THICKNESS_MULTIPLIER * x / std::pow(reynoldsX, REYNOLDS_X_POW);
-
-        return std::min(MIXING_LENGTH_MULTIPLIER * boundary_thickness, kappaH) ;
+        const FLOAT boundary_thickness = calculateBoundaryThickness(i, j, k);
+        return std::min(MIXING_LENGTH_MULTIPLIER * boundary_thickness, kappaH);
     }
 
     std::cerr << "Invalid input for turbulence model in viscosity!" << std::endl;

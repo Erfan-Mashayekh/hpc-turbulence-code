@@ -5,6 +5,8 @@
 #include "FlowField.hpp"
 #include "Parameters.hpp"
 
+#define VALUES_DIMENSION 27 * 3
+
 namespace NSEOF::Stencils {
 
 /**
@@ -21,13 +23,14 @@ private:
 
 	// A local velocity variable that will be used to approximate the derivative.
     // Size matches 3D cases but can be used for 2D as well.
-	FLOAT localVelocity_[27 * 3];
-    FLOAT localMeshsize_[27 * 3];
+	FLOAT localVelocity_[VALUES_DIMENSION];
+    FLOAT localMeshsize_[VALUES_DIMENSION];
+
+    FLOAT calculateBoundaryThickness_();
+    FLOAT calculateMixingLength_(FlowField&, int, int, int);
 public:
     explicit ViscosityStencil(const Parameters& parameters);
     ~ViscosityStencil() override = default;
-
-    FLOAT calculateMixingLength_(FlowField&, int, int, int);
 
     void apply(FlowField & flowField, int i, int j) override;
     void apply(FlowField & flowField, int i, int j, int k) override;
