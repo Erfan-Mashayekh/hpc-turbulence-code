@@ -822,7 +822,7 @@ inline FLOAT GT_term1(const FLOAT* const lv, const FLOAT* const lm, FLOAT vtr, F
 
     const int index0 = mapd(0, 0, 0, 0); // u[i,j,k]
     const int index1 = mapd(0, 1, 0, 0); // u[i,j+1,k]
-    const int index2 = mapd(0, -1, 0, 0); // u[i,j-1,k]
+    //const int index2 = mapd(0, -1, 0, 0); // u[i,j-1,k]
     const int index3 = mapd(0, 0, 0, 1); // v[i,j,k]
     const int index4 = mapd(1, 0, 0, 1); // v[i+1,j,k]
     // Not used: const int index5 = mapd(0, -1, 0, 1); // v[i,j-1,k]
@@ -946,7 +946,7 @@ inline FLOAT computeG3DT(const FLOAT* const localVelocity, const FLOAT* const lo
     FLOAT term1 = GT_term1(localVelocity, localMeshsize, vtr, vtl);
     FLOAT term2 = GT_term2(localVelocity, localMeshsize, vijk, vij1k);
     FLOAT term3 = GT_term3(localVelocity, localMeshsize, vtf, vtb);
-
+    
     return localVelocity[mapd(0, 0, 0, 1)] + dt * (term1 + term2 + term3
 		    - dv2dy(localVelocity, parameters, localMeshsize) - duvdx(localVelocity, parameters, localMeshsize)
 		    - dvwdz(localVelocity, parameters, localMeshsize) + parameters.environment.gy);
@@ -958,17 +958,17 @@ inline FLOAT HT_term1(const FLOAT* const lv, const FLOAT* const lm, FLOAT vfr, F
 
     const int index0 = mapd(0, 0, 0, 0); //u[i,j,k]
     const int index1 = mapd(0, 0, 1, 0); //u[i,j,k+1]
-    const int index2 = mapd(0, 0, -1, 0); //u[i,j,k-1]
+    const int index2 = mapd(-1, 0, 0, 2); //w[i-1,j,k]
     const int index3 = mapd(0, 0, 0, 2); //w[i,j,k]
     const int index4 = mapd(1, 0, 0, 2); //w[i+1,j,k]
-    const int index5 = mapd(0, 0, -1, 2); //w[i,j,k-1]
-    const int index6 = mapd(1, 0, -1, 2); //w[i+1,j,k-1]
+    const int index5 = mapd(-1, 0, 0, 0); //u[i-1,j,k]
+    const int index6 = mapd(-1, 0, 1, 0); //u[i-1,j,k+1]
 
     // firstTerm: vstar[i+1/2, j, k+1/2] * ((u[i,j,k+1]-u[i,j,k])/dz + (w[i+1,j,k]-w[i,j,k])/dx)
     FLOAT firstTerm = vfr * ((lv[index1] - lv[index0]) / lm[index3] + (lv[index4] - lv[index3]) / lm[index0]);
 
-    // secondTerm: vstar[i+1/2, j, k-1/2] * ((u[i,j,k]-u[i,j,k-1])/dz + (w[i+1,j,k-1]-w[i,j,k-1])/dx)
-    FLOAT secondTerm = vfl * ((lv[index0] - lv[index2]) / lm[index3] + (lv[index6] - lv[index5]) / lm[index0]);
+    // secondTerm: vstar[i+1/2, j, k-1/2] * ((w[i,j,k]-w[i-1,j,k])/dx + (u[i-1,j,k+1]-u[i-1,j,k])/dz)
+    FLOAT secondTerm = vfl * ((lv[index3] - lv[index2]) / lm[index0] + (lv[index6] - lv[index5]) / lm[index3]);
 
     //return (d/dz)*(vstar*(du/dz + dw/dx))
     return (firstTerm - secondTerm) / lm[index0];
@@ -980,17 +980,17 @@ inline FLOAT HT_term2(const FLOAT* const lv, const FLOAT* const lm, FLOAT vft, F
 
     const int index0 = mapd(0, 0, 0, 1); // v[i,j,k]
     const int index1 = mapd(0, 0, 1, 1); // v[i,j,k+1]
-    const int index2 = mapd(0, 0, -1, 1); // v[i,j,k-1]
+    const int index2 = mapd(0, -1, 0, 2); // w[i,j-1,k]
     const int index3 = mapd(0, 0, 0, 2); // w[i,j,k]
     const int index4 = mapd(0, 1, 0, 2); // w[i,j+1,k]
-    const int index5 = mapd(0, 0, -1, 2); // w[i,j,k-1]
-    const int index6 = mapd(0, 1, -1, 2); // w[i,j+1,k-1]
+    const int index5 = mapd(0, -1, 0, 1); // v[i,j-1,k]
+    const int index6 = mapd(0, -1, 1, 1); // v[i,j-1,k+1]
 
     // firstTerm: vstar[i, j+1/2, k+1/2] * ((v[i,j,k+1]-v[i,j,k])/dz + (w[i,j+1,k]-w[i,j,k])/dy)
     FLOAT firstTerm = vft * ((lv[index1] - lv[index0]) / lm[index3] + (lv[index4] - lv[index3]) / lm[index0]);
 
-    // secondTerm: vstar[i, j+1/2, k-1/2] * ((v[i,j,k]-v[i,j,k-1])/dz + (w[i,j+1,k-1]-w[i,j,k-1])/dy)
-    FLOAT secondTerm = vfb * ((lv[index0] - lv[index2]) / lm[index3] + (lv[index6] - lv[index5]) / lm[index0]);
+    // secondTerm: vstar[i, j+1/2, k-1/2] * ((w[i,j,k]-w[i,j-1,k])/dy + (v[i,j-1,k+1]-v[i,j-1,k])/dz)
+    FLOAT secondTerm = vfb * ((lv[index3] - lv[index2]) / lm[index0] + (lv[index6] - lv[index5]) / lm[index3]);
 
     //return (d/dz)*(vstar*(dv/dz + dw/dy))
     return (firstTerm - secondTerm) / lm[index0];
