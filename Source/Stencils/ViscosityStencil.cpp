@@ -34,14 +34,14 @@ ViscosityStencil::ViscosityStencil(const Parameters& parameters)
     , REYNOLDS_X_POW(getReynoldsXPow(parameters))
     , BOUNDARY_THICKNESS_MULTIPLIER(getBoundaryThicknessMultiplier(parameters)) {}
 
-FLOAT ViscosityStencil::calculateBoundaryThickness(int i, int j, int k) {
+FLOAT ViscosityStencil::calculateBoundaryThickness_(int i, int j, int k) {
+    const FLOAT x = parameters_.meshsize->getPosX(i, j, k);
+
     if (x <= 0) {
         return 0.0;
     }
 
-    const FLOAT x = parameters_.meshsize->getPosX(i, j, k);
     const FLOAT reynoldsX = std::min(U0 * x / VISCOSITY_CONSTANT, parameters_.flow.Re);
-
     return BOUNDARY_THICKNESS_MULTIPLIER * x / std::pow(reynoldsX, REYNOLDS_X_POW);
 }
 
@@ -58,7 +58,7 @@ FLOAT ViscosityStencil::calculateMixingLength_(FlowField& flowField, int i, int 
     if (parameters_.turbulence.model == 0) {
         return kappaH;
     } else if (parameters_.turbulence.model == 1 || parameters_.turbulence.model == 2) {
-        const FLOAT boundary_thickness = calculateBoundaryThickness(i, j, k);
+        const FLOAT boundary_thickness = calculateBoundaryThickness_(i, j, k);
         return std::min(MIXING_LENGTH_MULTIPLIER * boundary_thickness, kappaH);
     }
 
