@@ -40,13 +40,18 @@ FLOAT TurbulentSimulation::getDiffusiveTimestep_() {
 void TurbulentSimulation::solveTimestep() {
     Simulation::solveTimestep();
 
-    distanceIterator_.iterate(); // Compute distances to the closest walls
-    viscosityIterator_.iterate(); // Compute eddy viscosities
+    // Compute distances to the closest walls
+    distanceIterator_.iterate();
 
-    // Communicate viscosity values
-    viscosityBufferFillIterator_.iterate();
-    turbulentPetscParallelManager_.communicateViscosity(viscosityBufferFillStencil_, viscosityBufferReadStencil_);
-    viscosityBufferReadIterator_.iterate();
+    if (parameters_.turbulence.turb_viscosity != 0) {
+        // Compute eddy viscosities
+        viscosityIterator_.iterate();
+
+        // Communicate viscosity values
+        viscosityBufferFillIterator_.iterate();
+        turbulentPetscParallelManager_.communicateViscosity(viscosityBufferFillStencil_, viscosityBufferReadStencil_);
+        viscosityBufferReadIterator_.iterate();
+    }
 }
 
 } // namespace NSEOF

@@ -631,7 +631,7 @@ inline FLOAT dv2dy(const FLOAT* const lv, const Parameters& parameters, const FL
 }
 
 // First derivative of w*w w.r.t. z, evaluated at location of w-component. For details, see du2dx.
-inline FLOAT dw2dz ( const FLOAT * const lv, const Parameters & parameters, const FLOAT* const lm ) {
+inline FLOAT dw2dz(const FLOAT*  const lv, const Parameters & parameters, const FLOAT* const lm) {
 #ifndef NDEBUG
     const FLOAT tmp1 = 1.0 / 4.0 * ((((lv[mapd(0, 0, 0, 2)] + lv[mapd(0, 0, 1, 2)]) *
         (lv[mapd(0, 0, 0, 2)] + lv[mapd(0, 0, 1, 2)])) -
@@ -681,7 +681,7 @@ inline FLOAT dw2dz ( const FLOAT * const lv, const Parameters & parameters, cons
  * Turbulence Modelling
  */
 
-inline FLOAT FT_term1(const FLOAT *const lv, const FLOAT *const lm, FLOAT vijk, FLOAT vi1jk) {
+inline FLOAT FT_term1(const FLOAT* const lv, const FLOAT* const lm, FLOAT vijk, FLOAT vi1jk) {
     // vijk: total viscosity: vstar[i,j,k]
     // vi1jk: total viscosity: vstar[i+1,j,k]
 
@@ -699,7 +699,7 @@ inline FLOAT FT_term1(const FLOAT *const lv, const FLOAT *const lm, FLOAT vijk, 
     return 2 * (firstTerm - secondTerm) / (lm[index0] * lm[index0]);
 }
 
-inline FLOAT FT_term2(const FLOAT *const lv, const FLOAT *const lm, FLOAT vtr, FLOAT vbr) {
+inline FLOAT FT_term2(const FLOAT* const lv, const FLOAT* const lm, FLOAT vtr, FLOAT vbr) {
     // vtr: viscosity at top right corner: v*[i+1/2, j+1/2, k]
     // vbr: viscosity at bottom right corner: v*[i+1/2, j-1/2, k]
 
@@ -721,7 +721,7 @@ inline FLOAT FT_term2(const FLOAT *const lv, const FLOAT *const lm, FLOAT vtr, F
     return (firstTerm - secondTerm) / lm[index3];
 }
 
-inline FLOAT FT_term3(const FLOAT *const lv, const FLOAT *const lm, FLOAT vrf, FLOAT vrb) {
+inline FLOAT FT_term3(const FLOAT* const lv, const FLOAT* const lm, FLOAT vrf, FLOAT vrb) {
     // vrf: viscosity at right front corner: v*[i+1/2, j, k+1/2]
     // vrb: viscosity at right back corner: v*[i+1/2, j, k-1/2]
 
@@ -746,7 +746,7 @@ inline FLOAT FT_term3(const FLOAT *const lv, const FLOAT *const lm, FLOAT vrf, F
 /**
  * Computes the F term for 2D Turbulence momentum equations
  */
-inline FLOAT computeF2DT(const FLOAT *const localVelocity, const FLOAT *const localMeshsize, const FLOAT *const localViscosity, const Parameters &parameters, FLOAT dt) {
+inline FLOAT computeF2DT(const FLOAT* const localVelocity, const FLOAT* const localMeshsize, const FLOAT* const localViscosity, const Parameters &parameters, FLOAT dt) {
     const int index0 = mapd(0, 0, 0,0); // vstar[i,j,k]
     const int index1 = mapd(1, 0, 0, 0); // vstar[i+1,j,k]
     const int index2 = mapd(0, 1, 0, 0); // vstar[i,j+1,k]
@@ -816,7 +816,7 @@ inline FLOAT computeF3DT(const FLOAT* const localVelocity, const FLOAT* const lo
 		    - duwdz(localVelocity, parameters, localMeshsize) + parameters.environment.gx);
 }
 
-inline FLOAT GT_term1(const FLOAT *const lv, const FLOAT *const lm, FLOAT vtr, FLOAT vtl) {
+inline FLOAT GT_term1(const FLOAT* const lv, const FLOAT* const lm, FLOAT vtr, FLOAT vtl) {
     // vtr: viscosity at top right corner: v*[i+1/2, j+1/2, k]
     // vtl: viscosity at top left corner: v*[i-1/2, j+1/2, k]
 
@@ -841,7 +841,7 @@ inline FLOAT GT_term1(const FLOAT *const lv, const FLOAT *const lm, FLOAT vtr, F
     return (firstTerm - secondTerm) / lm[index0];
 }
 
-inline FLOAT GT_term2(const FLOAT *const lv, const FLOAT *const lm, FLOAT vijk, FLOAT vij1k) {
+inline FLOAT GT_term2(const FLOAT* const lv, const FLOAT* const lm, FLOAT vijk, FLOAT vij1k) {
     // vijk: total viscosity: vstar[i,j,k]
     // vij1k: total viscosity: vstar[i,j+1,k]
 
@@ -859,7 +859,7 @@ inline FLOAT GT_term2(const FLOAT *const lv, const FLOAT *const lm, FLOAT vijk, 
     return 2 * (firstTerm - secondTerm) / (lm[index0] * lm[index0]);
 }
 
-inline FLOAT GT_term3(const FLOAT *const lv, const FLOAT *const lm, FLOAT vtf, FLOAT vtb) {
+inline FLOAT GT_term3(const FLOAT* const lv, const FLOAT* const lm, FLOAT vtf, FLOAT vtb) {
     // vtf: viscosity at top front corner: v*[i, j+1/2, k+1/2]
     // vtb: viscosity at top back corner: v*[i, j+1/2, k-1/2]
 
@@ -974,7 +974,7 @@ inline FLOAT HT_term1(const FLOAT* const lv, const FLOAT* const lm, FLOAT vfr, F
     return (firstTerm - secondTerm) / lm[index0];
 }
 
-inline FLOAT HT_term2(const FLOAT *const lv, const FLOAT *const lm, FLOAT vft, FLOAT vfb) {
+inline FLOAT HT_term2(const FLOAT* const lv, const FLOAT* const lm, FLOAT vft, FLOAT vfb) {
     // vft: viscosity at front top corner: v*[i, j+1/2, k+1/2]
     // vfb: viscosity at front bottom corner: v*[i, j-1/2, k+1/2]
 
@@ -996,7 +996,7 @@ inline FLOAT HT_term2(const FLOAT *const lv, const FLOAT *const lm, FLOAT vft, F
     return (firstTerm - secondTerm) / lm[index0];
 }
 
-inline FLOAT HT_term3(const FLOAT *const lv, const FLOAT *const lm, FLOAT vijk, FLOAT vijk1) {
+inline FLOAT HT_term3(const FLOAT* const lv, const FLOAT* const lm, FLOAT vijk, FLOAT vijk1) {
     // vijk: total viscosity: vstar[i,j],j
     // vijk1: total viscosity: vstar[i,j,k+1]
 
@@ -1097,7 +1097,7 @@ inline FLOAT computeH3D(const FLOAT* const localVelocity, const FLOAT* const loc
 }
 
 // dudy <-> first derivative of u-component of velocity field w.r.t. y-direction.
-inline FLOAT dudy(const FLOAT *const lv, const FLOAT *const lm) {
+inline FLOAT dudy(const FLOAT* const lv, const FLOAT* const lm) {
     // Evaluate dudy in the cell center by a central difference
     const int index0 = mapd(0, 0, 0, 0);
     const int index1 = mapd(0, -1, 0, 0);
@@ -1106,7 +1106,7 @@ inline FLOAT dudy(const FLOAT *const lv, const FLOAT *const lm) {
 }
 
 // dudz <-> first derivative of u-component of velocity field w.r.t. z-direction.
-inline FLOAT dudz(const FLOAT *const lv, const FLOAT *const lm) {
+inline FLOAT dudz(const FLOAT* const lv, const FLOAT* const lm) {
     // Evaluate dudy in the cell center by a central difference
     const int index0 = mapd(0, 0, 0, 0);
     const int index1 = mapd(0, 0, -1, 0);
@@ -1115,7 +1115,7 @@ inline FLOAT dudz(const FLOAT *const lv, const FLOAT *const lm) {
 }
 
 // dvdx <-> first derivative of v-component of velocity field w.r.t. x-direction.
-inline FLOAT dvdx(const FLOAT *const lv, const FLOAT *const lm) {
+inline FLOAT dvdx(const FLOAT* const lv, const FLOAT* const lm) {
     const int index0 = mapd(0, 0, 0, 1);
     const int index1 = mapd(-1, 0, 0, 1);
 
@@ -1123,7 +1123,7 @@ inline FLOAT dvdx(const FLOAT *const lv, const FLOAT *const lm) {
 }
 
 // dvdz <-> first derivative of v-component of velocity field w.r.t. z-direction.
-inline FLOAT dvdz(const FLOAT *const lv, const FLOAT *const lm) {
+inline FLOAT dvdz(const FLOAT* const lv, const FLOAT* const lm) {
     // Evaluate dudy in the cell center by a central difference
     const int index0 = mapd(0, 0, 0, 1);
     const int index1 = mapd(0, 0, -1, 1);
@@ -1132,7 +1132,7 @@ inline FLOAT dvdz(const FLOAT *const lv, const FLOAT *const lm) {
 }
 
 // dwdx <-> first derivative of w-component of velocity field w.r.t. x-direction.
-inline FLOAT dwdx(const FLOAT *const lv, const FLOAT *const lm) {
+inline FLOAT dwdx(const FLOAT* const lv, const FLOAT* const lm) {
     // Evaluate dudy in the cell center by a central difference
     const int index0 = mapd(0, 0, 0, 2);
     const int index1 = mapd(-1, 0, 0, 2);
@@ -1141,7 +1141,7 @@ inline FLOAT dwdx(const FLOAT *const lv, const FLOAT *const lm) {
 }
 
 // dwdy <-> first derivative of w-component of velocity field w.r.t. y-direction.
-inline FLOAT dwdy(const FLOAT *const lv, const FLOAT *const lm) {
+inline FLOAT dwdy(const FLOAT* const lv, const FLOAT* const lm) {
     // Evaluate dudy in the cell center by a central difference
     const int index0 = mapd(0, 0, 0, 2);
     const int index1 = mapd(0, -1, 0, 2);
@@ -1150,7 +1150,7 @@ inline FLOAT dwdy(const FLOAT *const lv, const FLOAT *const lm) {
 }
 
 // function to compute the strain tensor squared in 2D
-inline FLOAT computeStrainTensorSquared2D(const FLOAT *const localVelocity, const FLOAT *const localMeshsize) {
+inline FLOAT computeStrainTensorSquared2D(const FLOAT* const localVelocity, const FLOAT* const localMeshsize) {
     FLOAT S11 = 2 * dudx(localVelocity, localMeshsize);
     FLOAT S22 = 2 * dvdy(localVelocity, localMeshsize);
     FLOAT S12 = dudy(localVelocity, localMeshsize) + dvdx(localVelocity, localMeshsize);

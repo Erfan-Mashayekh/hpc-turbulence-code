@@ -41,17 +41,11 @@ FLOAT ViscosityStencil::calculateMixingLength_(FlowField& flowField, int i, int 
      * Turbulence Model == 2: Boundary layer thickness of a turbulent flat plate
      * Turbulence Model == 3: TODO (Extra): extract local boundary thickness from laminar reference case ???
      */
-    if (parameters_.turbulence.turb_viscosity == 0) {
-        return 0.0;
-    }
-
     // Compute Prandtl mixing length
     if (parameters_.turbulence.model == 0) {
         return KAPPA * flowField.getDistance().getScalar(i, j, k);
     } else if (parameters_.turbulence.model == 1 || parameters_.turbulence.model == 2) {
         FLOAT x = parameters_.meshsize->getPosX(i, j, k);
-
-        // TODO: different calculation for backward facing step?
         FLOAT reynoldsX = U0 * x / VISCOSITY_CONSTANT;
         FLOAT boundary_thickness = BOUNDARY_THICKNESS_MULTIPLIER * x / std::pow(reynoldsX, REYNOLDS_X_POW);
 
