@@ -4,8 +4,8 @@
 #include "Simulation.hpp"
 
 #include "Stencils/MinTimeStepStencil.hpp"
-#include "Stencils/ViscosityStencil.hpp"
 #include "Stencils/DistanceStencil.hpp"
+#include "Stencils/ViscosityStencil.hpp"
 
 #include "Stencils/TurbulentFGHStencil.hpp"
 #include "Stencils/TurbulentVTKStencil.hpp"
@@ -22,11 +22,11 @@ private:
     Stencils::MinTimeStepStencil minTimeStepStencil_;
     FieldIterator<FlowField> minTimeStepIterator_;
 
-    Stencils::ViscosityStencil viscosityStencil_;
-    FieldIterator<FlowField> viscosityIterator_;
-
     Stencils::DistanceStencil distanceStencil_;
     FieldIterator<FlowField> distanceIterator_;
+
+    Stencils::ViscosityStencil viscosityStencil_;
+    FieldIterator<FlowField> viscosityIterator_;
 
     ParallelManagers::TurbulentPetscParallelManager turbulentPetscParallelManager_;
 

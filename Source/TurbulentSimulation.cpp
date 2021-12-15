@@ -6,10 +6,10 @@ TurbulentSimulation::TurbulentSimulation(Parameters& parameters, FlowField& flow
     : Simulation(parameters, flowField)
     , minTimeStepStencil_(parameters)
     , minTimeStepIterator_(flowField, parameters, minTimeStepStencil_)
-    , viscosityStencil_(parameters)
-    , viscosityIterator_(flowField, parameters, viscosityStencil_)
     , distanceStencil_(parameters, flowField.getCellsX(), flowField.getCellsY(), flowField.getCellsZ())
     , distanceIterator_(flowField, parameters, distanceStencil_)
+    , viscosityStencil_(parameters)
+    , viscosityIterator_(flowField, parameters, viscosityStencil_)
     , turbulentPetscParallelManager_(parameters)
     , viscosityBufferFillStencil_(parameters)
     , viscosityBufferReadStencil_(parameters)
@@ -38,8 +38,8 @@ FLOAT TurbulentSimulation::getDiffusiveTimestep_() {
 void TurbulentSimulation::solveTimestep() {
     Simulation::solveTimestep();
 
-    viscosityIterator_.iterate(); // Compute eddy viscosities
     distanceIterator_.iterate(); // Compute distances to the closest walls
+    viscosityIterator_.iterate(); // Compute eddy viscosities
 
     // Communicate viscosity values
     viscosityBufferFillIterator_.iterate();

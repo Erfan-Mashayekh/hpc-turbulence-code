@@ -3,9 +3,7 @@
 namespace NSEOF::Stencils {
 
 FGHStencil::FGHStencil(const Parameters& parameters)
-    : FieldStencil<FlowField>(parameters) {
-    std::cout << VALUES_DIMENSION << std::endl;
-}
+    : FieldStencil<FlowField>(parameters) {}
 
 void FGHStencil::computeValues_(FlowField& flowField, int i, int j) {
     FLOAT* values = flowField.getFGH().getVector(i, j);
