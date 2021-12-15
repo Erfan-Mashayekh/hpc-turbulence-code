@@ -277,18 +277,6 @@ void Configuration::loadParameters(Parameters & parameters, const MPI_Comm & com
         }
 
         //--------------------------------------------------
-        // Turbulent Simulation parameters
-        //--------------------------------------------------
-        node = confFile.FirstChildElement()->FirstChildElement("turbulence");
-
-        if (node == NULL) {
-            HANDLE_ERROR(1, "Error loading parameters for turbulence modeling");
-        }
-
-        readIntOptional(parameters.turbulence.model, node, "model");
-        readIntOptional(parameters.turbulence.turb_viscosity, node, "turb_viscosity");
-
-        //--------------------------------------------------
         // VTK parameters
         //--------------------------------------------------
         node = confFile.FirstChildElement()->FirstChildElement("vtk");
@@ -409,9 +397,18 @@ void Configuration::loadParameters(Parameters & parameters, const MPI_Comm & com
             readFloatMandatory(parameters.bfStep.yRatio, node, "yRatio");
         }
 
-        //------------------------------------------------------
-        // TODO WS2: Turbulence
-        //------------------------------------------------------
+        //--------------------------------------------------
+        // Turbulent Simulation parameters
+        //--------------------------------------------------
+        node = confFile.FirstChildElement()->FirstChildElement("turbulence");
+
+        if (node == NULL) {
+            HANDLE_ERROR(1, "Error loading parameters for turbulence modeling");
+        }
+
+        readIntOptional(parameters.turbulence.model, node, "model");
+        readIntOptional(parameters.turbulence.turb_viscosity, node, "turb_viscosity");
+
     }
 
     // Broadcasting of the values
@@ -469,7 +466,8 @@ void Configuration::loadParameters(Parameters & parameters, const MPI_Comm & com
     MPI_Bcast(parameters.walls.vectorFront,  3, MY_MPI_FLOAT, 0, communicator);
     MPI_Bcast(parameters.walls.vectorBack,   3, MY_MPI_FLOAT, 0, communicator);
 
-    // TODO WS2: broadcast turbulence parameters
+    MPI_Bcast(&(parameters.turbulence.model), 1, MPI_INT, 0, communicator);
+    MPI_Bcast(&(parameters.turbulence.turb_viscosity), 1, MPI_INT, 0, communicator);
 }
 
 } // namespace NSEOF
