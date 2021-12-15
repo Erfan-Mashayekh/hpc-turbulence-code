@@ -26,7 +26,7 @@ private:
 	FLOAT localVelocity_[VALUES_DIMENSION];
     FLOAT localMeshsize_[VALUES_DIMENSION];
 
-    FLOAT calculateBoundaryThickness_();
+    FLOAT calculateBoundaryThickness_(int, int, int);
     FLOAT calculateMixingLength_(FlowField&, int, int, int);
 public:
     explicit ViscosityStencil(const Parameters& parameters);
