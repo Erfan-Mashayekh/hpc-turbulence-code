@@ -5,7 +5,7 @@ namespace NSEOF::Stencils {
 DistanceStencil::DistanceStencil(const Parameters& parameters, const int cellsX, const int cellsY, const int cellsZ)
     : FieldStencil<FlowField>(parameters)
     , cellsX_(cellsX), cellsY_(cellsY), cellsZ_(cellsZ)
-    , stepXBound_(cellsX * parameters.bfStep.xRatio), stepYBound_(ceil(cellsY * parameters.bfStep.yRatio)) {}
+    , stepXBound_(ceil(cellsX * parameters.bfStep.xRatio)), stepYBound_(ceil(cellsY * parameters.bfStep.yRatio)) {}
 
 /**
  * Calculates the distance to the nearest wall in the given direction
@@ -39,7 +39,7 @@ FLOAT DistanceStencil::calculateDistToNearestWallInGivenDir_(const FLOAT firstWa
  */
 void DistanceStencil::calculateSteps_(FLOAT& distToWall, int i, int j, int k) {
     // Top boundary loop
-    for (int x = 0; x < stepXBound_; x++) {
+    for (int x = 0; x <= stepXBound_; x++) {
         FLOAT dx = (i - x) * parameters_.meshsize->getDx(i, j, k);
         FLOAT dy = (j - stepYBound_) * parameters_.meshsize->getDy(i, j, k);
         FLOAT stepDis = sqrt((dx * dx) + (dy * dy));
@@ -48,7 +48,7 @@ void DistanceStencil::calculateSteps_(FLOAT& distToWall, int i, int j, int k) {
     }
 
     // Left boundary loop
-    for (int y = 0; y < stepYBound_; y++) {
+    for (int y = 0; y <= stepYBound_; y++) {
         FLOAT dx = (i - stepXBound_) * parameters_.meshsize->getDx(i, j, k);
         FLOAT dy = (j - y) * parameters_.meshsize->getDy(i, j, k);
         FLOAT stepDis = sqrt((dx * dx) + (dy * dy));
@@ -59,35 +59,70 @@ void DistanceStencil::calculateSteps_(FLOAT& distToWall, int i, int j, int k) {
 
 void DistanceStencil::apply(FlowField& flowField, int i, int j, int k) {
     FLOAT& distToWall = flowField.getDistance().getScalar(i, j, k);
+    
+    // Then, assign them according to the scenario.
+    std::string scenario = parameters_.simulation.scenario;
 
     if ((flowField.getFlags().getValue(i, j, k) & OBSTACLE_SELF) != 0) { // If it is not a fluid cell, the dist is zero.
         distToWall = 0;
     } else { // If it is a fluid cell, calculate the distance
-        // check if left or right wall has u-velocity
-        const FLOAT distX = calculateDistToNearestWallInGivenDir_(parameters_.walls.vectorLeft[0],
-                                                                  parameters_.walls.vectorRight[0],
-                                                                  i, parameters_.meshsize->getDx(i, j, k), cellsX_);
+    	if (scenario == "cavity"){ //if cavity scenario
+    		//all walls are zero because it is a cavity
+		    FLOAT leftWall = 0, rightWall = 0, bottomWall = 0, topWall = 0, frontWall = 0, backWall = 0;
+		    
+		    // check if left or right wall has u-velocity
+		    const FLOAT distX = calculateDistToNearestWallInGivenDir_(leftWall,
+		                                                              rightWall,
+		                                                              i, parameters_.meshsize->getDx(i, j, k), cellsX_);
 
-        // check if top or bottom wall has u-velocity
-        const FLOAT distY = calculateDistToNearestWallInGivenDir_(parameters_.walls.vectorBottom[0],
-                                                                  parameters_.walls.vectorTop[0],
-                                                                  j, parameters_.meshsize->getDy(i, j, k), cellsY_);
+		    // check if top or bottom wall has u-velocity
+		    const FLOAT distY = calculateDistToNearestWallInGivenDir_(bottomWall,
+		                                                              topWall,
+		                                                              j, parameters_.meshsize->getDy(i, j, k), cellsY_);
 
-        if (parameters_.geometry.dim == 2) { // 2D
-            // Find the distance of cell to the nearest wall
-            distToWall = std::abs(std::min(distX, distY));
-        } else { // 3D
-            // check if front or back wall has u-velocity
-            const FLOAT distZ = calculateDistToNearestWallInGivenDir_(parameters_.walls.vectorFront[0],
-                                                                      parameters_.walls.vectorBack[0],
-                                                                      k, parameters_.meshsize->getDz(i, j, k), cellsZ_);
+		    if (parameters_.geometry.dim == 2) { // 2D
+		        // Find the distance of cell to the nearest wall
+		        distToWall = std::abs(std::min(distX, distY));
+		    } else { // 3D
+		        // check if front or back wall has u-velocity
+		        const FLOAT distZ = calculateDistToNearestWallInGivenDir_(frontWall,
+		                                                                  backWall,
+		                                                                  k, parameters_.meshsize->getDz(i, j, k), cellsZ_);
 
-            // Find the distance of cell to the nearest wall
-            distToWall = std::abs(std::min(std::min(distX, distY), distZ));
-        }
+		        // Find the distance of cell to the nearest wall
+		        distToWall = std::abs(std::min(std::min(distX, distY), distZ));
+		    }
+	 	} else { //if channel scenario
+	 		//4 walls are zero because it is a channel, 
+		    FLOAT bottomWall = 0, topWall = 0, frontWall = 0, backWall = 0;
+		    //left and right wall are not zero because they are inlet and outlet
+		    FLOAT leftWall = 1, rightWall = 1;
+	 		
+	 		// check if left or right wall has u-velocity
+		    const FLOAT distX = calculateDistToNearestWallInGivenDir_(leftWall,
+		                                                              rightWall,
+		                                                              i, parameters_.meshsize->getDx(i, j, k), cellsX_);
 
-        // Calculate steps if there are any
-        calculateSteps_(distToWall, i, j, k);
+		    // check if top or bottom wall has u-velocity
+		    const FLOAT distY = calculateDistToNearestWallInGivenDir_(bottomWall,
+		                                                              topWall,
+		                                                              j, parameters_.meshsize->getDy(i, j, k), cellsY_);
+
+		    if (parameters_.geometry.dim == 2) { // 2D
+		        // Find the distance of cell to the nearest wall
+		        distToWall = std::abs(std::min(distX, distY));
+		    } else { // 3D
+		        // check if front or back wall has u-velocity
+		        const FLOAT distZ = calculateDistToNearestWallInGivenDir_(frontWall,
+		                                                                  backWall,
+		                                                                  k, parameters_.meshsize->getDz(i, j, k), cellsZ_);
+
+		        // Find the distance of cell to the nearest wall
+		        distToWall = std::abs(std::min(std::min(distX, distY), distZ));
+		    }
+		    // Calculate steps if there are any (only for backward channel scenario)
+		    calculateSteps_(distToWall, i, j, k);	 	
+	 	}
     }
 }
 
