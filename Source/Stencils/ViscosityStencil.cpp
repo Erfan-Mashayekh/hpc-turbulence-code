@@ -41,15 +41,17 @@ FLOAT ViscosityStencil::calculateMixingLength_(FlowField& flowField, int i, int 
      * Turbulence Model == 2: Boundary layer thickness of a turbulent flat plate
      * Turbulence Model == 3: TODO (Extra): extract local boundary thickness from laminar reference case ???
      */
+	const FLOAT kappaH = KAPPA * flowField.getDistance().getScalar(i, j, k);
+
     // Compute Prandtl mixing length
     if (parameters_.turbulence.model == 0) {
-        return KAPPA * flowField.getDistance().getScalar(i, j, k);
+        return kappaH;
     } else if (parameters_.turbulence.model == 1 || parameters_.turbulence.model == 2) {
         FLOAT x = parameters_.meshsize->getPosX(i, j, k);
         FLOAT reynoldsX = U0 * x / VISCOSITY_CONSTANT;
         FLOAT boundary_thickness = BOUNDARY_THICKNESS_MULTIPLIER * x / std::pow(reynoldsX, REYNOLDS_X_POW);
 
-        return MIXING_LENGTH_MULTIPLIER * boundary_thickness;
+        return std::min(MIXING_LENGTH_MULTIPLIER * boundary_thickness, kappaH) ;
     }
 
     std::cerr << "Invalid input for turbulence model in viscosity!" << std::endl;

@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Plot final output
-    // simulation->plotVTK(timeSteps);
+    simulation->plotVTK(timeSteps);
 
     delete simulation;
     simulation = NULL;
