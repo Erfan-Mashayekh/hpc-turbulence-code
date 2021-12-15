@@ -44,6 +44,9 @@ public:
     TurbulentSimulation(Parameters&, FlowField&);
     ~TurbulentSimulation() override = default;
 
+    /** Initialises the flow field according to the scenario */
+    void initializeFlowField() override;
+
     /** Solves */
     void solveTimestep() override;
 };

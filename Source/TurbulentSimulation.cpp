@@ -28,6 +28,13 @@ TurbulentSimulation::TurbulentSimulation(Parameters& parameters, FlowField& flow
                                                 parameters.vtk.whiteRegionLowOffset, parameters.vtk.whiteRegionHighOffset);
 }
 
+void TurbulentSimulation::initializeFlowField() {
+    Simulation::initializeFlowField();
+
+    // Compute distances to the closest walls
+    distanceIterator_.iterate();
+}
+
 FLOAT TurbulentSimulation::getDiffusiveTimestep_() {
     // reset diffusive timestep stencil and determine min diffusive timestep
     minTimeStepStencil_.reset();
@@ -40,18 +47,18 @@ FLOAT TurbulentSimulation::getDiffusiveTimestep_() {
 void TurbulentSimulation::solveTimestep() {
     Simulation::solveTimestep();
 
-    // Compute distances to the closest walls
-    distanceIterator_.iterate();
-
-    if (parameters_.turbulence.turb_viscosity != 0) {
-        // Compute eddy viscosities
-        viscosityIterator_.iterate();
-
-        // Communicate viscosity values
-        viscosityBufferFillIterator_.iterate();
-        turbulentPetscParallelManager_.communicateViscosity(viscosityBufferFillStencil_, viscosityBufferReadStencil_);
-        viscosityBufferReadIterator_.iterate();
+    // If the turbulence viscosity flag is set to zero, do not iterate for viscosity!
+    if (parameters_.turbulence.turb_viscosity == 0) {
+        return;
     }
+
+    // Compute eddy viscosities
+    viscosityIterator_.iterate();
+
+    // Communicate viscosity values
+    viscosityBufferFillIterator_.iterate();
+    turbulentPetscParallelManager_.communicateViscosity(viscosityBufferFillStencil_, viscosityBufferReadStencil_);
+    viscosityBufferReadIterator_.iterate();
 }
 
 } // namespace NSEOF

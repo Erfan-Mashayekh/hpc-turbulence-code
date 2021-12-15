@@ -86,7 +86,7 @@ public:
     virtual ~Simulation();
 
     /** Initialises the flow field according to the scenario */
-    void initializeFlowField();
+    virtual void initializeFlowField();
 
     /** Solves */
     virtual void solveTimestep();
