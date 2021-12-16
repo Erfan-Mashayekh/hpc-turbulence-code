@@ -6,7 +6,7 @@ TurbulentSimulation::TurbulentSimulation(Parameters& parameters, FlowField& flow
     : Simulation(parameters, flowField)
     , minTimeStepStencil_(parameters)
     , minTimeStepIterator_(flowField, parameters, minTimeStepStencil_)
-    , distanceStencil_(parameters, flowField.getCellsX(), flowField.getCellsY(), flowField.getCellsZ())
+    , distanceStencil_(parameters, parameters.geometry.sizeX, parameters.geometry.sizeY, parameters.geometry.sizeZ)
     , distanceIterator_(flowField, parameters, distanceStencil_)
     , viscosityStencil_(parameters)
     , viscosityIterator_(flowField, parameters, viscosityStencil_)
