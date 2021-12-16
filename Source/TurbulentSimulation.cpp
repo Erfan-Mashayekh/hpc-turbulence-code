@@ -19,8 +19,7 @@ TurbulentSimulation::TurbulentSimulation(Parameters& parameters, FlowField& flow
                                    parameters.vtk.whiteRegionLowOffset, parameters.vtk.whiteRegionHighOffset)
 {
     fghStencil_  = new Stencils::TurbulentFGHStencil(parameters_);
-    fghIterator_ = new FieldIterator<FlowField>(flowField_, parameters_, *fghStencil_,
-                                                parameters.vtk.whiteRegionLowOffset, parameters.vtk.whiteRegionHighOffset);
+    fghIterator_ = new FieldIterator<FlowField>(flowField_, parameters_, *fghStencil_);
 
     vtkStencil_  = new Stencils::TurbulentVTKStencil(parameters_,
                                                      flowField_.getCellsX(), flowField_.getCellsY(), flowField_.getCellsZ());

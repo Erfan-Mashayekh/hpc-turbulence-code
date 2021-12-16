@@ -276,7 +276,7 @@ void Configuration::loadParameters(Parameters & parameters, const MPI_Comm & com
             HANDLE_ERROR(1, "Missing scenario in simulation parameters");
         }
 
-	//--------------------------------------------------
+        //--------------------------------------------------
         // Turbulent Simulation parameters
         //--------------------------------------------------
         node = confFile.FirstChildElement()->FirstChildElement("turbulence");

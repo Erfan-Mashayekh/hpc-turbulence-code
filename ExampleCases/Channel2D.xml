@@ -2,11 +2,10 @@
 <configuration>
     <flow Re="100" />
     <simulation finalTime="10.0" >
-        <type>dns</type>
+        <type>turbulence</type>
         <scenario>channel</scenario>
     </simulation>
-    <turbulence turb_viscosity = "0"
-	        model = "0"/>
+    <turbulence turb_viscosity="1" model="1" />
     <timestep dt="1" tau="0.5" />
     <solver gamma="0.5" />
     <geometry

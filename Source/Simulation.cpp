@@ -42,8 +42,7 @@ Simulation::Simulation(Parameters& parameters, FlowField& flowField)
 #endif
 {
     fghStencil_  = new Stencils::FGHStencil(parameters_);
-    fghIterator_ = new FieldIterator<FlowField>(flowField_, parameters_, *fghStencil_,
-                                                parameters.vtk.whiteRegionLowOffset, parameters.vtk.whiteRegionHighOffset);
+    fghIterator_ = new FieldIterator<FlowField>(flowField_, parameters_, *fghStencil_);
 
     vtkStencil_  = new Stencils::VTKStencil(parameters_,
                                             flowField_.getCellsX(), flowField_.getCellsY(), flowField_.getCellsZ());
