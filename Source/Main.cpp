@@ -146,7 +146,7 @@ int main(int argc, char *argv[]) {
     gettimeofday(&end, NULL);
     double elapesedTimeSec = end.tv_sec - start.tv_sec;
     double elapesedTimeUSec = end.tv_usec - start.tv_usec;
-    std::cout << "Time Sec = " << elapesedTimeSec << "	time usec = " << elapesedTimeUSec << std::endl;
+    std::cout << "Time = " << elapesedTimeSec << " sec and " << elapesedTimeUSec << " micro sec" << std::endl;
 
     // Plot final output
     simulation->plotVTK(timeSteps);
