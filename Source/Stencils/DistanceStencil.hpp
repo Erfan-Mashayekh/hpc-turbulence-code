@@ -18,10 +18,10 @@ private:
 
     /**
      * Walls in each direction
-    *
-    * Cavity: There is always a wall on the global boundaries
-    * Channel: There is always not a left and right walls on the global boundaries
-    */
+     *
+     * Cavity: There is always a wall on the global boundaries
+     * Channel: There is always not a left and right walls on the global boundaries
+     */
     const bool leftWall_;
     const bool rightWall_;
     const bool bottomWall_;
