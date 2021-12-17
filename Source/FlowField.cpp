@@ -13,8 +13,8 @@ FlowField::FlowField(int Nx, int Ny)
     // positions with the same iterator for both pressures and velocities.
     , pressure_(ScalarField(Nx + 3, Ny + 3))
     , velocity_(VectorField(Nx + 3, Ny + 3))
-    , eddy_viscosity_(ScalarField(Nx + 3, Ny + 3))
-    , distance_to_wall_(ScalarField(Nx + 3, Ny + 3))
+    , eddyViscosity_(ScalarField(Nx + 3, Ny + 3))
+    , distanceToWall_(ScalarField(Nx + 3, Ny + 3))
     , flags_(IntScalarField(Nx + 3, Ny + 3))
     , FGH_(VectorField(Nx + 3, Ny + 3))
     , RHS_(ScalarField(Nx + 3, Ny + 3)) {
@@ -32,8 +32,8 @@ FlowField::FlowField(int Nx, int Ny, int Nz)
     , cellsZ_(Nz + 3)
     , pressure_(ScalarField(Nx + 3, Ny + 3, Nz + 3))
     , velocity_(VectorField(Nx + 3, Ny + 3, Nz + 3))
-    , eddy_viscosity_(ScalarField(Nx + 3, Ny + 3, Nz + 3))
-    , distance_to_wall_(ScalarField(Nx + 3, Ny + 3, Nz + 3))
+    , eddyViscosity_(ScalarField(Nx + 3, Ny + 3, Nz + 3))
+    , distanceToWall_(ScalarField(Nx + 3, Ny + 3, Nz + 3))
     , flags_(IntScalarField(Nx + 3, Ny + 3, Nz + 3))
     , FGH_(VectorField(Nx + 3, Ny + 3, Nz + 3))
     , RHS_(ScalarField(Nx + 3, Ny + 3, Nz + 3)) {
@@ -52,8 +52,8 @@ FlowField::FlowField(const Parameters& parameters)
     , cellsZ_(sizeZ_ + 3)
     , pressure_(parameters.geometry.dim == 2 ? ScalarField(sizeX_ + 3, sizeY_ + 3) : ScalarField(sizeX_ + 3, sizeY_ + 3, sizeZ_ + 3))
     , velocity_(parameters.geometry.dim == 2 ? VectorField(sizeX_ + 3, sizeY_ + 3) : VectorField(sizeX_ + 3, sizeY_ + 3, sizeZ_ + 3))
-    , eddy_viscosity_(parameters.geometry.dim == 2 ? ScalarField(sizeX_ + 3, sizeY_ + 3) : ScalarField(sizeX_ + 3, sizeY_ + 3, sizeZ_ + 3))
-    , distance_to_wall_(parameters.geometry.dim == 2 ? ScalarField(sizeX_ + 3, sizeY_ + 3) : ScalarField(sizeX_ + 3, sizeY_ + 3, sizeZ_ + 3))
+    , eddyViscosity_(parameters.geometry.dim == 2 ? ScalarField(sizeX_ + 3, sizeY_ + 3) : ScalarField(sizeX_ + 3, sizeY_ + 3, sizeZ_ + 3))
+    , distanceToWall_(parameters.geometry.dim == 2 ? ScalarField(sizeX_ + 3, sizeY_ + 3) : ScalarField(sizeX_ + 3, sizeY_ + 3, sizeZ_ + 3))
     , flags_(parameters.geometry.dim == 2 ? IntScalarField(sizeX_ + 3, sizeY_ + 3) : IntScalarField(sizeX_ + 3, sizeY_ + 3, sizeZ_ + 3))
     , FGH_(parameters.geometry.dim == 2 ? VectorField(sizeX_ + 3, sizeY_ + 3) : VectorField(sizeX_ + 3, sizeY_ + 3, sizeZ_ + 3))
     , RHS_(parameters.geometry.dim == 2 ? ScalarField(sizeX_ + 3, sizeY_ + 3) : ScalarField(sizeX_ + 3, sizeY_ + 3, sizeZ_ + 3)) {}
@@ -91,11 +91,11 @@ VectorField& FlowField::getVelocity() {
 }
 
 ScalarField& FlowField::getEddyViscosity() {
-    return eddy_viscosity_;
+    return eddyViscosity_;
 }
 
 ScalarField& FlowField::getDistance() {
-    return distance_to_wall_;
+    return distanceToWall_;
 }
 
 IntScalarField& FlowField::getFlags() {

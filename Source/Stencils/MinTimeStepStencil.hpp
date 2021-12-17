@@ -15,7 +15,7 @@ namespace NSEOF::Stencils {
  */
 class MinTimeStepStencil : public FieldStencil<FlowField> {
 private:
-    FLOAT diffusiveTimeStep_; //! Stores the minimum diffusive timestep
+    FLOAT diffusiveTimeStep_; // Stores the minimum diffusive timestep
 
 public:
     explicit MinTimeStepStencil(const Parameters& parameters);

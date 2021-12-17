@@ -398,7 +398,7 @@ void Configuration::loadParameters(Parameters & parameters, const MPI_Comm & com
         }
 
         //--------------------------------------------------
-        // Turbulent Simulation parameters
+        // Turbulent simulation parameters
         //--------------------------------------------------
         node = confFile.FirstChildElement()->FirstChildElement("turbulence");
 
@@ -407,8 +407,7 @@ void Configuration::loadParameters(Parameters & parameters, const MPI_Comm & com
         }
 
         readIntOptional(parameters.turbulence.model, node, "model");
-        readIntOptional(parameters.turbulence.turb_viscosity, node, "turb_viscosity");
-
+        readIntOptional(parameters.turbulence.turbViscosity, node, "turb_viscosity");
     }
 
     // Broadcasting of the values
@@ -467,7 +466,7 @@ void Configuration::loadParameters(Parameters & parameters, const MPI_Comm & com
     MPI_Bcast(parameters.walls.vectorBack,   3, MY_MPI_FLOAT, 0, communicator);
 
     MPI_Bcast(&(parameters.turbulence.model), 1, MPI_INT, 0, communicator);
-    MPI_Bcast(&(parameters.turbulence.turb_viscosity), 1, MPI_INT, 0, communicator);
+    MPI_Bcast(&(parameters.turbulence.turbViscosity), 1, MPI_INT, 0, communicator);
 }
 
 } // namespace NSEOF

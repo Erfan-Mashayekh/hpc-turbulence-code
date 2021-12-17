@@ -26,8 +26,8 @@ public:
 
 class TurbulenceParameters {
 public:
-	int turb_viscosity; 	//! set eddy turbulence to zero or to be calculated (=1)
-	int model;		        //! choose the turbulence model via an integer 0, 1, 2, 3
+	int turbViscosity; //! set eddy turbulence to zero or to be calculated (=1)
+	int model;		   //! choose the turbulence model via an integer 0, 1, 2, 3
 };
 
 class EnvironmentalParameters {

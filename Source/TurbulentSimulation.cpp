@@ -41,7 +41,7 @@ void TurbulentSimulation::solveTimestep() {
     Simulation::solveTimestep();
 
     // If the turbulence viscosity flag is set to zero, do not iterate for viscosity!
-    if (parameters_.turbulence.turb_viscosity == 0) {
+    if (parameters_.turbulence.turbViscosity == 0) {
         return;
     }
 

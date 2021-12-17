@@ -70,10 +70,10 @@ int main(int argc, char *argv[]) {
     std::cout << "Min. meshsizes: " << parameters.meshsize->getDxMin() << ", " << parameters.meshsize->getDyMin() << ", " << parameters.meshsize->getDzMin() << std::endl;
 #endif
 
-    if (rank==0) {
+    if (rank == 0) { // Master
         if (parameters.simulation.type == "turbulence") {
             std::cout << "Start turbulence simulation in " << parameters.geometry.dim << "D" << std::endl;
-        } else if (parameters.simulation.type == "dns"){
+        } else if (parameters.simulation.type == "dns") {
             std::cout << "Start DNS simulation in " << parameters.geometry.dim << "D" << std::endl;
         }
     }

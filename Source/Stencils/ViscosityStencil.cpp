@@ -50,7 +50,6 @@ FLOAT ViscosityStencil::calculateMixingLength_(FlowField& flowField, int i, int 
      * Turbulence Model == 0: Prandtl mixing length is kappa times distance to the nearest wall
      * Turbulence Model == 1: Boundary layer thickness of a laminar flat plate
      * Turbulence Model == 2: Boundary layer thickness of a turbulent flat plate
-     * Turbulence Model == 3: TODO (Extra): extract local boundary thickness from laminar reference case ???
      */
 
 	const FLOAT kappaH = KAPPA * flowField.getDistance().getScalar(i, j, k);
