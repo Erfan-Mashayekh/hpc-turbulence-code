@@ -23,11 +23,6 @@
 
 #include "ParallelManagers/PetscParallelManager.hpp"
 
-#include "Stencils/PressureBufferFillStencil.hpp"
-#include "Stencils/PressureBufferReadStencil.hpp"
-#include "Stencils/VelocityBufferFillStencil.hpp"
-#include "Stencils/VelocityBufferReadStencil.hpp"
-
 #include "Solvers/LinearSolver.hpp"
 
 #include <memory>
@@ -64,16 +59,6 @@ protected:
     FieldIterator<FlowField> obstacleIterator_;
 
     ParallelManagers::PetscParallelManager petscParallelManager_;
-
-    Stencils::PressureBufferFillStencil pressureBufferFillStencil_;
-    Stencils::PressureBufferReadStencil pressureBufferReadStencil_;
-    Stencils::VelocityBufferFillStencil velocityBufferFillStencil_;
-    Stencils::VelocityBufferReadStencil velocityBufferReadStencil_;
-
-    ParallelBoundaryIterator<FlowField> pressureBufferFillIterator_;
-    ParallelBoundaryIterator<FlowField> pressureBufferReadIterator_;
-    ParallelBoundaryIterator<FlowField> velocityBufferFillIterator_;
-    ParallelBoundaryIterator<FlowField> velocityBufferReadIterator_;
 
     std::unique_ptr<Solvers::LinearSolver> solver_;
 

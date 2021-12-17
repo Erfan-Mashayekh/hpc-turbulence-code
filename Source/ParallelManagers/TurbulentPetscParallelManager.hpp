@@ -9,11 +9,18 @@
 namespace NSEOF::ParallelManagers {
 
 class TurbulentPetscParallelManager : public PetscParallelManager {
+private:
+    Stencils::ViscosityBufferFillStencil viscosityBufferFillStencil_;
+    Stencils::ViscosityBufferReadStencil viscosityBufferReadStencil_;
+
+    ParallelBoundaryIterator<FlowField> viscosityBufferFillIterator_;
+    ParallelBoundaryIterator<FlowField> viscosityBufferReadIterator_;
+
 public:
-    explicit TurbulentPetscParallelManager(const Parameters&);
+    TurbulentPetscParallelManager(const Parameters&, FlowField&);
     ~TurbulentPetscParallelManager() override = default;
 
-    void communicateViscosity(Stencils::ViscosityBufferFillStencil&, Stencils::ViscosityBufferReadStencil&) const;
+    void communicateViscosity();
 };
 
 } // namespace NSEOF::ParallelManagers

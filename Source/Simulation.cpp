@@ -22,19 +22,7 @@ Simulation::Simulation(Parameters& parameters, FlowField& flowField)
     , obstacleStencil_(parameters)
     , velocityIterator_(flowField_, parameters, velocityStencil_)
     , obstacleIterator_(flowField_, parameters, obstacleStencil_)
-    , petscParallelManager_(parameters)
-    , pressureBufferFillStencil_(parameters)
-    , pressureBufferReadStencil_(parameters)
-    , velocityBufferFillStencil_(parameters)
-    , velocityBufferReadStencil_(parameters)
-    , pressureBufferFillIterator_(flowField_, parameters, pressureBufferFillStencil_,
-                                  parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
-    , pressureBufferReadIterator_(flowField_, parameters, pressureBufferReadStencil_,
-                                  parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
-    , velocityBufferFillIterator_(flowField_, parameters, velocityBufferFillStencil_,
-                                  parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
-    , velocityBufferReadIterator_(flowField_, parameters, velocityBufferReadStencil_,
-                                  parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
+    , petscParallelManager_(parameters, flowField_)
 #ifdef BUILD_WITH_PETSC
     , solver_(std::make_unique<Solvers::PetscSolver>(flowField_, parameters))
 #else
@@ -157,18 +145,14 @@ void Simulation::solveTimestep() {
     solver_->solve();
 
     // Communicate pressure values
-    pressureBufferFillIterator_.iterate();
-    petscParallelManager_.communicatePressure(pressureBufferFillStencil_, pressureBufferReadStencil_);
-    pressureBufferReadIterator_.iterate();
+    petscParallelManager_.communicatePressure();
 
     // Compute velocity
     velocityIterator_.iterate();
     obstacleIterator_.iterate();
 
     // Communicate velocity values
-    velocityBufferFillIterator_.iterate();
-    petscParallelManager_.communicateVelocity(velocityBufferFillStencil_, velocityBufferReadStencil_);
-    velocityBufferReadIterator_.iterate();
+    petscParallelManager_.communicateVelocity();
 
     // Iterate for velocities on the boundary
     wallVelocityIterator_.iterate();

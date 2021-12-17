@@ -70,4 +70,32 @@ namespace NSEOF::Stencils {
         bufferBackIterator_ = bufferBack_.begin();
     }
 
+    /**
+     * Setters for single elements in the buffers
+     */
+
+    void BufferReadStencil::setBufferLeftElement(int idx, FLOAT element) {
+        bufferLeft_[idx]= element;
+    }
+
+    void BufferReadStencil::setBufferRightElement(int idx, FLOAT element) {
+        bufferRight_[idx]= element;
+    }
+
+    void BufferReadStencil::setBufferBottomElement(int idx, FLOAT element) {
+        bufferBottom_[idx]= element;
+    }
+
+    void BufferReadStencil::setBufferTopElement(int idx, FLOAT element) {
+        bufferTop_[idx]= element;
+    }
+
+    void BufferReadStencil::setBufferFrontElement(int idx, FLOAT element) {
+        bufferFront_[idx]= element;
+    }
+
+    void BufferReadStencil::setBufferBackElement(int idx, FLOAT element) {
+        bufferBack_[idx]= element;
+    }
+
 } // namespace NSEOF::Stencils

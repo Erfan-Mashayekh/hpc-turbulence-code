@@ -136,6 +136,10 @@ public:
     int topNb;
     int frontNb;
     int backNb;
+    int leftTopNb;
+    int rightTopNb;
+    int leftBottomNb;
+    int rightBottomNb;
     //@}
 
     int indices[3];         //! 3D indices to locate the array

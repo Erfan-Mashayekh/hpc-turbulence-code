@@ -24,7 +24,7 @@ namespace NSEOF::Stencils {
 
         if (parameters_.geometry.dim == 3) { // 3D
             getBufferRight().push_back(flowField.getVelocity().getVector(i - 1, j, k)[2]); // "w"
-        }    
+        }
     }
     
     void VelocityBufferFillStencil::applyBottomWall(FlowField& flowField, int i, int j, int k) {
@@ -33,7 +33,7 @@ namespace NSEOF::Stencils {
 
         if (parameters_.geometry.dim == 3) { // 3D
             getBufferBottom().push_back(flowField.getVelocity().getVector(i, j + 1, k)[2]); // "w"
-        }    
+        }
     }
     
     void VelocityBufferFillStencil::applyTopWall(FlowField& flowField, int i, int j, int k) {
@@ -42,25 +42,19 @@ namespace NSEOF::Stencils {
 
         if (parameters_.geometry.dim == 3) { // 3D
             getBufferTop().push_back(flowField.getVelocity().getVector(i, j - 1, k)[2]); // "w"
-        }    
+        }
     }
 
     void VelocityBufferFillStencil::applyFrontWall(FlowField& flowField, int i, int j, int k) {
         getBufferFront().push_back(flowField.getVelocity().getVector(i, j, k + 1)[0]); // "u"
         getBufferFront().push_back(flowField.getVelocity().getVector(i, j, k + 1)[1]); // "v"
-
-        if (parameters_.geometry.dim == 3) { // 3D
-            getBufferFront().push_back(flowField.getVelocity().getVector(i, j, k + 1)[2]); // "w"
-        }    
+        getBufferFront().push_back(flowField.getVelocity().getVector(i, j, k + 1)[2]); // "w"
     }
     
     void VelocityBufferFillStencil::applyBackWall(FlowField& flowField, int i, int j, int k) {
         getBufferBack().push_back(flowField.getVelocity().getVector(i, j, k - 1)[0]); // "u"
         getBufferBack().push_back(flowField.getVelocity().getVector(i, j, k - 1)[1]); // "v"
-
-        if (parameters_.geometry.dim == 3) { // 3D
-            getBufferBack().push_back(flowField.getVelocity().getVector(i, j, k - 2)[2]); // "w"
-        }    
+        getBufferBack().push_back(flowField.getVelocity().getVector(i, j, k - 2)[2]); // "w"
     }
 
     /**

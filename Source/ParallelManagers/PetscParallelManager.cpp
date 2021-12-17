@@ -2,8 +2,27 @@
 
 namespace NSEOF::ParallelManagers {
 
-    PetscParallelManager::PetscParallelManager(const Parameters& parameters)
-        : parameters_(parameters) {}
+    PetscParallelManager::PetscParallelManager(const Parameters& parameters, FlowField& flowField)
+        : parameters_(parameters)
+        , flowField_(flowField)
+        , pressureBufferFillStencil_(parameters)
+        , pressureBufferReadStencil_(parameters)
+        , velocityBufferFillStencil_(parameters)
+        , velocityBufferReadStencil_(parameters)
+        , velocityBufferDiagonalFillStencil_(parameters)
+        , velocityBufferDiagonalReadStencil_(parameters)
+        , pressureBufferFillIterator_(flowField, parameters, pressureBufferFillStencil_,
+                                      parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
+        , pressureBufferReadIterator_(flowField, parameters, pressureBufferReadStencil_,
+                                      parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
+        , velocityBufferFillIterator_(flowField, parameters, velocityBufferFillStencil_,
+                                      parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
+        , velocityBufferReadIterator_(flowField, parameters, velocityBufferReadStencil_,
+                                      parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
+        , velocityBufferFillDiagonalIterator_(flowField, parameters, velocityBufferDiagonalFillStencil_,
+                                              parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
+        , velocityBufferReadDiagonalIterator_(flowField, parameters, velocityBufferDiagonalReadStencil_,
+                                              parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset) {}
 
     void PetscParallelManager::sendRecvBuffers(std::vector<FLOAT>& bufferSent, int receiverRank,
                                                std::vector<FLOAT>& bufferReceived, int senderRank) {
@@ -13,7 +32,11 @@ namespace NSEOF::ParallelManagers {
     }
 
     void PetscParallelManager::communicate_(Stencils::BufferFillStencil& bufferFillStencil,
-                                           Stencils::BufferReadStencil& bufferReadStencil) const {
+                                            Stencils::BufferReadStencil& bufferReadStencil) const {
+        std::vector<FLOAT> bufferLeft, bufferRight;
+        std::vector<FLOAT> bufferBottom, bufferTop;
+        std::vector<FLOAT> bufferFront, bufferBack;
+
         /**
          * Communication: Left & Right
          */
@@ -116,14 +139,97 @@ namespace NSEOF::ParallelManagers {
         bufferFillStencil.clearBuffers();
     }
 
-    void PetscParallelManager::communicatePressure(Stencils::PressureBufferFillStencil& pressureBufferFillStencil,
-                                                   Stencils::PressureBufferReadStencil& pressureBufferReadStencil) const {
-        communicate_(pressureBufferFillStencil, pressureBufferReadStencil);
+    void PetscParallelManager::communicateDiagonals_(Stencils::BufferFillStencil& bufferFillStencil,
+                                                     Stencils::BufferReadStencil& bufferReadStencil) const {
+        std::vector<FLOAT> bufferLeft, bufferRight;
+        std::vector<FLOAT> bufferBottom, bufferTop;
+        std::vector<FLOAT> bufferFront, bufferBack;
+
+        /**
+         * Communication: Left-top & Right-bottom
+         */
+        if (parameters_.parallel.leftTopNb != MPI_PROC_NULL || parameters_.parallel.rightBottomNb != MPI_PROC_NULL) {
+            /**
+             * Communication: Send to left-top, receive from right-bottom
+             */
+
+            bufferLeft = bufferFillStencil.getBufferLeft();
+            bufferRight = bufferFillStencil.getBufferRight();
+
+            sendRecvBuffers(bufferLeft, parameters_.parallel.leftTopNb,
+                            bufferRight, parameters_.parallel.rightBottomNb);
+
+            if (parameters_.parallel.rightBottomNb != MPI_PROC_NULL) {
+                bufferReadStencil.setBufferRightIterator(bufferRight);
+            }
+
+            /**
+             * Communication: Send to right-bottom, receive from left-top
+             */
+
+            bufferLeft = bufferFillStencil.getBufferLeft();
+            bufferRight = bufferFillStencil.getBufferRight();
+
+            sendRecvBuffers(bufferRight, parameters_.parallel.rightBottomNb,
+                            bufferLeft, parameters_.parallel.leftTopNb);
+
+            if (parameters_.parallel.leftTopNb != MPI_PROC_NULL) {
+                bufferReadStencil.setBufferLeftIterator(bufferLeft);
+            }
+        }
+
+        /**
+         * Communication: Left-bottom & Right-top
+         */
+        if (parameters_.parallel.leftBottomNb != MPI_PROC_NULL || parameters_.parallel.rightTopNb != MPI_PROC_NULL) {
+            /**
+             * Communication: Send to left-bottom, receive from right-top
+             */
+
+            bufferBottom = bufferFillStencil.getBufferBottom();
+            bufferTop = bufferFillStencil.getBufferTop();
+
+            sendRecvBuffers(bufferBottom, parameters_.parallel.leftBottomNb,
+                            bufferTop, parameters_.parallel.rightTopNb);
+
+            if (parameters_.parallel.rightTopNb != MPI_PROC_NULL) {
+                bufferReadStencil.setBufferTopIterator(bufferTop);
+            }
+
+            /**
+             * Communication: Send to right-top, receive from left-bottom
+             */
+
+            bufferBottom = bufferFillStencil.getBufferBottom();
+            bufferTop = bufferFillStencil.getBufferTop();
+
+            sendRecvBuffers(bufferTop, parameters_.parallel.rightTopNb,
+                            bufferBottom, parameters_.parallel.leftBottomNb);
+
+            if (parameters_.parallel.leftBottomNb != MPI_PROC_NULL) {
+                bufferReadStencil.setBufferBottomIterator(bufferBottom);
+            }
+        }
+
+        bufferFillStencil.clearBuffers();
     }
 
-    void PetscParallelManager::communicateVelocity(Stencils::VelocityBufferFillStencil& velocityBufferFillStencil,
-                                                   Stencils::VelocityBufferReadStencil& velocityBufferReadStencil) const {
-        communicate_(velocityBufferFillStencil, velocityBufferReadStencil);
+    void PetscParallelManager::communicatePressure() {
+        pressureBufferFillIterator_.iterate();
+        communicate_(pressureBufferFillStencil_, pressureBufferReadStencil_);
+        pressureBufferReadIterator_.iterate();
+    }
+
+    void PetscParallelManager::communicateVelocity() {
+        velocityBufferFillIterator_.iterate();
+        communicate_(velocityBufferFillStencil_, velocityBufferReadStencil_);
+        velocityBufferReadIterator_.iterate();
+
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        velocityBufferFillDiagonalIterator_.iterate();
+        communicateDiagonals_(velocityBufferDiagonalFillStencil_, velocityBufferDiagonalReadStencil_);
+        velocityBufferReadDiagonalIterator_.iterate();
     }
 
 } // namespace NSEOF::ParallelManagers

@@ -13,10 +13,6 @@
 #include <sys/stat.h>
 #include <filesystem>
 
-/* Scaling Measurement */
-#define _BSD_SOURCE
-#include <sys/time.h>
-
 
 int main(int argc, char *argv[]) {
     // Parallelization related. Initialize and identify.

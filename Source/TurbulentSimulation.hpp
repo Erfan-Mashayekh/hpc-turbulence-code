@@ -12,9 +12,6 @@
 
 #include "ParallelManagers/TurbulentPetscParallelManager.hpp"
 
-#include "Stencils/ViscosityBufferFillStencil.hpp"
-#include "Stencils/ViscosityBufferReadStencil.hpp"
-
 namespace NSEOF {
 
 class TurbulentSimulation : public Simulation {
@@ -29,12 +26,6 @@ private:
     FieldIterator<FlowField> viscosityIterator_;
 
     ParallelManagers::TurbulentPetscParallelManager turbulentPetscParallelManager_;
-
-    Stencils::ViscosityBufferFillStencil viscosityBufferFillStencil_;
-    Stencils::ViscosityBufferReadStencil viscosityBufferReadStencil_;
-
-    ParallelBoundaryIterator<FlowField> viscosityBufferFillIterator_;
-    ParallelBoundaryIterator<FlowField> viscosityBufferReadIterator_;
 
 protected:
     /** Gets the diffusive timestep for setting the timestep before solving */

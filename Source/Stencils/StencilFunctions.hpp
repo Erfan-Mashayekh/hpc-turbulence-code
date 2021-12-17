@@ -1107,7 +1107,7 @@ inline FLOAT dudy(const FLOAT* const lv, const FLOAT* const lm) {
 
 // dudz <-> first derivative of u-component of velocity field w.r.t. z-direction.
 inline FLOAT dudz(const FLOAT* const lv, const FLOAT* const lm) {
-    // Evaluate dudy in the cell center by a central difference
+    // Evaluate dudz in the cell center by a central difference
     const int index0 = mapd(0, 0, 0, 0);
     const int index1 = mapd(0, 0, -1, 0);
 
@@ -1124,7 +1124,7 @@ inline FLOAT dvdx(const FLOAT* const lv, const FLOAT* const lm) {
 
 // dvdz <-> first derivative of v-component of velocity field w.r.t. z-direction.
 inline FLOAT dvdz(const FLOAT* const lv, const FLOAT* const lm) {
-    // Evaluate dudy in the cell center by a central difference
+    // Evaluate dudz in the cell center by a central difference
     const int index0 = mapd(0, 0, 0, 1);
     const int index1 = mapd(0, 0, -1, 1);
 
@@ -1133,7 +1133,7 @@ inline FLOAT dvdz(const FLOAT* const lv, const FLOAT* const lm) {
 
 // dwdx <-> first derivative of w-component of velocity field w.r.t. x-direction.
 inline FLOAT dwdx(const FLOAT* const lv, const FLOAT* const lm) {
-    // Evaluate dudy in the cell center by a central difference
+    // Evaluate dwdx in the cell center by a central difference
     const int index0 = mapd(0, 0, 0, 2);
     const int index1 = mapd(-1, 0, 0, 2);
 
@@ -1142,7 +1142,7 @@ inline FLOAT dwdx(const FLOAT* const lv, const FLOAT* const lm) {
 
 // dwdy <-> first derivative of w-component of velocity field w.r.t. y-direction.
 inline FLOAT dwdy(const FLOAT* const lv, const FLOAT* const lm) {
-    // Evaluate dudy in the cell center by a central difference
+    // Evaluate dwdy in the cell center by a central difference
     const int index0 = mapd(0, 0, 0, 2);
     const int index1 = mapd(0, -1, 0, 2);
 

@@ -55,6 +55,16 @@ public:
     void setBufferTopIterator   (std::vector<FLOAT>&);
     void setBufferFrontIterator (std::vector<FLOAT>&);
     void setBufferBackIterator  (std::vector<FLOAT>&);
+
+    /**
+     * Setters for single elements in the buffers
+     */
+    void setBufferLeftElement  (int, FLOAT);
+    void setBufferRightElement (int, FLOAT);
+    void setBufferBottomElement(int, FLOAT);
+    void setBufferTopElement   (int, FLOAT);
+    void setBufferFrontElement (int, FLOAT);
+    void setBufferBackElement  (int, FLOAT);
 };
 
 } // namespace NSEOF::Stencils

@@ -45,6 +45,11 @@ void PetscParallelConfiguration::locateNeighbors() {
         parameters_.parallel.bottomNb = computeRankFromIndices(i, j - 1, 0);
         parameters_.parallel.topNb    = computeRankFromIndices(i, j + 1, 0);
 
+        parameters_.parallel.rightTopNb = computeRankFromIndices(i + 1, j + 1, 0);
+        parameters_.parallel.leftBottomNb = computeRankFromIndices(i - 1, j - 1, 0);
+        parameters_.parallel.rightBottomNb = computeRankFromIndices(i + 1, j - 1, 0);
+        parameters_.parallel.leftTopNb = computeRankFromIndices(i - 1, j + 1, 0);
+
         // The following two are not used in this case
         parameters_.parallel.frontNb = MPI_PROC_NULL;
         parameters_.parallel.backNb  = MPI_PROC_NULL;
@@ -55,6 +60,11 @@ void PetscParallelConfiguration::locateNeighbors() {
         parameters_.parallel.topNb    = computeRankFromIndices(i, j + 1, k);
         parameters_.parallel.frontNb  = computeRankFromIndices(i, j, k - 1);
         parameters_.parallel.backNb   = computeRankFromIndices(i, j, k + 1);
+
+        parameters_.parallel.rightTopNb = computeRankFromIndices(i + 1, j + 1, k);
+        parameters_.parallel.leftBottomNb = computeRankFromIndices(i - 1, j - 1, k);
+        parameters_.parallel.rightBottomNb = computeRankFromIndices(i + 1, j - 1, k);
+        parameters_.parallel.leftTopNb = computeRankFromIndices(i - 1, j + 1, k);
     }
 
     // If periodic boundaries declared, let the process itself deal with it, without communication.
