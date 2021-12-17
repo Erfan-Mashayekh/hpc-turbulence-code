@@ -116,15 +116,8 @@ int main(int argc, char *argv[]) {
 
     FLOAT time = 0.0;
     FLOAT timeStdOut = parameters.stdOut.interval;
-    FLOAT timeVtk = parameters.vtk.interval;
     int timeSteps = 0;
 
-    // Plot initial state
-    // simulation->plotVTK(timeSteps++);
-
-    struct timeval start, end;
-
-    gettimeofday(&start, NULL);
     // Time loop
     while (time < parameters.simulation.finalTime) {
         simulation->solveTimestep();
@@ -137,22 +130,10 @@ int main(int argc, char *argv[]) {
             timeStdOut += parameters.stdOut.interval;
         }
 
-        // Trigger VTK output
-        // if (timeVtk <= time) {
-        //     simulation->plotVTK(timeSteps);
-        //     timeVtk += parameters.vtk.interval;
-        // }
-
         timeSteps++;
     }
 
-
-    gettimeofday(&end, NULL);
-    double elapesedTimeSec = end.tv_sec - start.tv_sec;
-    double elapesedTimeUSec = end.tv_usec - start.tv_usec;
-    std::cout << "Time = " << elapesedTimeSec << " sec and " << elapesedTimeUSec << " micro sec" << std::endl;
-
-    // Plot final output
+    // Plot final output for each process
     simulation->plotVTK(timeSteps);
 
     delete simulation;
