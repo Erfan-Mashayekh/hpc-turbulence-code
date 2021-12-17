@@ -2,7 +2,7 @@
 <configuration>
     <flow Re="500" />
     <simulation finalTime="10" >
-        <type>turbulence</type>
+        <type>dns</type>
         <scenario>cavity</scenario>
     </simulation>
     <turbulence turb_viscosity="1" model="1" />
