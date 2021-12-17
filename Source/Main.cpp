@@ -75,7 +75,11 @@ int main(int argc, char *argv[]) {
 #endif
 
     if (rank==0) {
-        std::cout << "Start DNS simulation in " << parameters.geometry.dim << "D" << std::endl;
+        if (parameters.simulation.type == "turbulence") {
+            std::cout << "Start turbulence simulation in " << parameters.geometry.dim << "D" << std::endl;
+        } else if (parameters.simulation.type == "dns"){
+            std::cout << "Start DNS simulation in " << parameters.geometry.dim << "D" << std::endl;
+        }
     }
 
     flowField = new NSEOF::FlowField(parameters);
