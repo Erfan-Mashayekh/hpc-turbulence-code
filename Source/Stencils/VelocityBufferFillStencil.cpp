@@ -48,19 +48,13 @@ namespace NSEOF::Stencils {
     void VelocityBufferFillStencil::applyFrontWall(FlowField& flowField, int i, int j, int k) {
         getBufferFront().push_back(flowField.getVelocity().getVector(i, j, k + 1)[0]); // "u"
         getBufferFront().push_back(flowField.getVelocity().getVector(i, j, k + 1)[1]); // "v"
-
-        if (parameters_.geometry.dim == 3) { // 3D
-            getBufferFront().push_back(flowField.getVelocity().getVector(i, j, k + 1)[2]); // "w"
-        }    
+        getBufferFront().push_back(flowField.getVelocity().getVector(i, j, k + 1)[2]); // "w"
     }
     
     void VelocityBufferFillStencil::applyBackWall(FlowField& flowField, int i, int j, int k) {
         getBufferBack().push_back(flowField.getVelocity().getVector(i, j, k - 1)[0]); // "u"
         getBufferBack().push_back(flowField.getVelocity().getVector(i, j, k - 1)[1]); // "v"
-
-        if (parameters_.geometry.dim == 3) { // 3D
-            getBufferBack().push_back(flowField.getVelocity().getVector(i, j, k - 2)[2]); // "w"
-        }    
+        getBufferBack().push_back(flowField.getVelocity().getVector(i, j, k - 2)[2]); // "w"
     }
 
     /**
