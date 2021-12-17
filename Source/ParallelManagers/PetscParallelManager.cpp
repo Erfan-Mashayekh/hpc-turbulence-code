@@ -12,17 +12,17 @@ namespace NSEOF::ParallelManagers {
         , velocityBufferDiagonalFillStencil_(parameters)
         , velocityBufferDiagonalReadStencil_(parameters)
         , pressureBufferFillIterator_(flowField, parameters, pressureBufferFillStencil_,
-                                      parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
+                                      parameters.vtk.whiteRegionLowOffset, parameters.vtk.whiteRegionHighOffset)
         , pressureBufferReadIterator_(flowField, parameters, pressureBufferReadStencil_,
-                                      parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
+                                      parameters.vtk.whiteRegionLowOffset, parameters.vtk.whiteRegionHighOffset)
         , velocityBufferFillIterator_(flowField, parameters, velocityBufferFillStencil_,
-                                      parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
+                                      parameters.vtk.whiteRegionLowOffset, parameters.vtk.whiteRegionHighOffset)
         , velocityBufferReadIterator_(flowField, parameters, velocityBufferReadStencil_,
-                                      parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
+                                      parameters.vtk.whiteRegionLowOffset, parameters.vtk.whiteRegionHighOffset)
         , velocityBufferFillDiagonalIterator_(flowField, parameters, velocityBufferDiagonalFillStencil_,
-                                              parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset)
+                                              parameters.vtk.whiteRegionLowOffset, parameters.vtk.whiteRegionHighOffset)
         , velocityBufferReadDiagonalIterator_(flowField, parameters, velocityBufferDiagonalReadStencil_,
-                                              parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset) {}
+                                              parameters.vtk.whiteRegionLowOffset, parameters.vtk.whiteRegionHighOffset) {}
 
     void PetscParallelManager::sendRecvBuffers(std::vector<FLOAT>& bufferSent, int receiverRank,
                                                std::vector<FLOAT>& bufferReceived, int senderRank) {
@@ -139,8 +139,23 @@ namespace NSEOF::ParallelManagers {
         bufferFillStencil.clearBuffers();
     }
 
-    void PetscParallelManager::communicateDiagonals_(Stencils::BufferFillStencil& bufferFillStencil,
-                                                     Stencils::BufferReadStencil& bufferReadStencil) const {
+    void PetscParallelManager::communicatePressure() {
+        pressureBufferFillIterator_.iterate();
+        communicate_(pressureBufferFillStencil_, pressureBufferReadStencil_);
+        pressureBufferReadIterator_.iterate();
+    }
+
+    void PetscParallelManager::communicateVelocity() {
+        velocityBufferFillIterator_.iterate();
+        communicate_(velocityBufferFillStencil_, velocityBufferReadStencil_);
+        velocityBufferReadIterator_.iterate();
+    }
+
+    void PetscParallelManager::communicateDiagonal_(Stencils::BufferFillStencil& bufferFillStencil,
+                                                    Stencils::BufferReadStencil& bufferReadStencil) const {
+        // Wait for all normal communications to end before communicating diagonally!
+        MPI_Barrier(MPI_COMM_WORLD);
+
         std::vector<FLOAT> bufferLeft, bufferRight;
         std::vector<FLOAT> bufferBottom, bufferTop;
         std::vector<FLOAT> bufferFront, bufferBack;
@@ -214,21 +229,9 @@ namespace NSEOF::ParallelManagers {
         bufferFillStencil.clearBuffers();
     }
 
-    void PetscParallelManager::communicatePressure() {
-        pressureBufferFillIterator_.iterate();
-        communicate_(pressureBufferFillStencil_, pressureBufferReadStencil_);
-        pressureBufferReadIterator_.iterate();
-    }
-
-    void PetscParallelManager::communicateVelocity() {
-        velocityBufferFillIterator_.iterate();
-        communicate_(velocityBufferFillStencil_, velocityBufferReadStencil_);
-        velocityBufferReadIterator_.iterate();
-
-        MPI_Barrier(MPI_COMM_WORLD);
-
+    void PetscParallelManager::communicateDiagonalVelocity() {
         velocityBufferFillDiagonalIterator_.iterate();
-        communicateDiagonals_(velocityBufferDiagonalFillStencil_, velocityBufferDiagonalReadStencil_);
+        communicateDiagonal_(velocityBufferDiagonalFillStencil_, velocityBufferDiagonalReadStencil_);
         velocityBufferReadDiagonalIterator_.iterate();
     }
 

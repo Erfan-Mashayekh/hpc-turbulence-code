@@ -39,7 +39,7 @@ private:
 
 protected:
     void communicate_(Stencils::BufferFillStencil&, Stencils::BufferReadStencil&) const;
-    void communicateDiagonals_(Stencils::BufferFillStencil&, Stencils::BufferReadStencil&) const;
+    void communicateDiagonal_(Stencils::BufferFillStencil&, Stencils::BufferReadStencil&) const;
 
 public:
     PetscParallelManager(const Parameters&, FlowField&);
@@ -49,6 +49,7 @@ public:
 
     void communicatePressure();
     void communicateVelocity();
+    void communicateDiagonalVelocity();
 };
 
 } // namespace NSEOF::ParallelManagers

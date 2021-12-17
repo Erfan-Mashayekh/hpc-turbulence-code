@@ -45,6 +45,9 @@ void TurbulentSimulation::solveTimestep() {
         return;
     }
 
+    // Communicate diagonal velocity values before as they are also needed for viscosity computations
+    turbulentPetscParallelManager_.communicateDiagonalVelocity();
+
     // Compute eddy viscosities
     viscosityIterator_.iterate();
 
