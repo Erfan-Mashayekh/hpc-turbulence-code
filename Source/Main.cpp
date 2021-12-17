@@ -13,6 +13,10 @@
 #include <sys/stat.h>
 #include <filesystem>
 
+/* Scaling Measurement */
+#define _BSD_SOURCE
+#include <sys/time.h>
+
 
 int main(int argc, char *argv[]) {
     // Parallelization related. Initialize and identify.
@@ -118,6 +122,9 @@ int main(int argc, char *argv[]) {
     // Plot initial state
     // simulation->plotVTK(timeSteps++);
 
+    struct timeval start, end;
+
+    gettimeofday(&start, NULL);
     // Time loop
     while (time < parameters.simulation.finalTime) {
         simulation->solveTimestep();
@@ -138,6 +145,12 @@ int main(int argc, char *argv[]) {
 
         timeSteps++;
     }
+
+
+    gettimeofday(&end, NULL);
+    double elapesedTimeSec = end.tv_sec - start.tv_sec;
+    double elapesedTimeUSec = end.tv_usec - start.tv_usec;
+    std::cout << "Time = " << elapesedTimeSec << " sec and " << elapesedTimeUSec << " micro sec" << std::endl;
 
     // Plot final output
     simulation->plotVTK(timeSteps);
