@@ -5,8 +5,8 @@ namespace NSEOF::Stencils {
 DistanceStencil::DistanceStencil(const Parameters& parameters, const int cellsX, const int cellsY, const int cellsZ)
     : FieldStencil<FlowField>(parameters)
     , cellsX_(cellsX), cellsY_(cellsY), cellsZ_(cellsZ)
-    , leftWall_(parameters_.simulation.scenario != "channel" && parameters_.parallel.leftNb == MPI_PROC_NULL)
-    , rightWall_(parameters_.simulation.scenario != "channel" && parameters_.parallel.rightNb == MPI_PROC_NULL)
+    , leftWall_(parameters_.parallel.leftNb == MPI_PROC_NULL && parameters_.simulation.scenario != "channel")
+    , rightWall_(parameters_.parallel.rightNb == MPI_PROC_NULL && parameters_.simulation.scenario != "channel")
     , bottomWall_(parameters_.parallel.bottomNb == MPI_PROC_NULL)
     , topWall_(parameters_.parallel.topNb == MPI_PROC_NULL)
     , frontWall_(parameters_.parallel.frontNb == MPI_PROC_NULL)
@@ -26,9 +26,9 @@ FLOAT DistanceStencil::calculateDistToNearestWallInGivenDir_(const bool firstWal
     if (firstWall && secondWall) {
         const int closestDist = idx <= sizeInOneDir / 2 ? firstDist : secondDist;
         return std::abs(closestDist * cellSize);
-    } else if (firstWall && !secondWall) {
+    } else if (firstWall) {
         return std::abs(firstDist * cellSize);
-    } else if (!firstWall && secondWall) {
+    } else if (secondWall) {
         return std::abs(secondDist * cellSize);
     }
 
@@ -43,6 +43,10 @@ FLOAT DistanceStencil::calculateDistToNearestWallInGivenDir_(const bool firstWal
  *       so don't need to count it as there is no step in the Z-axis
  */
 void DistanceStencil::calculateSteps_(FLOAT& distToWall, int i, int j, int k) {
+    if (stepXBound_ * stepYBound_ == 0) {
+        return;
+    }
+
     // Top boundary loop
     for (int x = 0; x <= stepXBound_; x++) {
         FLOAT dx = (i - x) * parameters_.meshsize->getDx(i, j, k);
@@ -73,7 +77,7 @@ void DistanceStencil::apply(FlowField& flowField, int i, int j, int k) {
                                                                   rightWall_,
                                                                   i, parameters_.meshsize->getDx(i, j, k), cellsX_);
 
-        // check bottom and top wall to calculate the closest distance in the x-direction
+        // check bottom and top wall to calculate the closest distance in the y-direction
         const FLOAT distY = calculateDistToNearestWallInGivenDir_(bottomWall_,
                                                                   topWall_,
                                                                   j, parameters_.meshsize->getDy(i, j, k), cellsY_);
@@ -82,7 +86,7 @@ void DistanceStencil::apply(FlowField& flowField, int i, int j, int k) {
             // Find the distance of cell to the nearest wall
             distToWall = std::abs(std::min(distX, distY));
         } else { // 3D
-            // check front and back wall to calculate the closest distance in the x-direction
+            // check front and back wall to calculate the closest distance in the z-direction
             const FLOAT distZ = calculateDistToNearestWallInGivenDir_(frontWall_,
                                                                       backWall_,
                                                                       k, parameters_.meshsize->getDz(i, j, k), cellsZ_);
