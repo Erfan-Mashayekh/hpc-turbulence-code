@@ -72,6 +72,16 @@ else()
     message(AUTHOR_WARNING "No compiler flags set for '${CMAKE_CXX_COMPILER_ID}' compiler.")
 endif()
 
+# Set folder containing the Eigen library
+set(EIGEN3_PARENT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../lib CACHE PATH "Path to the folder containing the Eigen library")
+
+# Add a path to the installed Eigen library for find_package command https://cmake.org/cmake/help/latest/command/find_package.html
+set(Eigen3_DIR ${EIGEN3_PARENT_DIR}/eigen/share/eigen3/cmake CACHE PATH "Path to the folder containing Eigen3Config.cmake file in the Eigen installation folder")
+set(EIGEN3_INCLUDE_DIR ${EIGEN3_PARENT_DIR}/eigen/include/eigen3 CACHE PATH "Path to Eigen3 include folder")
+
+# Finds and loads settings from the installed Eigen package
+find_package(Eigen3 REQUIRED)
+
 target_compile_options(nsObj PUBLIC ${COMPILER_FLAGS})
 
 target_link_libraries(nsObj PUBLIC
@@ -83,6 +93,7 @@ target_link_libraries(nsObj PUBLIC
 target_include_directories(nsObj PUBLIC
     ${CMAKE_SOURCE_DIR}/Source
     ${PETSc_INCLUDE_DIRS}
+    ${EIGEN3_INCLUDE_DIR}
 )
 
 set_target_properties(nsObj PROPERTIES
