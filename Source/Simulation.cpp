@@ -2,6 +2,7 @@
 
 #include "Solvers/SORSolver.hpp"
 #include "Solvers/PetscSolver.hpp"
+#include "Solvers/EigenSolver.hpp"
 
 #include <limits>
 
@@ -24,10 +25,11 @@ Simulation::Simulation(Parameters& parameters, FlowField& flowField)
     , obstacleIterator_(flowField_, parameters, obstacleStencil_)
     , petscParallelManager_(parameters, flowField_)
 #ifdef BUILD_WITH_PETSC
-    , solver_(std::make_unique<Solvers::PetscSolver>(flowField_, parameters))
+    , solver_(std::make_unique<Solvers::PetscSolver>(flowField_, parameters))    
 #else
     , solver_(std::make_unique<Solvers::SORSolver>(flowField_, parameters)) {
 #endif
+    //, solver_(std::make_unique<Solvers::EigenSolver>(flowField_, parameters))
 {
     fghStencil_  = new Stencils::FGHStencil(parameters_);
     fghIterator_ = new FieldIterator<FlowField>(flowField_, parameters_, *fghStencil_);
