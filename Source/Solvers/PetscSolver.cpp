@@ -439,7 +439,7 @@ PetscErrorCode computeMatrix2D([[maybe_unused]] KSP ksp, Mat A, [[maybe_unused]]
         }
     }
 
-/*
+//*
     // Left wall
     if (context->setAsBoundary & LEFT_WALL_BIT) {
         for (j = limitsY[0]; j < limitsY[1]; j++) {
@@ -507,7 +507,7 @@ PetscErrorCode computeMatrix2D([[maybe_unused]] KSP ksp, Mat A, [[maybe_unused]]
             MatSetValuesStencil(A, 1, &row, 2, column, stencilValues, INSERT_VALUES);
         }
     }
-*/
+//*/
     MatAssemblyBegin(A, MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(A, MAT_FINAL_ASSEMBLY);
 

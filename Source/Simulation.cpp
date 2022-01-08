@@ -24,12 +24,12 @@ Simulation::Simulation(Parameters& parameters, FlowField& flowField)
     , velocityIterator_(flowField_, parameters, velocityStencil_)
     , obstacleIterator_(flowField_, parameters, obstacleStencil_)
     , petscParallelManager_(parameters, flowField_)
-#ifdef BUILD_WITH_PETSC
-    , solver_(std::make_unique<Solvers::PetscSolver>(flowField_, parameters))    
-#else
-    , solver_(std::make_unique<Solvers::SORSolver>(flowField_, parameters)) {
-#endif
-    //, solver_(std::make_unique<Solvers::EigenSolver>(flowField_, parameters))
+//#ifdef BUILD_WITH_PETSC
+//    , solver_(std::make_unique<Solvers::PetscSolver>(flowField_, parameters))    
+//#else
+//    , solver_(std::make_unique<Solvers::SORSolver>(flowField_, parameters)) {
+//#endif
+    , solver_(std::make_unique<Solvers::EigenSolver>(flowField_, parameters))
 {
     fghStencil_  = new Stencils::FGHStencil(parameters_);
     fghIterator_ = new FieldIterator<FlowField>(flowField_, parameters_, *fghStencil_);
