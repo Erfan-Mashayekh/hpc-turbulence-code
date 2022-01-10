@@ -439,7 +439,6 @@ PetscErrorCode computeMatrix2D([[maybe_unused]] KSP ksp, Mat A, [[maybe_unused]]
         }
     }
 
-//*
     // Left wall
     if (context->setAsBoundary & LEFT_WALL_BIT) {
         for (j = limitsY[0]; j < limitsY[1]; j++) {
@@ -516,8 +515,8 @@ PetscErrorCode computeMatrix2D([[maybe_unused]] KSP ksp, Mat A, [[maybe_unused]]
     MatSetNullSpace(A, nullspace);
     MatNullSpaceDestroy(&nullspace);
 
-    std::cout << "after! \n";
-    MatView(A,PETSC_VIEWER_STDOUT_WORLD);
+    // std::cout << "after! \n";
+    // MatView(A,PETSC_VIEWER_STDOUT_WORLD);
 
     return 0;
 }

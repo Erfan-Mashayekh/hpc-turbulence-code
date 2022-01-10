@@ -2,6 +2,9 @@
 #define __SOLVERS_EIGEN_SOLVER_HPP__
 
 #include "LinearSolver.hpp"
+#include <Eigen/Core>
+#include <Eigen/Sparse>
+#include<Eigen/IterativeLinearSolvers>
 
 namespace NSEOF::Solvers {
 
@@ -17,8 +20,8 @@ public:
     void solve() override;
     inline void reInitMatrix() override;
 
-    void computeMatrix2D();
-    void computeRHS2D();
+    Eigen::SparseMatrix<FLOAT, 0, int> computeMatrix2D();
+    Eigen::VectorXd computeRHS2D();
 };
 
 } // namespace Solvers::NSEOF

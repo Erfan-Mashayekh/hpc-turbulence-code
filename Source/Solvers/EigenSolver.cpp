@@ -1,6 +1,8 @@
 #include "EigenSolver.hpp"
 
 #include <Eigen/Core>
+#include <Eigen/Sparse>
+#include<Eigen/IterativeLinearSolvers>
 
 using namespace Eigen;
 
@@ -11,12 +13,13 @@ EigenSolver::EigenSolver(FlowField& flowField, Parameters& parameters)
     , parameters_(parameters)
     , LinearSolver(flowField, parameters) {}
 
-    void EigenSolver::computeMatrix2D() {
+    Eigen::SparseMatrix<FLOAT, 0, int> EigenSolver::computeMatrix2D() {
         const int sizeX = parameters_.parallel.localSize[0] + 2;
         const int sizeY = parameters_.parallel.localSize[1] + 2;
         const int dim = sizeX * sizeY;
 
         MatrixXd matA = MatrixXd::Zero(dim, dim);
+        SparseMatrix<FLOAT> spMatA;
 
         FLOAT dx_0 ;
         FLOAT dx_M1;
@@ -45,12 +48,12 @@ EigenSolver::EigenSolver(FlowField& flowField, Parameters& parameters)
             }
         }
 
-        for (int j = sizeY+1; j < dim - (sizeY+1); j++) {
-            matA(j, j - sizeY) = 2.0 / (dx_L * (dx_L + dx_R)); // Left
-            matA(j, j) = -2.0 / (dx_R * dx_L) - 2.0 / (dx_T * dx_Bo); // Center
-            matA(j, j + sizeY) = 2.0 / (dx_R * (dx_L + dx_R)); // Right
-            matA(j, j + 1) = 2.0 / (dx_T * (dx_T + dx_Bo)); // Top
-            matA(j, j - 1) = 2.0 / (dx_Bo * (dx_T + dx_Bo)); // Bottom
+        for (int row = sizeY+1; row < dim - (sizeY+1); row++) {
+            matA(row, row - sizeY) = 2.0 / (dx_L * (dx_L + dx_R)); // Left
+            matA(row, row) = -2.0 / (dx_R * dx_L) - 2.0 / (dx_T * dx_Bo); // Center
+            matA(row, row + sizeY) = 2.0 / (dx_R * (dx_L + dx_R)); // Right
+            matA(row, row + 1) = 2.0 / (dx_T * (dx_T + dx_Bo)); // Top
+            matA(row, row - 1) = 2.0 / (dx_Bo * (dx_T + dx_Bo)); // Bottom
         }
 
         // Boundary Implementations
@@ -121,16 +124,55 @@ EigenSolver::EigenSolver(FlowField& flowField, Parameters& parameters)
                 matA(row, row + 1) = 0.0; // Top
             }
         }
-        //std::cout << matA << std::endl;
+
+        spMatA = matA.sparseView();
+        
+        // std::cout << matA << std::endl;
+        // std::cout << spMatA << std::endl;
+
+        return spMatA;
     }
 
-    void EigenSolver::computeRHS2D() {
-        const int dim = parameters_.parallel.localSize[0] * parameters_.parallel.localSize[1];
+    Eigen::VectorXd EigenSolver::computeRHS2D() {
+        const int sizeX = parameters_.parallel.localSize[0] + 2;
+        const int sizeY = parameters_.parallel.localSize[1] + 2;
+        const int dim = sizeX * sizeY;
         VectorXd rhs = VectorXd::Zero(dim);
+
+        for (int i = 1; i < sizeX - 1; i++){
+            for (int j = 1; j < sizeY - 1; j++){
+                int row = i*sizeY + j;
+                rhs(row) = flowField_.getRHS().getScalar(i, j);
+            }
+        }
+
+        // std::cout << rhs << std::endl;
+        return rhs;
     }
 
     void EigenSolver::solve() {
-        computeMatrix2D();
+        const int sizeX = parameters_.parallel.localSize[0] + 2;
+        const int sizeY = parameters_.parallel.localSize[1] + 2;
+        const int dim = sizeX * sizeY;
+        SparseMatrix<FLOAT> A = computeMatrix2D();
+        VectorXd b = computeRHS2D();
+
+        VectorXd x(dim);
+        /* ... fill A and b ... */ 
+        BiCGSTAB<SparseMatrix<FLOAT> > solver;
+        solver.compute(A);
+        x = solver.solve(b);
+        std::cout << "#iterations:     " << solver.iterations() << std::endl;
+        std::cout << "estimated error: " << solver.error()      << std::endl;
+        /* ... update b ... */
+        x = solver.solve(b); // solve again
+
+        for (int i = 0; i < sizeX; i++){
+            for (int j = 0; j < sizeY; j++){
+                int row = i*sizeY + j;
+                flowField_.getPressure().getScalar(i+1, j+1) = x(row);
+            }
+        }
     }
 
     inline void EigenSolver::reInitMatrix() {
