@@ -142,11 +142,11 @@ EigenSolver::EigenSolver(FlowField& flowField, Parameters& parameters)
         for (int i = 1; i < sizeX - 1; i++){
             for (int j = 1; j < sizeY - 1; j++){
                 int row = i*sizeY + j;
-                rhs(row) = flowField_.getRHS().getScalar(i, j);
+                rhs(row) = flowField_.getRHS().getScalar(i+1, j+1);
             }
         }
 
-        // std::cout << rhs << std::endl;
+        std::cout << rhs << std::endl;
         return rhs;
     }
 
@@ -159,7 +159,7 @@ EigenSolver::EigenSolver(FlowField& flowField, Parameters& parameters)
 
         VectorXd x(dim);
         /* ... fill A and b ... */ 
-        BiCGSTAB<SparseMatrix<FLOAT> > solver;
+        LeastSquaresConjugateGradient<SparseMatrix<FLOAT>, LeastSquareDiagonalPreconditioner<FLOAT> > solver;
         solver.compute(A);
         x = solver.solve(b);
         std::cout << "#iterations:     " << solver.iterations() << std::endl;
