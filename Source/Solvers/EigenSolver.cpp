@@ -146,7 +146,7 @@ EigenSolver::EigenSolver(FlowField& flowField, Parameters& parameters)
             }
         }
 
-        std::cout << rhs << std::endl;
+        //std::cout << rhs << std::endl;
         return rhs;
     }
 
