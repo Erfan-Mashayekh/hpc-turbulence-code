@@ -120,7 +120,6 @@ int main(int argc, char *argv[]) {
 
     // Time loop
     while (time < parameters.simulation.finalTime) {
-    //while (time <= 0.43) {        
     //for (int i=0 ; i<10 ; i++){
         simulation->solveTimestep();
 

@@ -27,7 +27,7 @@ Simulation::Simulation(Parameters& parameters, FlowField& flowField)
 //#ifdef BUILD_WITH_PETSC
 //    , solver_(std::make_unique<Solvers::PetscSolver>(flowField_, parameters))    
 //#else
-//    , solver_(std::make_unique<Solvers::SORSolver>(flowField_, parameters)) {
+//    , solver_(std::make_unique<Solvers::SORSolver>(flowField_, parameters)) 
 //#endif
     , solver_(std::make_unique<Solvers::EigenSolver>(flowField_, parameters))
 {
