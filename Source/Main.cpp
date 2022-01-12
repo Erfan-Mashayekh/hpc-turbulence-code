@@ -119,8 +119,9 @@ int main(int argc, char *argv[]) {
     int timeSteps = 0;
 
     // Time loop
-    //while (time < parameters.simulation.finalTime) {
-    for (int i=0 ; i<5 ; i++){
+    while (time < parameters.simulation.finalTime) {
+    //while (time <= 0.43) {        
+    //for (int i=0 ; i<10 ; i++){
         simulation->solveTimestep();
 
         time += parameters.timestep.dt;
@@ -132,6 +133,9 @@ int main(int argc, char *argv[]) {
         }
 
         timeSteps++;
+        
+        // Plot output for each iteration
+        simulation->plotVTK(timeSteps);
     }
 
     // Plot final output for each process

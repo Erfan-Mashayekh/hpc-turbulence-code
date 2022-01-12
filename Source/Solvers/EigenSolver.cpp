@@ -3,6 +3,7 @@
 #include <Eigen/Core>
 #include <Eigen/Sparse>
 #include<Eigen/IterativeLinearSolvers>
+#include<Eigen/SparseLU>
 
 using namespace Eigen;
 
@@ -158,14 +159,17 @@ EigenSolver::EigenSolver(FlowField& flowField, Parameters& parameters)
         VectorXd b = computeRHS2D();
 
         VectorXd x(dim);
-        /* ... fill A and b ... */ 
-        BiCGSTAB<SparseMatrix<FLOAT> > solver;
+        LeastSquaresConjugateGradient<SparseMatrix<FLOAT> > solver;
         solver.compute(A);
         x = solver.solve(b);
         std::cout << "#iterations:     " << solver.iterations() << std::endl;
         std::cout << "estimated error: " << solver.error()      << std::endl;
         /* ... update b ... */
-        x = solver.solve(b); // solve again
+        // x = solver.solve(b); // solve again
+
+        // std::cout << A << "\n";
+        // std::cout << "\nb: \n" << b << "\n";
+        // std::cout << "\nx: \n" << x << "\n";
 
         for (int i = 0; i < sizeX; i++){
             for (int j = 0; j < sizeY; j++){
