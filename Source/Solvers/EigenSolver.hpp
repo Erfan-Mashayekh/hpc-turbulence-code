@@ -2,6 +2,7 @@
 #define __SOLVERS_EIGEN_SOLVER_HPP__
 
 #include "LinearSolver.hpp"
+#include "DataStructures.hpp"
 #include <Eigen/Core>
 #include <Eigen/Sparse>
 #include<Eigen/IterativeLinearSolvers>
