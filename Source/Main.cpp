@@ -119,8 +119,8 @@ int main(int argc, char *argv[]) {
     int timeSteps = 0;
 
     // Time loop
-    while (time < parameters.simulation.finalTime) {
-    //for (int i=0 ; i<10 ; i++){
+    //while (time < parameters.simulation.finalTime) {
+    for (int i=0 ; i<1 ; i++){
         simulation->solveTimestep();
 
         time += parameters.timestep.dt;
