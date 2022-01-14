@@ -515,8 +515,7 @@ PetscErrorCode computeMatrix2D([[maybe_unused]] KSP ksp, Mat A, [[maybe_unused]]
     MatSetNullSpace(A, nullspace);
     MatNullSpaceDestroy(&nullspace);
 
-     //std::cout << "after! \n";
-     //MatView(A,PETSC_VIEWER_STDOUT_WORLD);
+    // MatView(A,PETSC_VIEWER_STDOUT_WORLD);
 
     return 0;
 }
@@ -881,8 +880,7 @@ PetscErrorCode computeRHS2D(KSP ksp, Vec b, void* ctx) {
     VecAssemblyBegin(b);
     VecAssemblyEnd(b);
     
-    std::cout << "after! \n";
-    VecView(b,PETSC_VIEWER_STDOUT_WORLD);
+    // VecView(b,PETSC_VIEWER_STDOUT_WORLD);
 
     return 0;
 }

@@ -114,13 +114,16 @@ int main(int argc, char *argv[]) {
         }
     }
 
+
+    const clock_t begin_time = clock();
+
     FLOAT time = 0.0;
     FLOAT timeStdOut = parameters.stdOut.interval;
     int timeSteps = 0;
 
     // Time loop
-    //while (time < parameters.simulation.finalTime) {
-    for (int i=0 ; i<1 ; i++){
+    while (time < parameters.simulation.finalTime) {
+    //for (int i=0 ; i<1 ; i++){
         simulation->solveTimestep();
 
         time += parameters.timestep.dt;
@@ -136,6 +139,8 @@ int main(int argc, char *argv[]) {
         // Plot output for each iteration
         simulation->plotVTK(timeSteps);
     }
+
+    std::cout << "\ncomputation time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << std::endl;
 
     // Plot final output for each process
     simulation->plotVTK(timeSteps);

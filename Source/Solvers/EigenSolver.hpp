@@ -3,16 +3,28 @@
 
 #include "LinearSolver.hpp"
 #include "DataStructures.hpp"
+
 #include <Eigen/Core>
 #include <Eigen/Sparse>
-#include<Eigen/IterativeLinearSolvers>
+#include <Eigen/IterativeLinearSolvers>
+#include <Eigen/SparseLU>
+
+using namespace Eigen;
 
 namespace NSEOF::Solvers {
 
 class EigenSolver : public LinearSolver {
-protected:
+private:
     FlowField& flowField_;
     Parameters& parameters_;
+
+    const int sizeX_;
+    const int sizeY_;
+    const int dim_;
+
+    MatrixXd matA_;
+    SparseMatrix<FLOAT> sparseMatA_;
+    VectorXd rhs_;
 
 public:
     EigenSolver(FlowField&, Parameters&);
@@ -21,8 +33,8 @@ public:
     void solve() override;
     inline void reInitMatrix() override;
 
-    Eigen::SparseMatrix<FLOAT, 0, int> computeMatrix2D();
-    Eigen::VectorXd computeRHS2D();
+    void computeMatrix2D();
+    void computeRHS2D();
 };
 
 } // namespace Solvers::NSEOF
