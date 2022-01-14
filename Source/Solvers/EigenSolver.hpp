@@ -8,6 +8,7 @@
 #include <Eigen/Sparse>
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/SparseLU>
+#include <Eigen/SparseQR>
 
 using namespace Eigen;
 

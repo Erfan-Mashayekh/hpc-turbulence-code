@@ -32,6 +32,20 @@ EigenSolver::EigenSolver(FlowField& flowField, Parameters& parameters)
             }
         }
 
+
+        //dx_0 = parameters_.meshsize->getDx(1, 1);
+        //dx_M1 = parameters_.meshsize->getDx(1, 1);
+        //dx_P1 = parameters_.meshsize->getDx(1, 1);
+        //dy_0 = parameters_.meshsize->getDy(1, 1);
+        //dy_M1 = parameters_.meshsize->getDy(1, 1);
+        //dy_P1 = parameters_.meshsize->getDy(1, 1);
+
+        //dx_L = 0.5 * (dx_0 + dx_M1);
+        //dx_R = 0.5 * (dx_0 + dx_P1);
+        //dx_Bo = 0.5 * (dy_0 + dy_M1);
+        //dx_T = 0.5 * (dy_0 + dy_P1);
+
+
         for (int row = sizeY_+1; row < dim_ - (sizeY_+1); row++) {
             matA_(row, row - sizeY_) = 2.0 / (dx_L * (dx_L + dx_R)); // Left
             matA_(row, row) = -2.0 / (dx_R * dx_L) - 2.0 / (dx_T * dx_Bo); // Center
@@ -42,8 +56,11 @@ EigenSolver::EigenSolver(FlowField& flowField, Parameters& parameters)
 
     	// Boundary Implementations
         // Left wall
-        VectorXd boundaryDirichlet(sizeY_ - 2);
-        VectorXd boundaryNeumann(sizeY_ - 2);
+        // VectorXd boundaryDirichlet(sizeY_ * 2);
+        // VectorXd boundaryNeumann(sizeY_ * 2);
+
+        // boundaryDirichlet.segment<(sizeY_ - 2)>(1) = VectorXd::Ones(sizeY_ - 2);
+
         for (int j = 1; j < sizeY_-1; j++) {
             int i = 0;
             int row = i*sizeY_ + j;
@@ -134,14 +151,22 @@ EigenSolver::EigenSolver(FlowField& flowField, Parameters& parameters)
         computeRHS2D();
 
         VectorXd x(dim_);
-        LeastSquaresConjugateGradient<SparseMatrix<FLOAT>, LeastSquareDiagonalPreconditioner<FLOAT>> solver;
 
-        solver.compute(sparseMatA_);
+        //BiCGSTAB<SparseMatrix<FLOAT>> solver;
+        //solver.compute(sparseMatA_);
+        //x = solver.solve(rhs_);
+
+        //std::cout << "#iterations:     " << solver.iterations() << std::endl;
+        //std::cout << "estimated error: " << solver.error()      << std::endl;
+
+        SparseLU<SparseMatrix<FLOAT>, COLAMDOrdering<int> >   solver;
+        // Compute the ordering permutation vector from the structural pattern of A
+        solver.analyzePattern(sparseMatA_); 
+        // Compute the numerical factorization 
+        solver.factorize(sparseMatA_); 
+        //Use the factors to solve the linear system 
         x = solver.solve(rhs_);
 
-        std::cout << "#iterations:     " << solver.iterations() << std::endl;
-        std::cout << "estimated error: " << solver.error()      << std::endl;
-         
         for (int i = 0; i < sizeX_; i++){
             for (int j = 0; j < sizeY_; j++){
                 int row = i*sizeY_ + j;
