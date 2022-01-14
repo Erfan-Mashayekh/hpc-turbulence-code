@@ -33,9 +33,6 @@ EigenSolver::EigenSolver(FlowField& flowField, Parameters& parameters)
         FLOAT dx_Bo;
         FLOAT dx_T ;
 
-		//scalar field to store flags
-		IntScalarField& flags = flowField_.getFlags();
-
         for (int i = 0; i < sizeX; i++) {
             for (int j = 0; j < sizeY; j++) {
                 dx_0 = parameters_.meshsize->getDx(i, j);
@@ -51,59 +48,85 @@ EigenSolver::EigenSolver(FlowField& flowField, Parameters& parameters)
             }
         }
 
-        for (int i = 1; i < sizeX-1; i++) {
-            for (int j = 1; j < sizeY-1; j++) {
-            	int row = i*sizeY + j;
-		    	const int obstacle = flags.getValue(i, j);
-		    	if ((obstacle & OBSTACLE_SELF) == 0) { // If we have a fluid cell
-		    		// Definition of values: set general formulation for laplace operator here, based on arbitrary meshsizes.
-				    matA(row, row - sizeY) = 2.0 / (dx_L * (dx_L + dx_R)); // Left
-				    matA(row, row) = -2.0 / (dx_R * dx_L) - 2.0 / (dx_T * dx_Bo); // Center
-				    matA(row, row + sizeY) = 2.0 / (dx_R * (dx_L + dx_R)); // Right
-				    matA(row, row + 1) = 2.0 / (dx_T * (dx_T + dx_Bo)); // Top
-				    matA(row, row - 1) = 2.0 / (dx_Bo * (dx_T + dx_Bo)); // Bottom
-		        } else if (obstacle != OBSTACLE_SELF + OBSTACLE_LEFT + OBSTACLE_RIGHT + OBSTACLE_TOP + OBSTACLE_BOTTOM) { // Not fluid, but fluid somewhere around.
-		            int counterFluid = 0;
-		            //TODO: variable meshwidth might have to be considered
-		            if ((obstacle & OBSTACLE_LEFT) == 0) { // If there is fluid to the left
-		                matA(row, row + sizeY) = 1.0; //right 
-		                counterFluid++;  
-		            } else {
-		                matA(row, row + sizeY) = 0.0; //right           
-		            }
-		            if ((obstacle & OBSTACLE_RIGHT) == 0) {
-		                matA(row, row - sizeY) = 1.0; // Left
-		                counterFluid++;
-		            } else {
-		                matA(row, row - sizeY) = 0.0; // Left
-		            }
-		            if ((obstacle & OBSTACLE_BOTTOM) == 0) {
-		                matA(row, row) = 1.0; // Center
-		                counterFluid++;
-		            } else {
-		                matA(row, row) = 0.0; // Center
-		            }
-		            if ((obstacle & OBSTACLE_TOP) == 0) {
-		                matA(row, row + 1) = 1.0; // Top
-		                counterFluid++;
-		            } else {
-		                matA(row, row + 1) = 0.0; // Top
-		            }
-		            // A column for the cell itself
-		            matA(row, row - 1) = -counterFluid; //Bottom
-		        } else { // The remaining possibility is that the cell is obstacle surrounded
-		                 // by more obstacle cells.
-		            // Here, we just add an equation to set the value according to the right hand side.
-		            matA(row, row - sizeY) = 0.0; // Left
-		            matA(row, row + sizeY) = 0.0; // Right
-		            matA(row, row + 1) = 0.0; // Top
-		            matA(row, row - 1) = 0.0; // Bottom
-		            matA(row, row) = 1.0; // Center
-		        }
-	        }
+        for (int row = sizeY+1; row < dim - (sizeY+1); row++) {
+            matA(row, row - 1) = 2.0 / (dx_L * (dx_L + dx_R)); // Left
+            matA(row, row) = -2.0 / (dx_R * dx_L) - 2.0 / (dx_T * dx_Bo); // Center
+            matA(row, row + 1) = 2.0 / (dx_R * (dx_L + dx_R)); // Right
+            matA(row, row + sizeY) = 2.0 / (dx_T * (dx_T + dx_Bo)); // Top
+            matA(row, row - sizeY) = 2.0 / (dx_Bo * (dx_T + dx_Bo)); // Bottom
         }
-        
+
         // Boundary Implementations
+/*		****these give right results only for the channel
+	    // Left wall
+	    for (int j = 1; j < sizeY-1; j++) {
+	        int i = 0;
+	        int row = i*sizeY + j;
+	        if (parameters_.walls.typeLeft == DIRICHLET) { // If Dirichlet velocity boundary conditions
+	            // Therefore, Neumann in the pressure
+	            matA(row, row) = 1.0; // Center
+	            matA(row, row + sizeY) = -1.0; // Right
+	        } else if (parameters_.walls.typeLeft == NEUMANN) { // Neumann velocity boundary conditions
+	            matA(row, row) = 0.5; // Center
+	            matA(row, row + sizeY) = 0.5; // Right
+	        }
+	    }
+
+	    // Right wall
+	    for (int j = 1; j < sizeY-1; j++) {
+	        int i = sizeX-1;
+	        int row = i*sizeY + j;
+	        if (parameters_.walls.typeRight == NEUMANN) { // If Dirichlet velocity boundary conditions
+	            // Therefore, Neumann in the pressure
+	            matA(row, row) = 1.0; // Center
+	            matA(row, row - sizeY) = -1.0; // Left
+	        } else if (parameters_.walls.typeRight == DIRICHLET) { // Neumann velocity boundary conditions
+	            matA(row, row) = 0.5; // Center
+	            matA(row, row - sizeY) = 0.5; // Left
+	        }
+	    }
+
+	    // Bottom wall
+	    for (int i = 1; i < sizeX-1; i++) {
+	        int j = 0;
+	        int row = i*sizeY + j;
+	        if (parameters_.walls.typeBottom == DIRICHLET) { // If Dirichlet velocity boundary conditions
+	            // Therefore, Neumann in the pressure
+	            matA(row, row) = 1.0; // Center
+	            matA(row, row + 1) = -1.0; // Top
+	            matA(row, row - sizeY) = 0.0; // Left
+	            matA(row, row + sizeY) = 0.0; // Right
+	            matA(row, row - 1) = 0.0; // Bottom
+	        } else if (parameters_.walls.typeBottom == NEUMANN) { // Neumann velocity boundary conditions
+	            matA(row, row) = 0.5; // Center
+	            matA(row, row + 1) = 0.5; // Top
+	            matA(row, row - sizeY) = 0.0; // Left
+	            matA(row, row + sizeY) = 0.0; // Right
+	            matA(row, row - 1) = 0.0; // Bottom
+	        }
+	    }
+
+	    // Top wall
+	    for (int i = 1; i < sizeX-1; i++) {
+	        int j = sizeY-1;
+	        int row = i*sizeY + j;
+	        if (parameters_.walls.typeTop == NEUMANN) { // If Dirichlet velocity boundary conditions
+	            // Therefore, Neumann in the pressure
+	            matA(row, row) = 1.0; // Center
+	            matA(row, row - 1) = -1.0; // Bottom
+	            matA(row, row - sizeY) = 0.0; // Left
+	            matA(row, row + sizeY) = 0.0; // Right
+	            matA(row, row + 1) = 0.0; // Top
+	        } else if (parameters_.walls.typeTop == DIRICHLET) { // Neumann velocity boundary conditions
+	            matA(row, row) = 0.5; // Center
+	            matA(row, row - 1) = 0.5; // Bottom
+	            matA(row, row - sizeY) = 0.0; // Left
+	            matA(row, row + sizeY) = 0.0; // Right
+	            matA(row, row + 1) = 0.0; // Top
+	        }
+	    }
+*/
+    	// Boundary Implementations
         // Left wall
         for (int j = 1; j < sizeY-1; j++) {
             int i = 0;
@@ -172,10 +195,11 @@ EigenSolver::EigenSolver(FlowField& flowField, Parameters& parameters)
             }
         }
 
+
         spMatA = matA.sparseView();
         
         // std::cout << matA << std::endl;
-        std::cout << spMatA << std::endl;
+         std::cout << spMatA << std::endl;
 
         return spMatA;
     }
@@ -226,3 +250,4 @@ EigenSolver::EigenSolver(FlowField& flowField, Parameters& parameters)
         printf("Implement me! \n");
     }
 } // namespace Solvers::NSEOF
+
