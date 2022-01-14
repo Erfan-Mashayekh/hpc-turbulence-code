@@ -37,8 +37,8 @@ FLOAT TurbulentSimulation::getDiffusiveTimestep_() {
     return minTimeStepStencil_.getDiffusiveTimeStep();
 }
 
-void TurbulentSimulation::solveTimestep() {
-    Simulation::solveTimestep();
+void TurbulentSimulation::solveTimestep(double& duration) {
+    Simulation::solveTimestep(duration);
 
     // If the turbulence viscosity flag is set to zero, do not iterate for viscosity!
     if (parameters_.turbulence.turbViscosity == 0) {

@@ -26,6 +26,7 @@
 #include "Solvers/LinearSolver.hpp"
 
 #include <memory>
+#include <chrono>
 
 namespace NSEOF {
 
@@ -74,7 +75,7 @@ public:
     virtual void initializeFlowField();
 
     /** Solves */
-    virtual void solveTimestep();
+    virtual void solveTimestep(double&);
 
     /** Plots the flow field */
     void plotVTK(int);
