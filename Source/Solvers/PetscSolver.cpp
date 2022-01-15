@@ -19,12 +19,14 @@ void createLimits(Parameters& parameters, DM& da, int* limitsX, int* limitsY, in
     // Location of the first element and sizes of the subdomain in each dimension.
     PetscInt firstX, lengthX, firstY, lengthY, firstZ, lengthZ;
 
+	//gets global indices without ghost points
     DMDAGetCorners(da, &firstX, &firstY, &firstZ, &lengthX, &lengthY, &lengthZ);
 
     int rank;
     MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
 
     // Preliminary set for the iteration domain
+    //each processor gets the global values of firstX, lengthX etc.
     limitsX[0] = firstX;
     limitsX[1] = firstX + lengthX;
     limitsY[0] = firstY;
@@ -36,9 +38,15 @@ void createLimits(Parameters& parameters, DM& da, int* limitsX, int* limitsY, in
     // global boundary, we don't have to consider special conditions for the boundaries. Otherwise,
     // these are shifted so that the body iterations don't touch the boundaries.
 
+
+	//parameters.parallel.indices[0]: index in the x direction 
+	//parameters.parallel.indices[1]: index in the y direction
+	//for example if there are 2x2 processors, processor 2 with counting starting from 0
+	//will be parameters.parallel.indices[0]=0, parameters.parallel.indices[1]=1
+	
     // Check left wall
     if (parameters.parallel.indices[0] == 0) {
-        limitsX[0]++;
+        limitsX[0]++; //if the processor is next to the wall, one layer is ignored
     }
 
     // Check right wall
@@ -92,6 +100,7 @@ PetscSolver::PetscSolver(FlowField& flowField, Parameters& parameters)
     // Set the type of boundary nodes of the system
     DMBoundaryType bx = DM_BOUNDARY_NONE, by = DM_BOUNDARY_NONE, bz = DM_BOUNDARY_NONE;
 
+	//*******************WE DID NOT CODE FOR PERIODIC BOUNDARIES*******************//
     if (parameters.walls.typeLeft == PERIODIC) {
         bx = DM_BOUNDARY_PERIODIC;
     }
@@ -109,6 +118,7 @@ PetscSolver::PetscSolver(FlowField& flowField, Parameters& parameters)
 
     if (parameters_.geometry.dim == 2) {
         computeMatrix = computeMatrix2D;
+        //***NOTE: communication manager object
         DMDACreate2d(PETSC_COMM_WORLD, bx, by, DMDA_STENCIL_STAR,
             parameters_.geometry.sizeX + 2, parameters.geometry.sizeY + 2,
             parameters_.parallel.numProcessors[0],
@@ -135,6 +145,9 @@ PetscSolver::PetscSolver(FlowField& flowField, Parameters& parameters)
     DMSetFromOptions(da_);
     DMSetUp(da_);
 
+	//*firstX_, firstY_, firstZ_ etc. declared in hpp file
+	//*this function gives global coordinates so each processor
+	//knows where the whole domain starts from and ends
     // Find out what are the corners of the subdomain
     DMDAGetCorners(da_, &firstX_, &firstY_, &firstZ_, &lengthX_, &lengthY_, &lengthZ_);
 
@@ -148,8 +161,8 @@ PetscSolver::PetscSolver(FlowField& flowField, Parameters& parameters)
     MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
 
     // Set offsets to fix where the results of the pressure will be written in the flow field.
-    if (firstX_ == 0) {
-        offsetX_ = 1;
+    if (firstX_ == 0) { // I think asking if declared as starting from //zero in xml file ( <environment gx="0" gy="0" gz="0" />)
+        offsetX_ = 1;   
     } else {
         offsetX_ = 2;
     }
@@ -197,7 +210,7 @@ PetscSolver::PetscSolver(FlowField& flowField, Parameters& parameters)
     // If the boundary is periodic, it will take information from positions beyond the ghost cells,
     // since they are used only for parallel communication. Otherwise, PETSc deals with
     // communication of the pressure.
-    int Nx = parameters.geometry.sizeX + 2;
+    int Nx = parameters.geometry.sizeX + 2; //this accounts for ghost cells i think
     int Ny = parameters.geometry.sizeY + 2;
     int Nz = parameters.geometry.sizeZ + 2;
 
@@ -277,12 +290,13 @@ void PetscSolver::solve() {
     if (parameters_.geometry.dim == 2) {
         KSPSetComputeRHS(ksp_, computeRHS2D, &ctx_);
         KSPSetComputeOperators(ksp_, computeMatrix2D, &ctx_);
-        KSPSolve(ksp_, PETSC_NULL, x_);
+        KSPSolve(ksp_, PETSC_NULL, x_); //x_ declared in hpp file
 
         // Then extract the information
         PetscScalar** array;
         DMDAVecGetArray(da_, x_, &array);
 
+		//*here offset is 1 for all, i think 
         for (int j = firstY_; j < firstY_ + lengthY_; j++) {
             for (int i = firstX_; i < firstX_ + lengthX_; i++) {
                 pressure.getScalar(i - firstX_ + offsetX_, j - firstY_ + offsetY_) = array[j][i];
