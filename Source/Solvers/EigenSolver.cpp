@@ -1,6 +1,7 @@
 #include "EigenSolver.hpp"
 
-#define INDEX_2_ARR(row, col, width) ((row) * (width) + (col))
+#define ROW_MAJOR_IND(row, col, width) ((row) * (width) + (col))
+#define COLUMN_MAJOR_IND(row, col, height) ((col) * (height) + (row))
 
 namespace NSEOF::Solvers {
 
@@ -90,11 +91,11 @@ namespace NSEOF::Solvers {
                 const int vectorLength = sizeY_ * 2 + 1;
                 VectorXd valueVector(vectorLength);
 
-                const DxConstants centerDx = dxConstantsVector_[INDEX_2_ARR(j, sizeX_, i)];
-                const DxConstants leftDx = dxConstantsVector_[INDEX_2_ARR(j, sizeX_, i - 1)];
-                const DxConstants rightDx = dxConstantsVector_[INDEX_2_ARR(j, sizeX_, i + 1)];
-                const DxConstants bottomDx = dxConstantsVector_[INDEX_2_ARR(j - 1, sizeX_, i)];
-                const DxConstants topDx = dxConstantsVector_[INDEX_2_ARR(j + 1, sizeX_, i)];
+                const DxConstants centerDx = dxConstantsVector_[ROW_MAJOR_IND(j, sizeX_, i)];
+                const DxConstants leftDx = dxConstantsVector_[ROW_MAJOR_IND(j, sizeX_, i - 1)];
+                const DxConstants rightDx = dxConstantsVector_[ROW_MAJOR_IND(j, sizeX_, i + 1)];
+                const DxConstants bottomDx = dxConstantsVector_[ROW_MAJOR_IND(j - 1, sizeX_, i)];
+                const DxConstants topDx = dxConstantsVector_[ROW_MAJOR_IND(j + 1, sizeX_, i)];
 
                 valueVector(vectorLength / 2) = -2.0 / (centerDx.R * centerDx.L) - 2.0 / (centerDx.T * centerDx.Bo); // Center
                 valueVector(0) = 2.0 / (leftDx.L * (leftDx.L + leftDx.R)); // Left
@@ -108,20 +109,16 @@ namespace NSEOF::Solvers {
 
         sparseMatA_ = matA_.sparseView();
 
-        // std::cout << matA_ << std::endl;
+        std::cout << matA_ << std::endl;
         // std::cout << sparseMatA_ << std::endl;
-        exit(1);
     }
 
     void EigenSolver::computeRHS2D() {
-        for (int i = 1; i < sizeX_ - 1; i++){
-            for (int j = 1; j < sizeY_ - 1; j++){
-                int row = i*sizeY_ + j;
-                rhs_(row) = flowField_.getRHS().getScalar(i+1, j+1);
+        for (int i = 1; i < sizeX_ - 1; i++) {
+            for (int j = 1; j < sizeY_ - 1; j++) {
+                rhs_(COLUMN_MAJOR_IND(j, i, sizeY_)) = flowField_.getRHS().getScalar(i + 1, j + 1);
             }
         }
-        //std::cout << rhs << std::endl;
-
     }
 
     void EigenSolver::solve() {
