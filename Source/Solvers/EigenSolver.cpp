@@ -126,7 +126,6 @@ namespace NSEOF::Solvers {
         computeRHS2D();
 
         VectorXd x(dim_);
-
         BiCGSTAB<SparseMatrix<FLOAT>> solver;
 
         solver.setMaxIterations(50);
