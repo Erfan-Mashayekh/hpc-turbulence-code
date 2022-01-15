@@ -44,11 +44,11 @@ public:
 
     void fillDxConstantsVector();
 
-    void solve() override;
-    inline void reInitMatrix() override;
-
     void computeMatrix2D();
     void computeRHS2D();
+
+    void solve() override;
+    inline void reInitMatrix() override;
 };
 
 } // namespace Solvers::NSEOF

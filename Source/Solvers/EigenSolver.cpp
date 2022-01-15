@@ -45,7 +45,7 @@ namespace NSEOF::Solvers {
         dxConstantsVector_.clear();
     }
 
-    void EigenSolver::computeMatrix2D() {
+    [[maybe_unused]] void EigenSolver::computeMatrix2D() {
         /**
          * Fill the matrix on boundary conditions
          */
