@@ -1,138 +1,116 @@
 #include "EigenSolver.hpp"
 
+#define INDEX_2_ARR(row, col, width) ((row) * (width) + (col))
+
 namespace NSEOF::Solvers {
 
-EigenSolver::EigenSolver(FlowField& flowField, Parameters& parameters)
-    : LinearSolver(flowField, parameters)
-    , flowField_(flowField)
-    , parameters_(parameters)
-    , sizeX_(parameters.parallel.localSize[0] + 2)
-    , sizeY_(parameters_.parallel.localSize[1] + 2)
-    , dim_(sizeX_ * sizeY_)
-    , matA_(MatrixXd::Zero(dim_, dim_))
-    , rhs_(VectorXd::Zero(dim_)) {}
+    DxConstants::DxConstants(FLOAT L, FLOAT R, FLOAT Bo, FLOAT T) : L(L), R(R), Bo(Bo), T(T) {}
+
+    void EigenSolver::fillDxConstantsVector() {
+        dxConstantsVector_.reserve(dim_);
+
+        for (int j = 0; j < sizeY_; j++) {
+            for (int i = 0; i < sizeX_; i++) {
+                FLOAT dx_0 = parameters_.meshsize->getDx(i, j);
+                FLOAT dx_M1 = parameters_.meshsize->getDx(i - 1, j);
+                FLOAT dx_P1 = parameters_.meshsize->getDx(i + 1, j);
+                FLOAT dy_0 = parameters_.meshsize->getDy(i, j);
+                FLOAT dy_M1 = parameters_.meshsize->getDy(i, j - 1);
+                FLOAT dy_P1 = parameters_.meshsize->getDy(i, j + 1);
+
+                FLOAT dx_L = 0.5 * (dx_0 + dx_M1);
+                FLOAT dx_R = 0.5 * (dx_0 + dx_P1);
+                FLOAT dx_Bo = 0.5 * (dy_0 + dy_M1);
+                FLOAT dx_T = 0.5 * (dy_0 + dy_P1);
+
+                dxConstantsVector_.emplace_back(dx_L, dx_R, dx_Bo, dx_T);
+            }
+        }
+    }
+
+    EigenSolver::EigenSolver(FlowField& flowField, Parameters& parameters)
+        : LinearSolver(flowField, parameters)
+        , flowField_(flowField)
+        , parameters_(parameters)
+        , sizeX_(parameters.parallel.localSize[0] + 2)
+        , sizeY_(parameters_.parallel.localSize[1] + 2)
+        , dim_(sizeX_ * sizeY_)
+        , matA_(MatrixXd::Zero(dim_, dim_))
+        , rhs_(VectorXd::Zero(dim_)) {
+        fillDxConstantsVector();
+    }
+
+    EigenSolver::~EigenSolver() {
+        dxConstantsVector_.clear();
+    }
 
     void EigenSolver::computeMatrix2D() {
-        FLOAT dx_0, dx_M1, dx_P1, dy_0, dy_M1, dy_P1;
-        FLOAT dx_L, dx_R, dx_Bo, dx_T;
+        /**
+         * Fill the matrix on boundary conditions
+         */
 
-        for (int i = 0; i < sizeX_; i++) {
-            for (int j = 0; j < sizeY_; j++) {
-                dx_0 = parameters_.meshsize->getDx(i, j);
-                dx_M1 = parameters_.meshsize->getDx(i - 1, j);
-                dx_P1 = parameters_.meshsize->getDx(i + 1, j);
-                dy_0 = parameters_.meshsize->getDy(i, j);
-                dy_M1 = parameters_.meshsize->getDy(i, j - 1);
-                dy_P1 = parameters_.meshsize->getDy(i, j + 1);
+        const MatrixXd identityMatrix = MatrixXd::Identity(sizeY_ - 2, sizeY_ - 2);
+        unsigned int centerStartIdx;
 
-                dx_L = 0.5 * (dx_0 + dx_M1);
-                dx_R = 0.5 * (dx_0 + dx_P1);
-                dx_Bo = 0.5 * (dy_0 + dy_M1);
-                dx_T = 0.5 * (dy_0 + dy_P1);
-            }
-        }
+        const MatrixXd diagMat = (parameters_.walls.typeLeft == DIRICHLET ? 1.0 : 0.5) * identityMatrix;
+        const MatrixXd offDiagMat = (parameters_.walls.typeLeft == DIRICHLET ? -1.0 : 0.5) * identityMatrix;
 
-
-        //dx_0 = parameters_.meshsize->getDx(1, 1);
-        //dx_M1 = parameters_.meshsize->getDx(1, 1);
-        //dx_P1 = parameters_.meshsize->getDx(1, 1);
-        //dy_0 = parameters_.meshsize->getDy(1, 1);
-        //dy_M1 = parameters_.meshsize->getDy(1, 1);
-        //dy_P1 = parameters_.meshsize->getDy(1, 1);
-
-        //dx_L = 0.5 * (dx_0 + dx_M1);
-        //dx_R = 0.5 * (dx_0 + dx_P1);
-        //dx_Bo = 0.5 * (dy_0 + dy_M1);
-        //dx_T = 0.5 * (dy_0 + dy_P1);
-
-
-        for (int row = sizeY_+1; row < dim_ - (sizeY_+1); row++) {
-            matA_(row, row - sizeY_) = 2.0 / (dx_L * (dx_L + dx_R)); // Left
-            matA_(row, row) = -2.0 / (dx_R * dx_L) - 2.0 / (dx_T * dx_Bo); // Center
-            matA_(row, row + sizeY_) = 2.0 / (dx_R * (dx_L + dx_R)); // Right
-            matA_(row, row + 1) = 2.0 / (dx_T * (dx_T + dx_Bo)); // Top
-            matA_(row, row - 1) = 2.0 / (dx_Bo * (dx_T + dx_Bo)); // Bottom
-        }
-
-    	// Boundary Implementations
         // Left wall
-        // VectorXd boundaryDirichlet(sizeY_ * 2);
-        // VectorXd boundaryNeumann(sizeY_ * 2);
+        centerStartIdx = 1;
 
-        // boundaryDirichlet.segment<(sizeY_ - 2)>(1) = VectorXd::Ones(sizeY_ - 2);
-
-        for (int j = 1; j < sizeY_-1; j++) {
-            int i = 0;
-            int row = i*sizeY_ + j;
-            if (parameters_.walls.typeLeft == DIRICHLET) { // If Dirichlet velocity boundary conditions
-                // Therefore, Neumann in the pressure
-                matA_(row, row) = 1.0; // Center
-                matA_(row, row + sizeY_) = -1.0; // Right
-            } else if (parameters_.walls.typeLeft == NEUMANN) { // Neumann velocity boundary conditions
-                matA_(row, row) = 0.5; // Center
-                matA_(row, row + sizeY_) = 0.5; // Right
-            }
-        }
+        matA_.block(centerStartIdx, centerStartIdx, sizeY_ - 2, sizeY_ - 2) = diagMat;
+        matA_.block(centerStartIdx, centerStartIdx + sizeY_, sizeY_ - 2, sizeY_ - 2) = offDiagMat;
 
         // Right wall
-        for (int j = 1; j < sizeY_-1; j++) {
-            int i = sizeX_-1;
-            int row = i*sizeY_ + j;
-            if (parameters_.walls.typeRight == DIRICHLET) { // If Dirichlet velocity boundary conditions
-                // Therefore, Neumann in the pressure
-                matA_(row, row) = 1.0; // Center
-                matA_(row, row - sizeY_) = -1.0; // Left
-            } else if (parameters_.walls.typeRight == NEUMANN) { // Neumann velocity boundary conditions
-                matA_(row, row) = 0.5; // Center
-                matA_(row, row - sizeY_) = 0.5; // Left
-            }
+        centerStartIdx = (sizeX_ - 1) * sizeY_ + 1;
+
+        matA_.block(centerStartIdx, centerStartIdx, sizeY_ - 2, sizeY_ - 2) = diagMat;
+        matA_.block(centerStartIdx, centerStartIdx - sizeY_, sizeY_ - 2, sizeY_ - 2) = offDiagMat;
+
+        // Bottom and top wall
+        MatrixXd verticalWallMat = MatrixXd::Identity(sizeY_, sizeY_);
+        verticalWallMat *= (parameters_.walls.typeLeft == DIRICHLET ? 1.0 : 0.5);
+
+        verticalWallMat(0, 1) = parameters_.walls.typeLeft == DIRICHLET ? -1.0 : 0.5;
+        verticalWallMat(sizeY_ - 1, sizeY_ - 2) = parameters_.walls.typeLeft == DIRICHLET ? -1.0 : 0.5;
+
+        for (int i = sizeY_; i < dim_ - sizeY_; i += sizeY_) {
+            matA_.block(i, i, sizeY_, sizeY_) = verticalWallMat;
         }
 
-        // Bottom wall
-        for (int i = 1; i < sizeX_-1; i++) {
-            int j = 0;
-            int row = i*sizeY_ + j;
-            if (parameters_.walls.typeBottom == DIRICHLET) { // If Dirichlet velocity boundary conditions
-                // Therefore, Neumann in the pressure
-                matA_(row, row) = 1.0; // Center
-                matA_(row, row + 1) = -1.0; // Top
-                matA_(row, row - sizeY_) = 0.0; // Left
-                matA_(row, row + sizeY_) = 0.0; // Right
-                matA_(row, row - 1) = 0.0; // Bottom
-            } else if (parameters_.walls.typeBottom == NEUMANN) { // Neumann velocity boundary conditions
-                matA_(row, row) = 0.5; // Center
-                matA_(row, row + 1) = 0.5; // Top
-                matA_(row, row - sizeY_) = 0.0; // Left
-                matA_(row, row + sizeY_) = 0.0; // Right
-                matA_(row, row - 1) = 0.0; // Bottom
-            }
-        }
+        /**
+         * Fill the matrix with actual values
+         */
 
-        // Top wall
-        for (int i = 1; i < sizeX_-1; i++) {
-            int j = sizeY_-1;
-            int row = i*sizeY_ + j;
-            if (parameters_.walls.typeTop == DIRICHLET) { // If Dirichlet velocity boundary conditions
-                // Therefore, Neumann in the pressure
-                matA_(row, row) = 1.0; // Center
-                matA_(row, row - 1) = -1.0; // Bottom
-                matA_(row, row - sizeY_) = 0.0; // Left
-                matA_(row, row + sizeY_) = 0.0; // Right
-                matA_(row, row + 1) = 0.0; // Top
-            } else if (parameters_.walls.typeTop == NEUMANN) { // Neumann velocity boundary conditions
-                matA_(row, row) = 0.5; // Center
-                matA_(row, row - 1) = 0.5; // Bottom
-                matA_(row, row - sizeY_) = 0.0; // Left
-                matA_(row, row + sizeY_) = 0.0; // Right
-                matA_(row, row + 1) = 0.0; // Top
+        int row = sizeY_ + 1;
+        int column = 1;
+
+        for (int j = 1; j < sizeY_ - 1; j++, row += 2, column += 2) {
+            for (int i = 1; i < sizeX_ - 1; i++, row++, column++) {
+                const int vectorLength = sizeY_ * 2 + 1;
+                VectorXd valueVector(vectorLength);
+
+                const DxConstants centerDx = dxConstantsVector_[INDEX_2_ARR(j, sizeX_, i)];
+                const DxConstants leftDx = dxConstantsVector_[INDEX_2_ARR(j, sizeX_, i - 1)];
+                const DxConstants rightDx = dxConstantsVector_[INDEX_2_ARR(j, sizeX_, i + 1)];
+                const DxConstants bottomDx = dxConstantsVector_[INDEX_2_ARR(j - 1, sizeX_, i)];
+                const DxConstants topDx = dxConstantsVector_[INDEX_2_ARR(j + 1, sizeX_, i)];
+
+                valueVector(vectorLength / 2) = -2.0 / (centerDx.R * centerDx.L) - 2.0 / (centerDx.T * centerDx.Bo); // Center
+                valueVector(0) = 2.0 / (leftDx.L * (leftDx.L + leftDx.R)); // Left
+                valueVector(vectorLength - 1) = 2.0 / (rightDx.R * (rightDx.L + rightDx.R)); // Right
+                valueVector(vectorLength / 2 - 1) = 2.0 / (bottomDx.Bo * (bottomDx.T + bottomDx.Bo)); // Bottom
+                valueVector(vectorLength / 2 + 1) = 2.0 / (topDx.T * (topDx.T + topDx.Bo)); // Top
+
+                matA_.block(row, column, 1, vectorLength) = valueVector.transpose();
             }
         }
 
         sparseMatA_ = matA_.sparseView();
-        
-        // std::cout << matA_ << std::endl;
-        // std::cout << sparseMatA_ << std::endl;
 
+        std::cout << matA_ << std::endl;
+        // std::cout << sparseMatA_ << std::endl;
+        exit(1);
     }
 
     void EigenSolver::computeRHS2D() {
@@ -152,20 +130,13 @@ EigenSolver::EigenSolver(FlowField& flowField, Parameters& parameters)
 
         VectorXd x(dim_);
 
-        //BiCGSTAB<SparseMatrix<FLOAT>> solver;
-        //solver.compute(sparseMatA_);
-        //x = solver.solve(rhs_);
-
-        //std::cout << "#iterations:     " << solver.iterations() << std::endl;
-        //std::cout << "estimated error: " << solver.error()      << std::endl;
-
-        SparseLU<SparseMatrix<FLOAT>, COLAMDOrdering<int> >   solver;
-        // Compute the ordering permutation vector from the structural pattern of A
-        solver.analyzePattern(sparseMatA_); 
-        // Compute the numerical factorization 
-        solver.factorize(sparseMatA_); 
-        //Use the factors to solve the linear system 
+        BiCGSTAB<SparseMatrix<FLOAT>> solver;
+        solver.setMaxIterations(5);
+        solver.compute(sparseMatA_);
         x = solver.solve(rhs_);
+
+        std::cout << "#iterations:     " << solver.iterations() << std::endl;
+        std::cout << "estimated error: " << solver.error()      << std::endl;
 
         for (int i = 0; i < sizeX_; i++){
             for (int j = 0; j < sizeY_; j++){
