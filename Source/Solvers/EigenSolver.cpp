@@ -45,39 +45,38 @@ namespace NSEOF::Solvers {
         constantsVector_.clear();
     }
 
+    void EigenSolver::computeMatrixBoundaryLeftOrRight2D(BoundaryType boundaryType,
+                                                         const unsigned int startIdx, const int direction) {
+        const MatrixXd identityMatrix = MatrixXd::Identity(sizeY_ - 2, sizeY_ - 2);
+
+        const MatrixXd diagMat = (boundaryType == DIRICHLET ? 1.0 : 0.5) * identityMatrix;
+        const MatrixXd offDiagMat = (boundaryType == DIRICHLET ? -1.0 : 0.5) * identityMatrix;
+
+        matA_.block(startIdx, startIdx, sizeY_ - 2, sizeY_ - 2) = diagMat;
+        matA_.block(startIdx, startIdx + (direction * sizeY_), sizeY_ - 2, sizeY_ - 2) = offDiagMat;
+    }
+
+    void EigenSolver::computeMatrixBoundariesBottomAndTop2D() {
+        MatrixXd verticalWallMat = MatrixXd::Identity(sizeY_, sizeY_);
+        verticalWallMat *= (parameters_.walls.typeLeft == DIRICHLET ? 1.0 : 0.5);
+
+        verticalWallMat(0, 1) = parameters_.walls.typeBottom == DIRICHLET ? -1.0 : 0.5;
+        verticalWallMat(sizeY_ - 1, sizeY_ - 2) = parameters_.walls.typeTop == DIRICHLET ? -1.0 : 0.5;
+
+        for (int i = sizeY_; i < dim_ - sizeY_; i += sizeY_) {
+            matA_.block(i, i, sizeY_, sizeY_) = verticalWallMat;
+        }
+    }
+
     void EigenSolver::computeMatrix2D() {
         /**
          * Fill the matrix on boundary conditions
          */
 
-        const MatrixXd identityMatrix = MatrixXd::Identity(sizeY_ - 2, sizeY_ - 2);
-        unsigned int centerStartIdx;
+        computeMatrixBoundaryLeftOrRight2D(parameters_.walls.typeLeft, 1, 1); // Left wall
+        computeMatrixBoundaryLeftOrRight2D(parameters_.walls.typeRight, (sizeX_ - 1) * sizeY_ + 1, -1); // Right wall
 
-        const MatrixXd diagMat = (parameters_.walls.typeLeft == DIRICHLET ? 1.0 : 0.5) * identityMatrix;
-        const MatrixXd offDiagMat = (parameters_.walls.typeLeft == DIRICHLET ? -1.0 : 0.5) * identityMatrix;
-
-        // Left wall
-        centerStartIdx = 1;
-
-        matA_.block(centerStartIdx, centerStartIdx, sizeY_ - 2, sizeY_ - 2) = diagMat;
-        matA_.block(centerStartIdx, centerStartIdx + sizeY_, sizeY_ - 2, sizeY_ - 2) = offDiagMat;
-
-        // Right wall
-        centerStartIdx = (sizeX_ - 1) * sizeY_ + 1;
-
-        matA_.block(centerStartIdx, centerStartIdx, sizeY_ - 2, sizeY_ - 2) = diagMat;
-        matA_.block(centerStartIdx, centerStartIdx - sizeY_, sizeY_ - 2, sizeY_ - 2) = offDiagMat;
-
-        // Bottom and top walls
-        MatrixXd verticalWallMat = MatrixXd::Identity(sizeY_, sizeY_);
-        verticalWallMat *= (parameters_.walls.typeLeft == DIRICHLET ? 1.0 : 0.5);
-
-        verticalWallMat(0, 1) = parameters_.walls.typeLeft == DIRICHLET ? -1.0 : 0.5;
-        verticalWallMat(sizeY_ - 1, sizeY_ - 2) = parameters_.walls.typeLeft == DIRICHLET ? -1.0 : 0.5;
-
-        for (int i = sizeY_; i < dim_ - sizeY_; i += sizeY_) {
-            matA_.block(i, i, sizeY_, sizeY_) = verticalWallMat;
-        }
+        computeMatrixBoundariesBottomAndTop2D(); // Bottom and top walls
 
         /**
          * Fill the matrix with actual values
@@ -92,10 +91,10 @@ namespace NSEOF::Solvers {
                 VectorXd valueVector = VectorXd::Zero(vectorLength);
 
                 const Constants centerDx = constantsVector_[ROW_MAJOR_IND(j, i, sizeX_)];
-                const Constants leftDx = constantsVector_[ROW_MAJOR_IND(j, i - 1, sizeX_)];
-                const Constants rightDx = constantsVector_[ROW_MAJOR_IND(j, i + 1, sizeX_)];
+                const Constants leftDx   = constantsVector_[ROW_MAJOR_IND(j, i - 1, sizeX_)];
+                const Constants rightDx  = constantsVector_[ROW_MAJOR_IND(j, i + 1, sizeX_)];
                 const Constants bottomDx = constantsVector_[ROW_MAJOR_IND(j - 1, i, sizeX_)];
-                const Constants topDx = constantsVector_[ROW_MAJOR_IND(j + 1, i, sizeX_)];
+                const Constants topDx    = constantsVector_[ROW_MAJOR_IND(j + 1, i, sizeX_)];
 
                 valueVector(vectorLength / 2) = -2.0 / (centerDx.R * centerDx.L) - 2.0 / (centerDx.T * centerDx.Bo); // Center
                 valueVector(0) = 2.0 / (leftDx.L * (leftDx.L + leftDx.R)); // Left

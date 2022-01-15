@@ -1,8 +1,10 @@
 #ifndef __SOLVERS_EIGEN_SOLVER_HPP__
 #define __SOLVERS_EIGEN_SOLVER_HPP__
 
+#include "Definitions.hpp"
 #include "LinearSolver.hpp"
-#include "DataStructures.hpp"
+#include "FlowField.hpp"
+#include "Parameters.hpp"
 
 #include <vector>
 
@@ -43,6 +45,9 @@ public:
     ~EigenSolver() override;
 
     void fillConstantsVector();
+
+    void computeMatrixBoundaryLeftOrRight2D(BoundaryType, unsigned int, int);
+    void computeMatrixBoundariesBottomAndTop2D();
 
     void computeMatrix2D();
     void computeRHS2D();
