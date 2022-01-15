@@ -29,22 +29,6 @@ namespace NSEOF::Solvers {
         }
     }
 
-    EigenSolver::EigenSolver(FlowField& flowField, Parameters& parameters)
-        : LinearSolver(flowField, parameters)
-        , flowField_(flowField)
-        , parameters_(parameters)
-        , sizeX_(parameters.parallel.localSize[0] + 2)
-        , sizeY_(parameters_.parallel.localSize[1] + 2)
-        , dim_(sizeX_ * sizeY_)
-        , matA_(MatrixXd::Zero(dim_, dim_))
-        , rhs_(VectorXd::Zero(dim_)) {
-        fillConstantsVector();
-    }
-
-    EigenSolver::~EigenSolver() {
-        constantsVector_.clear();
-    }
-
     void EigenSolver::computeMatrixBoundaryLeftOrRight2D(BoundaryType boundaryType,
                                                          const unsigned int startIdx, const int direction) {
         const MatrixXd identityMatrix = MatrixXd::Identity(sizeY_ - 2, sizeY_ - 2);
@@ -112,6 +96,23 @@ namespace NSEOF::Solvers {
         // std::cout << sparseMatA_ << std::endl;
     }
 
+    EigenSolver::EigenSolver(FlowField& flowField, Parameters& parameters)
+        : LinearSolver(flowField, parameters)
+        , flowField_(flowField)
+        , parameters_(parameters)
+        , sizeX_(parameters.parallel.localSize[0] + 2)
+        , sizeY_(parameters_.parallel.localSize[1] + 2)
+        , dim_(sizeX_ * sizeY_)
+        , matA_(MatrixXd::Zero(dim_, dim_))
+        , rhs_(VectorXd::Zero(dim_)) {
+        fillConstantsVector();
+        computeMatrix2D();
+    }
+
+    EigenSolver::~EigenSolver() {
+        constantsVector_.clear();
+    }
+
     void EigenSolver::computeRHS2D() {
         for (int i = 1; i < sizeX_ - 1; i++) {
             for (int j = 1; j < sizeY_ - 1; j++) {
@@ -121,7 +122,6 @@ namespace NSEOF::Solvers {
     }
 
     void EigenSolver::solve() {
-        computeMatrix2D();
         computeRHS2D();
 
         VectorXd x(dim_);

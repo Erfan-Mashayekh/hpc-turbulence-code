@@ -41,15 +41,16 @@ private:
     VectorXd rhs_;
 
 public:
-    EigenSolver(FlowField&, Parameters&);
-    ~EigenSolver() override;
-
     void fillConstantsVector();
 
     void computeMatrixBoundaryLeftOrRight2D(BoundaryType, unsigned int, int);
     void computeMatrixBoundariesBottomAndTop2D();
 
     void computeMatrix2D();
+
+    EigenSolver(FlowField&, Parameters&);
+    ~EigenSolver() override;
+
     void computeRHS2D();
 
     void solve() override;
