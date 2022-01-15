@@ -91,11 +91,11 @@ namespace NSEOF::Solvers {
                 const int vectorLength = sizeY_ * 2 + 1;
                 VectorXd valueVector = VectorXd::Zero(vectorLength);
 
-                const DxConstants centerDx = dxConstantsVector_[ROW_MAJOR_IND(j, sizeX_, i)];
-                const DxConstants leftDx = dxConstantsVector_[ROW_MAJOR_IND(j, sizeX_, i - 1)];
-                const DxConstants rightDx = dxConstantsVector_[ROW_MAJOR_IND(j, sizeX_, i + 1)];
-                const DxConstants bottomDx = dxConstantsVector_[ROW_MAJOR_IND(j - 1, sizeX_, i)];
-                const DxConstants topDx = dxConstantsVector_[ROW_MAJOR_IND(j + 1, sizeX_, i)];
+                const DxConstants centerDx = dxConstantsVector_[ROW_MAJOR_IND(j, i, sizeX_)];
+                const DxConstants leftDx = dxConstantsVector_[ROW_MAJOR_IND(j, i - 1, sizeX_)];
+                const DxConstants rightDx = dxConstantsVector_[ROW_MAJOR_IND(j, i + 1, sizeX_)];
+                const DxConstants bottomDx = dxConstantsVector_[ROW_MAJOR_IND(j - 1, i, sizeX_)];
+                const DxConstants topDx = dxConstantsVector_[ROW_MAJOR_IND(j + 1, i, sizeX_)];
 
                 valueVector(vectorLength / 2) = -2.0 / (centerDx.R * centerDx.L) - 2.0 / (centerDx.T * centerDx.Bo); // Center
                 valueVector(0) = 2.0 / (leftDx.L * (leftDx.L + leftDx.R)); // Left
@@ -128,7 +128,7 @@ namespace NSEOF::Solvers {
         VectorXd x(dim_);
 
         BiCGSTAB<SparseMatrix<FLOAT>> solver;
-        solver.setMaxIterations(5);
+        solver.setMaxIterations(50);
         solver.compute(sparseMatA_);
         x = solver.solve(rhs_);
 
