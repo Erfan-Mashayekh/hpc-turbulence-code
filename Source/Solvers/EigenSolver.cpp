@@ -89,7 +89,7 @@ namespace NSEOF::Solvers {
         for (int j = 1; j < sizeY_ - 1; j++, row += 2, column += 2) {
             for (int i = 1; i < sizeX_ - 1; i++, row++, column++) {
                 const int vectorLength = sizeY_ * 2 + 1;
-                VectorXd valueVector(vectorLength);
+                VectorXd valueVector = VectorXd::Zero(vectorLength);
 
                 const DxConstants centerDx = dxConstantsVector_[ROW_MAJOR_IND(j, sizeX_, i)];
                 const DxConstants leftDx = dxConstantsVector_[ROW_MAJOR_IND(j, sizeX_, i - 1)];
@@ -109,7 +109,7 @@ namespace NSEOF::Solvers {
 
         sparseMatA_ = matA_.sparseView();
 
-        std::cout << matA_ << std::endl;
+        // std::cout << matA_ << std::endl;
         // std::cout << sparseMatA_ << std::endl;
     }
 
