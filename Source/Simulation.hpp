@@ -62,7 +62,6 @@ protected:
     ParallelManagers::PetscParallelManager petscParallelManager_;
 
     std::unique_ptr<Solvers::LinearSolver> solver_;
-    std::unique_ptr<Solvers::LinearSolver> solverEigen_;
 
     /** Gets the diffusive timestep and uses that to set the timestep before solving */
     virtual FLOAT getDiffusiveTimestep_();

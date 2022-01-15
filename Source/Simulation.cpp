@@ -23,11 +23,11 @@ Simulation::Simulation(Parameters& parameters, FlowField& flowField)
     , obstacleIterator_(flowField_, parameters, obstacleStencil_)
     , petscParallelManager_(parameters, flowField_)
 // #ifdef BUILD_WITH_PETSC
-     , solver_(std::make_unique<Solvers::PetscSolver>(flowField_, parameters))
+//     , solver_(std::make_unique<Solvers::PetscSolver>(flowField_, parameters))
 // #else
 //     , solver_(std::make_unique<Solvers::SORSolver>(flowField_, parameters)) 
 // #endif
-    , solverEigen_(std::make_unique<Solvers::EigenSolver>(flowField_, parameters))
+    , solver_(std::make_unique<Solvers::EigenSolver>(flowField_, parameters))
 {
     fghStencil_  = new Stencils::FGHStencil(parameters_);
     fghIterator_ = new FieldIterator<FlowField>(flowField_, parameters_, *fghStencil_);
@@ -144,8 +144,7 @@ void Simulation::solveTimestep(double& duration) {
     std::chrono::time_point <std::chrono::high_resolution_clock> t0 = std::chrono::high_resolution_clock::now();
 
     // Solve for pressure
-    solver_->solve(); // PetSC
-    solverEigen_->solve(); // Eigen
+    solver_->solve();
 
     std::chrono::time_point <std::chrono::high_resolution_clock> t1 = std::chrono::high_resolution_clock::now();
     duration += std::chrono::duration<double>(t1 - t0).count();
