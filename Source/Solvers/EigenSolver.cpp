@@ -5,10 +5,10 @@
 
 namespace NSEOF::Solvers {
 
-    DxConstants::DxConstants(FLOAT L, FLOAT R, FLOAT Bo, FLOAT T) : L(L), R(R), Bo(Bo), T(T) {}
+    Constants::Constants(FLOAT L, FLOAT R, FLOAT Bo, FLOAT T) : L(L), R(R), Bo(Bo), T(T) {}
 
-    void EigenSolver::fillDxConstantsVector() {
-        dxConstantsVector_.reserve(dim_);
+    void EigenSolver::fillConstantsVector() {
+        constantsVector_.reserve(dim_);
 
         for (int j = 0; j < sizeY_; j++) {
             for (int i = 0; i < sizeX_; i++) {
@@ -21,10 +21,10 @@ namespace NSEOF::Solvers {
 
                 FLOAT dx_L = 0.5 * (dx_0 + dx_M1);
                 FLOAT dx_R = 0.5 * (dx_0 + dx_P1);
-                FLOAT dx_Bo = 0.5 * (dy_0 + dy_M1);
-                FLOAT dx_T = 0.5 * (dy_0 + dy_P1);
+                FLOAT dy_Bo = 0.5 * (dy_0 + dy_M1);
+                FLOAT dy_T = 0.5 * (dy_0 + dy_P1);
 
-                dxConstantsVector_.emplace_back(dx_L, dx_R, dx_Bo, dx_T);
+                constantsVector_.emplace_back(dx_L, dx_R, dy_Bo, dy_T);
             }
         }
     }
@@ -38,11 +38,11 @@ namespace NSEOF::Solvers {
         , dim_(sizeX_ * sizeY_)
         , matA_(MatrixXd::Zero(dim_, dim_))
         , rhs_(VectorXd::Zero(dim_)) {
-        fillDxConstantsVector();
+        fillConstantsVector();
     }
 
     EigenSolver::~EigenSolver() {
-        dxConstantsVector_.clear();
+        constantsVector_.clear();
     }
 
     void EigenSolver::computeMatrix2D() {
@@ -91,11 +91,11 @@ namespace NSEOF::Solvers {
                 const int vectorLength = sizeY_ * 2 + 1;
                 VectorXd valueVector = VectorXd::Zero(vectorLength);
 
-                const DxConstants centerDx = dxConstantsVector_[ROW_MAJOR_IND(j, i, sizeX_)];
-                const DxConstants leftDx = dxConstantsVector_[ROW_MAJOR_IND(j, i - 1, sizeX_)];
-                const DxConstants rightDx = dxConstantsVector_[ROW_MAJOR_IND(j, i + 1, sizeX_)];
-                const DxConstants bottomDx = dxConstantsVector_[ROW_MAJOR_IND(j - 1, i, sizeX_)];
-                const DxConstants topDx = dxConstantsVector_[ROW_MAJOR_IND(j + 1, i, sizeX_)];
+                const Constants centerDx = constantsVector_[ROW_MAJOR_IND(j, i, sizeX_)];
+                const Constants leftDx = constantsVector_[ROW_MAJOR_IND(j, i - 1, sizeX_)];
+                const Constants rightDx = constantsVector_[ROW_MAJOR_IND(j, i + 1, sizeX_)];
+                const Constants bottomDx = constantsVector_[ROW_MAJOR_IND(j - 1, i, sizeX_)];
+                const Constants topDx = constantsVector_[ROW_MAJOR_IND(j + 1, i, sizeX_)];
 
                 valueVector(vectorLength / 2) = -2.0 / (centerDx.R * centerDx.L) - 2.0 / (centerDx.T * centerDx.Bo); // Center
                 valueVector(0) = 2.0 / (leftDx.L * (leftDx.L + leftDx.R)); // Left

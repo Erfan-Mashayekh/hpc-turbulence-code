@@ -16,11 +16,11 @@ using namespace Eigen;
 
 namespace NSEOF::Solvers {
 
-struct DxConstants {
+struct Constants {
 public:
     FLOAT L, R, Bo, T;
 
-    DxConstants(FLOAT, FLOAT, FLOAT, FLOAT);
+    Constants(FLOAT, FLOAT, FLOAT, FLOAT);
 };
 
 class EigenSolver : public LinearSolver {
@@ -32,7 +32,7 @@ private:
     const int sizeY_;
     const int dim_;
 
-    std::vector<DxConstants> dxConstantsVector_;
+    std::vector<Constants> constantsVector_;
 
     MatrixXd matA_;
     SparseMatrix<FLOAT> sparseMatA_;
@@ -42,7 +42,7 @@ public:
     EigenSolver(FlowField&, Parameters&);
     ~EigenSolver() override;
 
-    void fillDxConstantsVector();
+    void fillConstantsVector();
 
     void computeMatrix2D();
     void computeRHS2D();
