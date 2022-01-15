@@ -128,8 +128,10 @@ namespace NSEOF::Solvers {
         VectorXd x(dim_);
 
         BiCGSTAB<SparseMatrix<FLOAT>> solver;
+
         solver.setMaxIterations(50);
         solver.compute(sparseMatA_);
+
         x = solver.solve(rhs_);
 
         std::cout << "#iterations:     " << solver.iterations() << std::endl;
