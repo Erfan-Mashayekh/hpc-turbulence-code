@@ -136,16 +136,16 @@ namespace NSEOF::Solvers {
         std::cout << "#iterations:     " << solver.iterations() << std::endl;
         std::cout << "estimated error: " << solver.error()      << std::endl;
 
-        for (int i = 0; i < sizeX_; i++){
-            for (int j = 0; j < sizeY_; j++){
-                int row = i*sizeY_ + j;
-                flowField_.getPressure().getScalar(i+1, j+1) = x(row);
+        for (int i = 0; i < sizeX_; i++) {
+            for (int j = 0; j < sizeY_; j++) {
+                flowField_.getPressure().getScalar(i + 1, j + 1) = x(COLUMN_MAJOR_IND(j, i, sizeY_));
             }
         }
     }
 
     inline void EigenSolver::reInitMatrix() {
-        printf("Implement me! \n");
+        matA_ = MatrixXd::Zero(dim_, dim_);
+        rhs_ = VectorXd::Zero(dim_);
     }
 } // namespace Solvers::NSEOF
 
