@@ -126,8 +126,9 @@ namespace NSEOF::Solvers {
         computeRHS2D();
 
         VectorXd x(dim_);
-        LeastSquaresConjugateGradient<SparseMatrix<FLOAT>, LeastSquareDiagonalPreconditioner<FLOAT>> solver;
 
+        BiCGSTAB<SparseMatrix<FLOAT>> solver;
+        solver.setMaxIterations(5);
         solver.compute(sparseMatA_);
         x = solver.solve(rhs_);
 

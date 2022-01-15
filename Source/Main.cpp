@@ -121,8 +121,8 @@ int main(int argc, char *argv[]) {
     double duration = 0;
 
     // Time loop
-    while (time < parameters.simulation.finalTime) {
-//    for (int i=0 ; i<100 ; i++){
+    //while (time < parameters.simulation.finalTime) {
+    for (int i=0 ; i<1 ; i++){
         simulation->solveTimestep(duration);
 
         time += parameters.timestep.dt;
@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
         timeSteps++;
         
         // Plot output for each iteration
-        simulation->plotVTK(timeSteps);
+        //simulation->plotVTK(timeSteps);
     }
 
     // print the duration
