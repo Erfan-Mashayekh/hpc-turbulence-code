@@ -14,6 +14,9 @@
 #include <Eigen/SparseLU>
 #include <Eigen/SparseQR>
 
+// The number of maximum iterations used by the solver (set to -1 to let the solver decide)
+#define SOLVER_MAX_NUM_ITERATIONS -1
+
 using namespace Eigen;
 
 namespace NSEOF::Solvers {
@@ -37,8 +40,11 @@ private:
     std::vector<Constants> constantsVector_;
 
     MatrixXd matA_;
-    SparseMatrix<FLOAT> sparseMatA_;
     VectorXd rhs_;
+    VectorXd x_;
+
+    SparseMatrix<FLOAT> sparseMatA_;
+    BiCGSTAB<SparseMatrix<FLOAT>> solver_;
 
 public:
     void fillConstantsVector();
@@ -48,13 +54,13 @@ public:
 
     void computeMatrix2D();
 
+    inline void reInitMatrix() override;
+
     EigenSolver(FlowField&, Parameters&);
     ~EigenSolver() override;
 
     void computeRHS2D();
-
     void solve() override;
-    inline void reInitMatrix() override;
 };
 
 } // namespace Solvers::NSEOF

@@ -8,6 +8,7 @@ namespace NSEOF::Solvers {
     Constants::Constants(FLOAT L, FLOAT R, FLOAT Bo, FLOAT T) : L(L), R(R), Bo(Bo), T(T) {}
 
     void EigenSolver::fillConstantsVector() {
+        constantsVector_.clear();
         constantsVector_.reserve(dim_);
 
         for (int j = 0; j < sizeY_; j++) {
@@ -91,9 +92,24 @@ namespace NSEOF::Solvers {
         }
 
         sparseMatA_ = matA_.sparseView();
+    }
 
-        // std::cout << matA_ << std::endl;
-        // std::cout << sparseMatA_ << std::endl;
+    inline void EigenSolver::reInitMatrix() {
+        matA_ = MatrixXd::Zero(dim_, dim_);
+        rhs_ = VectorXd::Zero(dim_);
+        x_ = VectorXd::Zero(dim_);
+
+        fillConstantsVector();
+        computeMatrix2D();
+
+        fillConstantsVector();
+        computeMatrix2D();
+
+#if SOLVER_MAX_NUM_ITERATIONS != -1
+        solver_.setMaxIterations(SOLVER_MAX_NUM_ITERATIONS);
+#endif
+
+        solver_.compute(sparseMatA_);
     }
 
     EigenSolver::EigenSolver(FlowField& flowField, Parameters& parameters)
@@ -102,19 +118,16 @@ namespace NSEOF::Solvers {
         , parameters_(parameters)
         , sizeX_(parameters.parallel.localSize[0] + 2)
         , sizeY_(parameters_.parallel.localSize[1] + 2)
-        , dim_(sizeX_ * sizeY_)
-        , matA_(MatrixXd::Zero(dim_, dim_))
-        , rhs_(VectorXd::Zero(dim_)) {
-        fillConstantsVector();
-        computeMatrix2D();
+        , dim_(sizeX_ * sizeY_) {
+        EigenSolver::reInitMatrix();
     }
 
     EigenSolver::~EigenSolver() {
         constantsVector_.clear();
 
         matA_.resize(0, 0);
-        sparseMatA_.resize(0, 0);
-        rhs_.resize(0, 0);
+        rhs_.resize(0);
+        x_.resize(0);
     }
 
     void EigenSolver::computeRHS2D() {
@@ -127,28 +140,16 @@ namespace NSEOF::Solvers {
 
     void EigenSolver::solve() {
         computeRHS2D();
+        x_ = solver_.solve(rhs_);
 
-        VectorXd x(dim_);
-        BiCGSTAB<SparseMatrix<FLOAT>> solver;
-
-        solver.setMaxIterations(50);
-        solver.compute(sparseMatA_);
-
-        x = solver.solve(rhs_);
-
-        std::cout << "#iterations:     " << solver.iterations() << std::endl;
-        std::cout << "estimated error: " << solver.error()      << std::endl;
+        std::cout << "# of iterations: " << solver_.iterations() << std::endl;
+        std::cout << "estimated error: " << solver_.error()      << std::endl;
 
         for (int i = 0; i < sizeX_; i++) {
             for (int j = 0; j < sizeY_; j++) {
-                flowField_.getPressure().getScalar(i + 1, j + 1) = x(COLUMN_MAJOR_IND(j, i, sizeY_));
+                flowField_.getPressure().getScalar(i + 1, j + 1) = x_(COLUMN_MAJOR_IND(j, i, sizeY_));
             }
         }
-    }
-
-    inline void EigenSolver::reInitMatrix() {
-        matA_ = MatrixXd::Zero(dim_, dim_);
-        rhs_ = VectorXd::Zero(dim_);
     }
 } // namespace Solvers::NSEOF
 
