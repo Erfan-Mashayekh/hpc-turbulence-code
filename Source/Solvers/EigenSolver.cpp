@@ -111,6 +111,10 @@ namespace NSEOF::Solvers {
 
     EigenSolver::~EigenSolver() {
         constantsVector_.clear();
+
+        matA_.resize(0, 0);
+        sparseMatA_.resize(0, 0);
+        rhs_.resize(0, 0);
     }
 
     void EigenSolver::computeRHS2D() {
