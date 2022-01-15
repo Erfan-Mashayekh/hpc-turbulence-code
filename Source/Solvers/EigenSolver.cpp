@@ -68,7 +68,7 @@ namespace NSEOF::Solvers {
         matA_.block(centerStartIdx, centerStartIdx, sizeY_ - 2, sizeY_ - 2) = diagMat;
         matA_.block(centerStartIdx, centerStartIdx - sizeY_, sizeY_ - 2, sizeY_ - 2) = offDiagMat;
 
-        // Bottom and top wall
+        // Bottom and top walls
         MatrixXd verticalWallMat = MatrixXd::Identity(sizeY_, sizeY_);
         verticalWallMat *= (parameters_.walls.typeLeft == DIRICHLET ? 1.0 : 0.5);
 
