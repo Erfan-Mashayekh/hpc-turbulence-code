@@ -66,6 +66,10 @@ namespace NSEOF::Solvers {
         return flowField_.getFlags().getValue(cellIndexX, cellIndexY, cellIndexZ);
     }
 
+    int EigenSolver::getSumObstacles_() const {
+        return pow(2, parameters_.geometry.dim * 2 + 1) - 1;
+    }
+
     void EigenSolver::computeStencilRowForFluidCell_(const int stencilRowLength, VectorXd& stencilRow,
                                                      const int i, const int j, const int k = 0) const {
         const Constants center = constantsVector_[COLUMN_MAJOR_IND(i, j, k, cellsY_, cellsZ_)];
@@ -153,8 +157,7 @@ namespace NSEOF::Solvers {
 
                     if ((obstacle & OBSTACLE_SELF) == 0) { // It is a fluid cell
                         computeStencilRowForFluidCell_(stencilRowLength, stencilRow, i, j, k);
-                    } else if (obstacle != OBSTACLE_SELF + OBSTACLE_LEFT + OBSTACLE_RIGHT + OBSTACLE_TOP +
-                                           OBSTACLE_BOTTOM) { // Not a fluid cell, but fluid is somewhere around
+                    } else if (obstacle != getSumObstacles_()) { // Not a fluid cell, but fluid is somewhere around
                         computeStencilRowForObstacleCellWithFluidAround_(obstacle, stencilRowLength, stencilRow);
                     } else { // The cell is an obstacle cell surrounded by more obstacle cells
                         computeStencilRowForObstacleCell_(stencilRowLength, stencilRow);

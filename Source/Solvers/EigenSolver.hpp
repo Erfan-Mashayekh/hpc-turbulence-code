@@ -6,6 +6,7 @@
 #include "FlowField.hpp"
 #include "Parameters.hpp"
 
+#include <math.h>
 #include <vector>
 
 // Eigen
@@ -51,6 +52,7 @@ private:
     void computeMatrixBoundariesBottomAndTop2D_();
 
     int getObstacle_(int, int, int, int, int, int) const;
+    int getSumObstacles_() const;
 
     void computeStencilRowForFluidCell_(int, VectorXd&, int, int, int) const;
     void computeStencilRowForObstacleCellWithFluidAround_(int, int, VectorXd&) const;
