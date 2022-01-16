@@ -97,9 +97,9 @@ namespace NSEOF::Solvers {
         const FLOAT topObstacle    = (FLOAT) ((obstacle & OBSTACLE_TOP)    == 0);
 
         if (parameters_.geometry.dim == 2) { // 2D
-            /* Center */ stencilRow(stencilRowLength / 2) = -1.0 * (leftObstacle + rightObstacle + bottomObstacle + topObstacle);
-            /* Left   */ stencilRow(0) = leftObstacle;
-            /* Right  */ stencilRow(stencilRowLength - 1) = rightObstacle;
+            /* Center */ stencilRow(stencilRowLength / 2    ) = -1.0 * (leftObstacle + rightObstacle + bottomObstacle + topObstacle);
+            /* Left   */ stencilRow(0                       ) = leftObstacle;
+            /* Right  */ stencilRow(stencilRowLength - 1    ) = rightObstacle;
             /* Bottom */ stencilRow(stencilRowLength / 2 - 1) = bottomObstacle;
             /* Top    */ stencilRow(stencilRowLength / 2 + 1) = topObstacle;
         } else { // 3D
@@ -112,9 +112,9 @@ namespace NSEOF::Solvers {
 
     void EigenSolver::computeStencilRowForObstacleCell_(const int stencilRowLength, VectorXd& stencilRow) const {
         if (parameters_.geometry.dim == 2) { // 2D
-            /* Center */ stencilRow(stencilRowLength / 2) = 1.0;
-            /* Left   */ stencilRow(0) = 0.0;
-            /* Right  */ stencilRow(stencilRowLength - 1) = 0.0;
+            /* Center */ stencilRow(stencilRowLength / 2    ) = 1.0;
+            /* Left   */ stencilRow(0                       ) = 0.0;
+            /* Right  */ stencilRow(stencilRowLength - 1    ) = 0.0;
             /* Bottom */ stencilRow(stencilRowLength / 2 - 1) = 0.0;
             /* Top    */ stencilRow(stencilRowLength / 2 + 1) = 0.0;
         } else { // 3D
