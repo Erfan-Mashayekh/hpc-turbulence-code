@@ -11,8 +11,8 @@ namespace NSEOF::Solvers {
         constantsVector_.clear();
         constantsVector_.reserve(dim_);
 
-        for (int j = 0; j < sizeY_; j++) {
-            for (int i = 0; i < sizeX_; i++) {
+        for (int i = 0; i < sizeX_; i++) {
+            for (int j = 0; j < sizeY_; j++) {
                 FLOAT dx_0 = parameters_.meshsize->getDx(i, j);
                 FLOAT dx_M1 = parameters_.meshsize->getDx(i - 1, j);
                 FLOAT dx_P1 = parameters_.meshsize->getDx(i + 1, j);
@@ -31,7 +31,7 @@ namespace NSEOF::Solvers {
     }
 
     void EigenSolver::computeMatrixBoundaryLeftOrRight2D_(BoundaryType boundaryType,
-                                                         const unsigned int startIdx, const int direction) {
+                                                          const unsigned int startIdx, const int direction) {
         const MatrixXd identityMatrix = MatrixXd::Identity(sizeY_ - 2, sizeY_ - 2);
 
         const MatrixXd diagMat = (boundaryType == DIRICHLET ? 1.0 : 0.5) * identityMatrix;
@@ -43,7 +43,9 @@ namespace NSEOF::Solvers {
 
     void EigenSolver::computeMatrixBoundariesBottomAndTop2D_() {
         MatrixXd verticalWallMat = MatrixXd::Identity(sizeY_, sizeY_);
-        verticalWallMat *= (parameters_.walls.typeLeft == DIRICHLET ? 1.0 : 0.5);
+
+        verticalWallMat(0, 0) = parameters_.walls.typeBottom == DIRICHLET ? 1.0 : 0.5;
+        verticalWallMat(sizeY_ - 1, sizeY_ - 1) = parameters_.walls.typeTop == DIRICHLET ? 1.0 : 0.5;
 
         verticalWallMat(0, 1) = parameters_.walls.typeBottom == DIRICHLET ? -1.0 : 0.5;
         verticalWallMat(sizeY_ - 1, sizeY_ - 2) = parameters_.walls.typeTop == DIRICHLET ? -1.0 : 0.5;
@@ -70,16 +72,16 @@ namespace NSEOF::Solvers {
         int row = sizeY_ + 1;
         int column = 1;
 
-        for (int j = 1; j < sizeY_ - 1; j++, row += 2, column += 2) {
-            for (int i = 1; i < sizeX_ - 1; i++, row++, column++) {
+        for (int i = 1; i < sizeX_ - 1; i++, row += 2, column += 2) {
+            for (int j = 1; j < sizeY_ - 1; j++, row++, column++) {
                 const int vectorLength = sizeY_ * 2 + 1;
                 VectorXd valueVector = VectorXd::Zero(vectorLength);
 
-                const Constants centerDx = constantsVector_[ROW_MAJOR_IND(j, i, sizeX_)];
-                const Constants leftDx   = constantsVector_[ROW_MAJOR_IND(j, i - 1, sizeX_)];
-                const Constants rightDx  = constantsVector_[ROW_MAJOR_IND(j, i + 1, sizeX_)];
-                const Constants bottomDx = constantsVector_[ROW_MAJOR_IND(j - 1, i, sizeX_)];
-                const Constants topDx    = constantsVector_[ROW_MAJOR_IND(j + 1, i, sizeX_)];
+                const Constants centerDx = constantsVector_[COLUMN_MAJOR_IND(j, i, sizeY_)];
+                const Constants leftDx   = constantsVector_[COLUMN_MAJOR_IND(j, i - 1, sizeY_)];
+                const Constants rightDx  = constantsVector_[COLUMN_MAJOR_IND(j, i + 1, sizeY_)];
+                const Constants bottomDx = constantsVector_[COLUMN_MAJOR_IND(j - 1, i, sizeY_)];
+                const Constants topDx    = constantsVector_[COLUMN_MAJOR_IND(j + 1, i, sizeY_)];
 
                 valueVector(vectorLength / 2) = -2.0 / (centerDx.R * centerDx.L) - 2.0 / (centerDx.T * centerDx.Bo); // Center
                 valueVector(0) = 2.0 / (leftDx.L * (leftDx.L + leftDx.R)); // Left
