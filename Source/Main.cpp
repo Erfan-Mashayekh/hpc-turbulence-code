@@ -12,10 +12,7 @@
 #include <iomanip>
 #include <sys/stat.h>
 #include <filesystem>
-
-//#include <Eigen/Core>
-
-//using namespace Eigen;
+#include <chrono>
 
 
 int main(int argc, char *argv[]) {
@@ -116,15 +113,20 @@ int main(int argc, char *argv[]) {
 
     FLOAT time = 0.0;
     FLOAT timeStdOut = parameters.stdOut.interval;
+    FLOAT timeVtk = parameters.vtk.interval;
+    int timesteps = 0;
 
-    int timeSteps = 0;
-    double duration = 0;
+//    // Plot the initial state
+//    simulation->plotVTK(timesteps);
+
+    // Start the timer
+    std::chrono::time_point <std::chrono::high_resolution_clock> t0 = std::chrono::high_resolution_clock::now();
 
     // Time loop
     while (time < parameters.simulation.finalTime) {
-    //for (int i=0 ; i<1 ; i++){
-        simulation->solveTimestep(duration);
+        simulation->solveTimestep();
 
+        timesteps++;
         time += parameters.timestep.dt;
 
         // Log the time (Master)
@@ -133,17 +135,19 @@ int main(int argc, char *argv[]) {
             timeStdOut += parameters.stdOut.interval;
         }
 
-        timeSteps++;
-        
-        // Plot output for each iteration
-        //simulation->plotVTK(timeSteps);
+//        // Plot the current state
+//        if (timeVtk <= time) {
+//            simulation->plotVTK(timesteps);
+//            timeVtk += parameters.vtk.interval;
+//        }
     }
 
-    // print the duration
+    // End the timer and print duration
+    double duration = std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - t0).count();
     printf("It took %f seconds..\n", duration);
 
-    // Plot final output for each process
-    simulation->plotVTK(timeSteps);
+    // Plot the final state
+    simulation->plotVTK(timesteps);
 
     delete simulation;
     simulation = NULL;

@@ -42,16 +42,16 @@ namespace NSEOF::Solvers {
     }
 
     void EigenSolver::computeMatrixBoundariesBottomAndTop2D_() {
-        MatrixXd verticalWallMat = MatrixXd::Identity(sizeY_, sizeY_);
+        MatrixXd verticalWallMat = MatrixXd::Zero(sizeY_, sizeY_);
 
         verticalWallMat(0, 0) = parameters_.walls.typeBottom == DIRICHLET ? 1.0 : 0.5;
-        verticalWallMat(sizeY_ - 1, sizeY_ - 1) = parameters_.walls.typeTop == DIRICHLET ? 1.0 : 0.5;
-
         verticalWallMat(0, 1) = parameters_.walls.typeBottom == DIRICHLET ? -1.0 : 0.5;
+
+        verticalWallMat(sizeY_ - 1, sizeY_ - 1) = parameters_.walls.typeTop == DIRICHLET ? 1.0 : 0.5;
         verticalWallMat(sizeY_ - 1, sizeY_ - 2) = parameters_.walls.typeTop == DIRICHLET ? -1.0 : 0.5;
 
-        for (int i = sizeY_; i < dim_ - sizeY_; i += sizeY_) {
-            matA_.block(i, i, sizeY_, sizeY_) = verticalWallMat;
+        for (int j = 1; j < sizeY_ - 1; j++) {
+            matA_.block(j * sizeY_, j * sizeY_, sizeY_, sizeY_) = verticalWallMat;
         }
     }
 

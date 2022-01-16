@@ -133,7 +133,7 @@ void Simulation::setTimestep_() {
     parameters_.timestep.dt *= parameters_.timestep.tau;
 }
 
-void Simulation::solveTimestep(double& duration) {
+void Simulation::solveTimestep() {
     // Determine and set max timestep which is allowed in this simulation
     setTimestep_();
 
@@ -141,13 +141,8 @@ void Simulation::solveTimestep(double& duration) {
     wallFGHIterator_.iterate(); // Set global boundary values
     rhsIterator_.iterate(); // Compute the right-hand side (RHS)
 
-    std::chrono::time_point <std::chrono::high_resolution_clock> t0 = std::chrono::high_resolution_clock::now();
-
     // Solve for pressure
     solver_->solve();
-
-    std::chrono::time_point <std::chrono::high_resolution_clock> t1 = std::chrono::high_resolution_clock::now();
-    duration += std::chrono::duration<double>(t1 - t0).count();
 
     // Communicate pressure values
     petscParallelManager_.communicatePressure();

@@ -39,7 +39,7 @@ public:
     void initializeFlowField() override;
 
     /** Solves */
-    void solveTimestep(double&) override;
+    void solveTimestep() override;
 };
 
 } // namespace NSEOF
