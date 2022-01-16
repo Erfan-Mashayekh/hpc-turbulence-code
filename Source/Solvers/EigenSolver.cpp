@@ -201,14 +201,18 @@ namespace NSEOF::Solvers {
     }
 
     void EigenSolver::computeRHS2D_() {
-        // If 3D, use the actual bounds, otherwise, use [0, 1) and iterate on k only once!
-        const int kLowerBound = (parameters_.geometry.dim == 3) ? 1 : 0;
-        const int kUpperBound = (parameters_.geometry.dim == 3) ? (cellsZ_ - 1) : 1;
-
-        for (int i = 1; i < cellsX_ - 1; i++) {
-            for (int j = 1; j < cellsY_ - 1; j++) {
-                for (int k = kLowerBound; k < kUpperBound; k++) {
-                    rhs_(COLUMN_MAJOR_IND(i, j, k, cellsY_, cellsZ_)) = flowField_.getRHS().getScalar(i + 1, j + 1);
+        if (parameters_.geometry.dim == 2) { // 2D
+            for (int i = 0; i < cellsX_; i++) {
+                for (int j = 0; j < cellsY_; j++) {
+                    rhs_(COLUMN_MAJOR_IND(i, j, 0, cellsY_, cellsZ_)) = flowField_.getRHS().getScalar(i + 1, j + 1);
+                }
+            }
+        } else { // 3D
+            for (int i = 0; i < cellsX_; i++) {
+                for (int j = 0; j < cellsY_; j++) {
+                    for (int k = 0; k < cellsZ_; k++) {
+                        rhs_(COLUMN_MAJOR_IND(i, j, k, cellsY_, cellsZ_)) = flowField_.getRHS().getScalar(i + 1, j + 1, k + 1);
+                    }
                 }
             }
         }
