@@ -24,18 +24,16 @@ namespace NSEOF::Solvers {
 
 struct Constants {
 public:
-    FLOAT L, R, Bo, T;
+    FLOAT dxLeft, dxRight, dyBottom, dyTop, dzFront, dzBack;
 
-    Constants(FLOAT, FLOAT, FLOAT, FLOAT);
+    Constants(FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT);
 };
 
 class EigenSolver : public LinearSolver {
 private:
-    FlowField& flowField_;
-    Parameters& parameters_;
-
-    const int sizeX_;
-    const int sizeY_;
+    const int cellsX_;
+    const int cellsY_;
+    const int cellsZ_;
     const int dim_;
 
     std::vector<Constants> constantsVector_;
@@ -52,9 +50,9 @@ private:
     void computeMatrixBoundaryLeftOrRight2D_(BoundaryType, unsigned int, int);
     void computeMatrixBoundariesBottomAndTop2D_();
 
-    int getObstacle_(int, int, int, int) const;
+    int getObstacle_(int, int, int, int, int, int) const;
 
-    void computeStencilRowForFluidCell_(int, int, int, VectorXd&) const;
+    void computeStencilRowForFluidCell_(int, VectorXd&, int, int, int) const;
     void computeStencilRowForObstacleCellWithFluidAround_(int, int, VectorXd&) const;
     void computeStencilRowForObstacleCell_(int, VectorXd&) const;
 
@@ -64,7 +62,7 @@ private:
     void initMatrix_();
 
 public:
-    EigenSolver(FlowField&, Parameters&);
+    EigenSolver(FlowField&, const Parameters&);
     ~EigenSolver() override;
 
     void solve() override;
