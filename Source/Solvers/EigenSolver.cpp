@@ -32,31 +32,6 @@ namespace NSEOF::Solvers {
         }
     }
 
-    void EigenSolver::computeMatrixBoundaryLeftOrRight2D_(BoundaryType boundaryType,
-                                                          const unsigned int startIdx, const int direction) {
-        const MatrixXd identityMatrix = MatrixXd::Identity(cellsY_ - 2, cellsY_ - 2);
-
-        const MatrixXd diagMat = (boundaryType == DIRICHLET ? 1.0 : 0.5) * identityMatrix;
-        const MatrixXd offDiagMat = (boundaryType == DIRICHLET ? -1.0 : 0.5) * identityMatrix;
-
-        matA_.block(startIdx, startIdx, cellsY_ - 2, cellsY_ - 2) = diagMat;
-        matA_.block(startIdx, startIdx + (direction * cellsY_), cellsY_ - 2, cellsY_ - 2) = offDiagMat;
-    }
-
-    void EigenSolver::computeMatrixBoundariesBottomAndTop2D_() {
-        MatrixXd verticalWallMat = MatrixXd::Zero(cellsY_, cellsY_);
-
-        verticalWallMat(0, 0) = parameters_.walls.typeBottom == DIRICHLET ? 1.0 : 0.5;
-        verticalWallMat(0, 1) = parameters_.walls.typeBottom == DIRICHLET ? -1.0 : 0.5;
-
-        verticalWallMat(cellsY_ - 1, cellsY_ - 1) = parameters_.walls.typeTop == DIRICHLET ? 1.0 : 0.5;
-        verticalWallMat(cellsY_ - 1, cellsY_ - 2) = parameters_.walls.typeTop == DIRICHLET ? -1.0 : 0.5;
-
-        for (int j = 1; j < cellsX_ - 1; j++) {
-            matA_.block(j * cellsY_, j * cellsY_, cellsY_, cellsY_) = verticalWallMat;
-        }
-    }
-
     int EigenSolver::getObstacle_(const int i, const int j, const int k = 0,
                                   const int iStart = 1, const int jStart = 1, const int kStart = 1) const {
         const int cellIndexX = i - iStart + 2;
@@ -126,18 +101,34 @@ namespace NSEOF::Solvers {
         }
     }
 
+    void EigenSolver::computeMatrixBoundaryLeftOrRight2D_(BoundaryType boundaryType,
+                                                          const unsigned int startIdx, const int direction) {
+        const MatrixXd identityMatrix = MatrixXd::Identity(cellsY_ - 2, cellsY_ - 2);
+
+        const MatrixXd diagMat = (boundaryType == DIRICHLET ? 1.0 : 0.5) * identityMatrix;
+        const MatrixXd offDiagMat = (boundaryType == DIRICHLET ? -1.0 : 0.5) * identityMatrix;
+
+        matA_.block(startIdx, startIdx, cellsY_ - 2, cellsY_ - 2) = diagMat;
+        matA_.block(startIdx, startIdx + (direction * cellsY_), cellsY_ - 2, cellsY_ - 2) = offDiagMat;
+    }
+
+    void EigenSolver::computeMatrixBoundariesBottomAndTop2D_() {
+        VectorXd bottomWallVector, topWallVector;
+
+        bottomWallVector << (parameters_.walls.typeBottom == DIRICHLET ? 1.0 : 0.5),
+                            (parameters_.walls.typeBottom == DIRICHLET ? -1.0 : 0.5);
+        topWallVector << (parameters_.walls.typeBottom == DIRICHLET ? -1.0 : 0.5),
+                         (parameters_.walls.typeBottom == DIRICHLET ? 1.0 : 0.5);
+
+        for (int j = 1; j < cellsX_ - 1; j++) {
+            matA_.block(j * cellsY_, j * cellsY_, 1, 2) = bottomWallVector;
+            matA_.block((j + 1) * cellsY_ - 1, (j + 1) * cellsY_ - 2, 1, 2) = topWallVector;
+        }
+    }
+
     void EigenSolver::computeMatrix2D_() {
         /**
-         * Fill the matrix on boundary conditions
-         */
-
-        computeMatrixBoundaryLeftOrRight2D_(parameters_.walls.typeLeft, 1, 1); // Left wall
-        computeMatrixBoundaryLeftOrRight2D_(parameters_.walls.typeRight, (cellsX_ - 1) * cellsY_ + 1, -1); // Right wall
-
-        computeMatrixBoundariesBottomAndTop2D_(); // Bottom and top walls
-
-        /**
-         * Fill the matrix with actual values
+         * Fill the matrix on white region
          */
 
         int row = cellsY_ + 1;
@@ -167,6 +158,19 @@ namespace NSEOF::Solvers {
                 }
             }
         }
+
+        /**
+         * Fill the matrix on boundary conditions
+         */
+
+        computeMatrixBoundaryLeftOrRight2D_(parameters_.walls.typeLeft, 1, 1); // Left wall
+        computeMatrixBoundaryLeftOrRight2D_(parameters_.walls.typeRight, (cellsX_ - 1) * cellsY_ + 1, -1); // Right wall
+
+        computeMatrixBoundariesBottomAndTop2D_(); // Bottom and top walls
+
+        /**
+         * Convert the matrix to a sparse matrix
+         */
 
         sparseMatA_ = matA_.sparseView();
     }
