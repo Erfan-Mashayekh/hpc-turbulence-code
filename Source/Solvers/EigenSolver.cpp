@@ -82,7 +82,7 @@ namespace NSEOF::Solvers {
         const FLOAT bottom = (FLOAT) ((obstacle & OBSTACLE_BOTTOM) == 0);
         const FLOAT top    = (FLOAT) ((obstacle & OBSTACLE_TOP)    == 0);
 
-        /* Center */ stencilRow(stencilRowLength / 2    ) = left - right - bottom - top;
+        /* Center */ stencilRow(stencilRowLength / 2    ) = -(left + right + bottom + top);
         /* Left   */ stencilRow(0                       ) = left;
         /* Right  */ stencilRow(stencilRowLength - 1    ) = right;
         /* Bottom */ stencilRow(stencilRowLength / 2 - 1) = bottom;
