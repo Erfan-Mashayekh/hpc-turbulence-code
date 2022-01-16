@@ -55,6 +55,48 @@ namespace NSEOF::Solvers {
         }
     }
 
+    int EigenSolver::getObstacle_(const int i, const int j, const int iLower = 1, const int jLower = 1) const {
+        const int cellIndexX = i - iLower + 2;
+        const int cellIndexY = j - jLower + 2;
+
+        return flowField_.getFlags().getValue(cellIndexX, cellIndexY);
+    }
+
+    void EigenSolver::computeStencilRowForFluidCell_(const int i, const int j, const int stencilRowLength, VectorXd& stencilRow) const {
+        const Constants centerDx = constantsVector_[COLUMN_MAJOR_IND(j, i, sizeY_)];
+        const Constants leftDx   = constantsVector_[COLUMN_MAJOR_IND(j, i - 1, sizeY_)];
+        const Constants rightDx  = constantsVector_[COLUMN_MAJOR_IND(j, i + 1, sizeY_)];
+        const Constants bottomDx = constantsVector_[COLUMN_MAJOR_IND(j - 1, i, sizeY_)];
+        const Constants topDx    = constantsVector_[COLUMN_MAJOR_IND(j + 1, i, sizeY_)];
+
+        /* Center */ stencilRow(stencilRowLength / 2    ) = -2.0 / (centerDx.R * centerDx.L) - 2.0 / (centerDx.T * centerDx.Bo);
+        /* Left   */ stencilRow(0                       ) =  2.0 / (leftDx.L * (leftDx.L + leftDx.R));
+        /* Right  */ stencilRow(stencilRowLength - 1    ) =  2.0 / (rightDx.R * (rightDx.L + rightDx.R));
+        /* Bottom */ stencilRow(stencilRowLength / 2 - 1) =  2.0 / (bottomDx.Bo * (bottomDx.T + bottomDx.Bo));
+        /* Top    */ stencilRow(stencilRowLength / 2 + 1) =  2.0 / (topDx.T * (topDx.T + topDx.Bo));
+    }
+
+    void EigenSolver::computeStencilRowForObstacleCellWithFluidAround_(const int obstacle, const int stencilRowLength, VectorXd& stencilRow) const {
+        const FLOAT left   = (FLOAT) ((obstacle & OBSTACLE_LEFT)   == 0);
+        const FLOAT right  = (FLOAT) ((obstacle & OBSTACLE_RIGHT)  == 0);
+        const FLOAT bottom = (FLOAT) ((obstacle & OBSTACLE_BOTTOM) == 0);
+        const FLOAT top    = (FLOAT) ((obstacle & OBSTACLE_TOP)    == 0);
+
+        /* Center */ stencilRow(stencilRowLength / 2    ) = left - right - bottom - top;
+        /* Left   */ stencilRow(0                       ) = left;
+        /* Right  */ stencilRow(stencilRowLength - 1    ) = right;
+        /* Bottom */ stencilRow(stencilRowLength / 2 - 1) = bottom;
+        /* Top    */ stencilRow(stencilRowLength / 2 + 1) = top;
+    }
+
+    void EigenSolver::computeStencilRowForObstacleCell_(const int stencilRowLength, VectorXd& stencilRow) const {
+        /* Center */ stencilRow(stencilRowLength / 2    ) = 1.0;
+        /* Left   */ stencilRow(0                       ) = 0.0;
+        /* Right  */ stencilRow(stencilRowLength - 1    ) = 0.0;
+        /* Bottom */ stencilRow(stencilRowLength / 2 - 1) = 0.0;
+        /* Top    */ stencilRow(stencilRowLength / 2 + 1) = 0.0;
+    }
+
     void EigenSolver::computeMatrix2D_() {
         /**
          * Fill the matrix on boundary conditions
@@ -74,22 +116,20 @@ namespace NSEOF::Solvers {
 
         for (int i = 1; i < sizeX_ - 1; i++, row += 2, column += 2) {
             for (int j = 1; j < sizeY_ - 1; j++, row++, column++) {
-                const int vectorLength = sizeY_ * 2 + 1;
-                VectorXd valueVector = VectorXd::Zero(vectorLength);
+                const int obstacle = getObstacle_(i, j);
 
-                const Constants centerDx = constantsVector_[COLUMN_MAJOR_IND(j, i, sizeY_)];
-                const Constants leftDx   = constantsVector_[COLUMN_MAJOR_IND(j, i - 1, sizeY_)];
-                const Constants rightDx  = constantsVector_[COLUMN_MAJOR_IND(j, i + 1, sizeY_)];
-                const Constants bottomDx = constantsVector_[COLUMN_MAJOR_IND(j - 1, i, sizeY_)];
-                const Constants topDx    = constantsVector_[COLUMN_MAJOR_IND(j + 1, i, sizeY_)];
+                const int stencilRowLength = sizeY_ * 2 + 1;
+                VectorXd stencilRow = VectorXd::Zero(stencilRowLength);
 
-                valueVector(vectorLength / 2) = -2.0 / (centerDx.R * centerDx.L) - 2.0 / (centerDx.T * centerDx.Bo); // Center
-                valueVector(0) = 2.0 / (leftDx.L * (leftDx.L + leftDx.R)); // Left
-                valueVector(vectorLength - 1) = 2.0 / (rightDx.R * (rightDx.L + rightDx.R)); // Right
-                valueVector(vectorLength / 2 - 1) = 2.0 / (bottomDx.Bo * (bottomDx.T + bottomDx.Bo)); // Bottom
-                valueVector(vectorLength / 2 + 1) = 2.0 / (topDx.T * (topDx.T + topDx.Bo)); // Top
+                if ((obstacle & OBSTACLE_SELF) == 0) { // It is a fluid cell
+                    computeStencilRowForFluidCell_(i, j, stencilRowLength, stencilRow);
+                } else if (obstacle != OBSTACLE_SELF + OBSTACLE_LEFT + OBSTACLE_RIGHT + OBSTACLE_TOP + OBSTACLE_BOTTOM) { // Not a fluid cell, but fluid is somewhere around
+                    computeStencilRowForObstacleCellWithFluidAround_(obstacle, stencilRowLength, stencilRow);
+                } else { // The cell is an obstacle cell surrounded by more obstacle cells
+                    computeStencilRowForObstacleCell_(stencilRowLength, stencilRow);
+                }
 
-                matA_.block(row, column, 1, vectorLength) = valueVector.transpose();
+                matA_.block(row, column, 1, stencilRowLength) = stencilRow.transpose();
             }
         }
 
