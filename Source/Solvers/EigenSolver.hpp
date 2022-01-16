@@ -8,6 +8,7 @@
 
 #include <vector>
 
+// Eigen
 #include <Eigen/Core>
 #include <Eigen/Sparse>
 #include <Eigen/IterativeLinearSolvers>
@@ -46,21 +47,22 @@ private:
     SparseMatrix<FLOAT> sparseMatA_;
     BiCGSTAB<SparseMatrix<FLOAT>> solver_;
 
+    void fillConstantsVector_();
+
+    void computeMatrixBoundaryLeftOrRight2D_(BoundaryType, unsigned int, int);
+    void computeMatrixBoundariesBottomAndTop2D_();
+
+    void computeMatrix2D_();
+    void computeRHS2D_();
+
+    void initMatrix_();
+
 public:
-    void fillConstantsVector();
-
-    void computeMatrixBoundaryLeftOrRight2D(BoundaryType, unsigned int, int);
-    void computeMatrixBoundariesBottomAndTop2D();
-
-    void computeMatrix2D();
-
-    inline void reInitMatrix() override;
-
     EigenSolver(FlowField&, Parameters&);
     ~EigenSolver() override;
 
-    void computeRHS2D();
     void solve() override;
+    inline void reInitMatrix() override;
 };
 
 } // namespace Solvers::NSEOF

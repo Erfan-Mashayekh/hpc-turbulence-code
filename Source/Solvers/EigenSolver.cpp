@@ -7,7 +7,7 @@ namespace NSEOF::Solvers {
 
     Constants::Constants(FLOAT L, FLOAT R, FLOAT Bo, FLOAT T) : L(L), R(R), Bo(Bo), T(T) {}
 
-    void EigenSolver::fillConstantsVector() {
+    void EigenSolver::fillConstantsVector_() {
         constantsVector_.clear();
         constantsVector_.reserve(dim_);
 
@@ -30,7 +30,7 @@ namespace NSEOF::Solvers {
         }
     }
 
-    void EigenSolver::computeMatrixBoundaryLeftOrRight2D(BoundaryType boundaryType,
+    void EigenSolver::computeMatrixBoundaryLeftOrRight2D_(BoundaryType boundaryType,
                                                          const unsigned int startIdx, const int direction) {
         const MatrixXd identityMatrix = MatrixXd::Identity(sizeY_ - 2, sizeY_ - 2);
 
@@ -41,7 +41,7 @@ namespace NSEOF::Solvers {
         matA_.block(startIdx, startIdx + (direction * sizeY_), sizeY_ - 2, sizeY_ - 2) = offDiagMat;
     }
 
-    void EigenSolver::computeMatrixBoundariesBottomAndTop2D() {
+    void EigenSolver::computeMatrixBoundariesBottomAndTop2D_() {
         MatrixXd verticalWallMat = MatrixXd::Identity(sizeY_, sizeY_);
         verticalWallMat *= (parameters_.walls.typeLeft == DIRICHLET ? 1.0 : 0.5);
 
@@ -53,15 +53,15 @@ namespace NSEOF::Solvers {
         }
     }
 
-    void EigenSolver::computeMatrix2D() {
+    void EigenSolver::computeMatrix2D_() {
         /**
          * Fill the matrix on boundary conditions
          */
 
-        computeMatrixBoundaryLeftOrRight2D(parameters_.walls.typeLeft, 1, 1); // Left wall
-        computeMatrixBoundaryLeftOrRight2D(parameters_.walls.typeRight, (sizeX_ - 1) * sizeY_ + 1, -1); // Right wall
+        computeMatrixBoundaryLeftOrRight2D_(parameters_.walls.typeLeft, 1, 1); // Left wall
+        computeMatrixBoundaryLeftOrRight2D_(parameters_.walls.typeRight, (sizeX_ - 1) * sizeY_ + 1, -1); // Right wall
 
-        computeMatrixBoundariesBottomAndTop2D(); // Bottom and top walls
+        computeMatrixBoundariesBottomAndTop2D_(); // Bottom and top walls
 
         /**
          * Fill the matrix with actual values
@@ -94,13 +94,13 @@ namespace NSEOF::Solvers {
         sparseMatA_ = matA_.sparseView();
     }
 
-    inline void EigenSolver::reInitMatrix() {
+    void EigenSolver::initMatrix_() {
         matA_ = MatrixXd::Zero(dim_, dim_);
         rhs_ = VectorXd::Zero(dim_);
         x_ = VectorXd::Zero(dim_);
 
-        fillConstantsVector();
-        computeMatrix2D();
+        fillConstantsVector_();
+        computeMatrix2D_();
 
 #if SOLVER_MAX_NUM_ITERATIONS != -1
         solver_.setMaxIterations(SOLVER_MAX_NUM_ITERATIONS);
@@ -116,7 +116,7 @@ namespace NSEOF::Solvers {
         , sizeX_(parameters.parallel.localSize[0] + 2)
         , sizeY_(parameters_.parallel.localSize[1] + 2)
         , dim_(sizeX_ * sizeY_) {
-        EigenSolver::reInitMatrix();
+        initMatrix_();
     }
 
     EigenSolver::~EigenSolver() {
@@ -127,7 +127,7 @@ namespace NSEOF::Solvers {
         x_.resize(0);
     }
 
-    void EigenSolver::computeRHS2D() {
+    void EigenSolver::computeRHS2D_() {
         for (int i = 1; i < sizeX_ - 1; i++) {
             for (int j = 1; j < sizeY_ - 1; j++) {
                 rhs_(COLUMN_MAJOR_IND(j, i, sizeY_)) = flowField_.getRHS().getScalar(i + 1, j + 1);
@@ -136,7 +136,7 @@ namespace NSEOF::Solvers {
     }
 
     void EigenSolver::solve() {
-        computeRHS2D();
+        computeRHS2D_();
         x_ = solver_.solve(rhs_);
 
         std::cout << "# of iterations: " << solver_.iterations() << std::endl;
@@ -147,6 +147,10 @@ namespace NSEOF::Solvers {
                 flowField_.getPressure().getScalar(i + 1, j + 1) = x_(COLUMN_MAJOR_IND(j, i, sizeY_));
             }
         }
+    }
+
+    inline void EigenSolver::reInitMatrix() {
+        initMatrix_();
     }
 } // namespace Solvers::NSEOF
 
