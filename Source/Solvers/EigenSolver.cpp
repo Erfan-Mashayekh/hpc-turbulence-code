@@ -200,7 +200,7 @@ namespace NSEOF::Solvers {
         x_.resize(0);
     }
 
-    void EigenSolver::computeRHS2D_() {
+    void EigenSolver::computeRHS_() {
         if (parameters_.geometry.dim == 2) { // 2D
             for (int i = 0; i < cellsX_; i++) {
                 for (int j = 0; j < cellsY_; j++) {

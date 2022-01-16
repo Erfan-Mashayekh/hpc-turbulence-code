@@ -57,7 +57,7 @@ private:
     void computeStencilRowForObstacleCell_(int, VectorXd&) const;
 
     void computeMatrix2D_();
-    void computeRHS2D_();
+    void computeRHS_();
 
     void initMatrix_();
 
