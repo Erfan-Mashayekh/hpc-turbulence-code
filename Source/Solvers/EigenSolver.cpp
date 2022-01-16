@@ -102,9 +102,6 @@ namespace NSEOF::Solvers {
         fillConstantsVector();
         computeMatrix2D();
 
-        fillConstantsVector();
-        computeMatrix2D();
-
 #if SOLVER_MAX_NUM_ITERATIONS != -1
         solver_.setMaxIterations(SOLVER_MAX_NUM_ITERATIONS);
 #endif
