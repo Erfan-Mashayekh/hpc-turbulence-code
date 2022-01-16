@@ -21,7 +21,7 @@
 #include "Stencils/FGHStencil.hpp"
 #include "Stencils/VTKStencil.hpp"
 
-#include "ParallelManagers/PetscParallelManager.hpp"
+#include "ParallelManagers/ParallelManager.hpp"
 
 #include "Solvers/LinearSolver.hpp"
 
@@ -58,7 +58,7 @@ protected:
     FieldIterator<FlowField> velocityIterator_;
     FieldIterator<FlowField> obstacleIterator_;
 
-    ParallelManagers::PetscParallelManager petscParallelManager_;
+    ParallelManagers::ParallelManager parallelManager_;
 
     std::unique_ptr<Solvers::LinearSolver> solver_;
 

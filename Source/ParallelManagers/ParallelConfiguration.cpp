@@ -1,11 +1,9 @@
-#include "PetscParallelConfiguration.hpp"
+#include "ParallelConfiguration.hpp"
 
-namespace NSEOF {
-namespace ParallelManagers {
+namespace NSEOF::ParallelManagers {
 
-PetscParallelConfiguration::PetscParallelConfiguration(Parameters& parameters)
+ParallelConfiguration::ParallelConfiguration(Parameters& parameters)
     : parameters_(parameters) {
-
     // Obtain the rank of the current processor
     int rank, nproc;
     MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
@@ -30,11 +28,11 @@ PetscParallelConfiguration::PetscParallelConfiguration(Parameters& parameters)
     }
 }
 
-PetscParallelConfiguration::~PetscParallelConfiguration() {
+ParallelConfiguration::~ParallelConfiguration() {
     freeSizes();
 }
 
-void PetscParallelConfiguration::locateNeighbors() {
+void ParallelConfiguration::locateNeighbors() {
     int i = parameters_.parallel.indices[0];
     int j = parameters_.parallel.indices[1];
     int k = parameters_.parallel.indices[2];
@@ -72,27 +70,30 @@ void PetscParallelConfiguration::locateNeighbors() {
     MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
 }
 
-void PetscParallelConfiguration::createIndices() {
+void ParallelConfiguration::createIndices() {
     int& rank = parameters_.parallel.rank;
+
     parameters_.parallel.indices[0] = rank % parameters_.parallel.numProcessors[0];
     parameters_.parallel.indices[1] = (rank / parameters_.parallel.numProcessors[0]) % parameters_.parallel.numProcessors[1];
     parameters_.parallel.indices[2] = rank / (parameters_.parallel.numProcessors[0] * parameters_.parallel.numProcessors[1]);
 }
 
-int PetscParallelConfiguration::computeRankFromIndices(int i, int j, int k) const {
+int ParallelConfiguration::computeRankFromIndices(int i, int j, int k) const {
     if (i < 0 || i >= parameters_.parallel.numProcessors[0] ||
         j < 0 || j >= parameters_.parallel.numProcessors[1] ||
         k < 0 || k >= parameters_.parallel.numProcessors[2]) {
         return MPI_PROC_NULL;
     }
+
     int nrank = i + j * parameters_.parallel.numProcessors[0];
     if (parameters_.geometry.dim == 3) {
         nrank += k * parameters_.parallel.numProcessors[0] * parameters_.parallel.numProcessors[1];
     }
+
     return nrank;
 }
 
-void PetscParallelConfiguration::computeSizes() {
+void ParallelConfiguration::computeSizes() {
     int dim = parameters_.geometry.dim;
 
     for (int i = 0; i < dim; i++) {
@@ -143,7 +144,7 @@ void PetscParallelConfiguration::computeSizes() {
     }
 }
 
-void PetscParallelConfiguration::freeSizes() {
+void ParallelConfiguration::freeSizes() {
     int dim = parameters_.geometry.dim;
 
     for (int i = 0; i < dim; i++){
@@ -151,5 +152,4 @@ void PetscParallelConfiguration::freeSizes() {
     }
 }
 
-} // namespace ParallelManagers
-} // namespace NSEOF
+} // namespace NSEOF::ParallelManagers

@@ -10,7 +10,7 @@ TurbulentSimulation::TurbulentSimulation(Parameters& parameters, FlowField& flow
     , distanceIterator_(flowField, parameters, distanceStencil_)
     , viscosityStencil_(parameters)
     , viscosityIterator_(flowField, parameters, viscosityStencil_)
-    , turbulentPetscParallelManager_(parameters, flowField)
+    , turbulentParallelManager_(parameters, flowField)
 {
     fghStencil_  = new Stencils::TurbulentFGHStencil(parameters_);
     fghIterator_ = new FieldIterator<FlowField>(flowField_, parameters_, *fghStencil_);
@@ -38,7 +38,7 @@ FLOAT TurbulentSimulation::getDiffusiveTimestep_() {
 }
 
 void TurbulentSimulation::solveTimestep() {
-    Simulation::solveTimestep(duration);
+    Simulation::solveTimestep();
 
     // If the turbulence viscosity flag is set to zero, do not iterate for viscosity!
     if (parameters_.turbulence.turbViscosity == 0) {
@@ -46,13 +46,13 @@ void TurbulentSimulation::solveTimestep() {
     }
 
     // Communicate diagonal velocity values before as they are also needed for viscosity computations
-    turbulentPetscParallelManager_.communicateDiagonalVelocity();
+    turbulentParallelManager_.communicateDiagonalVelocity();
 
     // Compute eddy viscosities
     viscosityIterator_.iterate();
 
     // Communicate viscosity values
-    turbulentPetscParallelManager_.communicateViscosity();
+    turbulentParallelManager_.communicateViscosity();
 }
 
 } // namespace NSEOF
