@@ -219,7 +219,7 @@ namespace NSEOF::Solvers {
     }
 
     void EigenSolver::solve() {
-        computeRHS2D_();
+        computeRHS_();
         x_ = solver_.solve(rhs_);
 
         std::cout << "# of iterations: " << solver_.iterations() << std::endl;
