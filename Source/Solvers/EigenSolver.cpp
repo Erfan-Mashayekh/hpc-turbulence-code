@@ -50,7 +50,7 @@ namespace NSEOF::Solvers {
         verticalWallMat(sizeY_ - 1, sizeY_ - 1) = parameters_.walls.typeTop == DIRICHLET ? 1.0 : 0.5;
         verticalWallMat(sizeY_ - 1, sizeY_ - 2) = parameters_.walls.typeTop == DIRICHLET ? -1.0 : 0.5;
 
-        for (int j = 1; j < sizeY_ - 1; j++) {
+        for (int j = 1; j < sizeX_ - 1; j++) {
             matA_.block(j * sizeY_, j * sizeY_, sizeY_, sizeY_) = verticalWallMat;
         }
     }
