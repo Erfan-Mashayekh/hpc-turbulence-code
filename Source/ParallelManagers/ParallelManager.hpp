@@ -1,5 +1,5 @@
-#ifndef __PARALLEL_MANAGER_HPP__
-#define __PARALLEL_MANAGER_HPP__
+#ifndef __PARALLEL_MANAGERS_PARALLEL_MANAGER_HPP__
+#define __PARALLEL_MANAGERS_PARALLEL_MANAGER_HPP__
 
 #include "FlowField.hpp"
 #include "Iterators.hpp"
@@ -53,4 +53,4 @@ public:
 
 } // namespace NSEOF::ParallelManagers
 
-#endif // __PARALLEL_MANAGER_HPP__
+#endif // __PARALLEL_MANAGERS_PARALLEL_MANAGER_HPP__

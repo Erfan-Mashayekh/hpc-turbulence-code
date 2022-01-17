@@ -1,5 +1,5 @@
-#ifndef __PARALLEL_CONFIGURATION_HPP__
-#define __PARALLEL_CONFIGURATION_HPP__
+#ifndef __PARALLEL_MANAGERS_PARALLEL_CONFIGURATION_HPP__
+#define __PARALLEL_MANAGERS_PARALLEL_CONFIGURATION_HPP__
 
 #include "Parameters.hpp"
 #include "Definitions.hpp"
@@ -46,4 +46,4 @@ public:
 
 } // namespace NSEOF::ParallelManagers
 
-#endif // __PARALLEL_CONFIGURATION_HPP__
+#endif // __PARALLEL_MANAGERS_PARALLEL_CONFIGURATION_HPP__
