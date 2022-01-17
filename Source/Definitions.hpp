@@ -3,6 +3,8 @@
 
 #include <mpi.h>
 
+#define BUILD_WITH_EIGEN 1
+
 #ifdef BUILD_WITH_PETSC
 #include <petscksp.h>
 #else

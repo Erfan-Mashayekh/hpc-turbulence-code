@@ -22,12 +22,13 @@ Simulation::Simulation(Parameters& parameters, FlowField& flowField)
     , velocityIterator_(flowField_, parameters, velocityStencil_)
     , obstacleIterator_(flowField_, parameters, obstacleStencil_)
     , parallelManager_(parameters, flowField_)
-// #ifdef BUILD_WITH_PETSC
-//     , solver_(std::make_unique<Solvers::PetscSolver>(flowField_, parameters))
-// #else
-//     , solver_(std::make_unique<Solvers::SORSolver>(flowField_, parameters))
-// #endif
+#if BUILD_WITH_EIGEN
     , solver_(std::make_unique<Solvers::EigenSolver>(flowField_, parameters))
+#elif BUILD_WITH_PETSC
+    , solver_(std::make_unique<Solvers::PetscSolver>(flowField_, parameters))
+#else
+    , solver_(std::make_unique<Solvers::SORSolver>(flowField_, parameters))
+#endif
 {
     fghStencil_  = new Stencils::FGHStencil(parameters_);
     fghIterator_ = new FieldIterator<FlowField>(flowField_, parameters_, *fghStencil_);
@@ -144,8 +145,10 @@ void Simulation::solveTimestep() {
     // Solve for pressure
     solver_->solve();
 
+#if not BUILD_WITH_EIGEN
     // Communicate pressure values
     parallelManager_.communicatePressure();
+#endif
 
     // Compute velocity
     velocityIterator_.iterate();
