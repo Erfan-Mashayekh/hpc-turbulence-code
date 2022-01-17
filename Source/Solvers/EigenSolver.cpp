@@ -205,8 +205,8 @@ namespace NSEOF::Solvers {
 
     void EigenSolver::computeRHS_() {
         if (parameters_.geometry.dim == 2) { // 2D
-            for (int i = 1; i < cellsX_; i++) {
-                for (int j = 1; j < cellsY_; j++) {
+            for (int i = 1; i < cellsX_ - 1; i++) {
+                for (int j = 1; j < cellsY_ - 1; j++) {
                     rhs_(COLUMN_MAJOR_IND(i, j, 0, cellsY_, cellsZ_)) = flowField_.getRHS().getScalar(i + 1, j + 1);
                 }
             }
