@@ -48,15 +48,15 @@ private:
 
     void fillConstantsVector_();
 
-    void computeMatrixBoundaryLeftOrRight2D_(BoundaryType, unsigned int, int);
-    void computeMatrixBoundariesBottomAndTop2D_();
-
     int getObstacle_(int, int, int, int, int, int) const;
     int getSumObstacles_() const;
 
     void computeStencilRowForFluidCell_(int, VectorXd&, int, int, int) const;
     void computeStencilRowForObstacleCellWithFluidAround_(int, int, VectorXd&) const;
     void computeStencilRowForObstacleCell_(int, VectorXd&) const;
+
+    void computeMatrixBoundaryLeftOrRight2D_(BoundaryType, unsigned int, int);
+    void computeMatrixBoundariesBottomAndTop2D_();
 
     void computeMatrix2D_();
     void computeRHS_();

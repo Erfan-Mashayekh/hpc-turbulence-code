@@ -121,8 +121,8 @@ namespace NSEOF::Solvers {
                          (parameters_.walls.typeBottom == DIRICHLET ? 1.0 : 0.5);
 
         for (int j = 1; j < cellsX_ - 1; j++) {
-            matA_.block(j * cellsY_, j * cellsY_, 1, 2) = bottomWallVector;
-            matA_.block((j + 1) * cellsY_ - 1, (j + 1) * cellsY_ - 2, 1, 2) = topWallVector;
+            matA_.block(j * cellsY_, j * cellsY_, 1, 2) = bottomWallVector.transpose();
+            matA_.block((j + 1) * cellsY_ - 1, (j + 1) * cellsY_ - 2, 1, 2) = topWallVector.transpose();
         }
     }
 
