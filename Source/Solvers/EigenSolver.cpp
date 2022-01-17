@@ -110,6 +110,8 @@ namespace NSEOF::Solvers {
 
         matA_.block(startIdx, startIdx, cellsY_ - 2, cellsY_ - 2) = diagMat;
         matA_.block(startIdx, startIdx + (direction * cellsY_), cellsY_ - 2, cellsY_ - 2) = offDiagMat;
+
+        // TODO: Extend for 3D part
     }
 
     void EigenSolver::computeMatrixBoundariesBottomAndTop2D_() {
@@ -124,8 +126,11 @@ namespace NSEOF::Solvers {
             matA_.block(j * cellsY_, j * cellsY_, 1, 2) = bottomWallVector.transpose();
             matA_.block((j + 1) * cellsY_ - 1, (j + 1) * cellsY_ - 2, 1, 2) = topWallVector.transpose();
         }
+
+        // TODO: Extend for 3D part
     }
 
+    // TODO: Extend for 3D part
     void EigenSolver::computeMatrix2D_() {
         /**
          * Fill the matrix on white region
