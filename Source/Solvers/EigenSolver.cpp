@@ -113,7 +113,7 @@ namespace NSEOF::Solvers {
     }
 
     void EigenSolver::computeMatrixBoundariesBottomAndTop2D_() {
-        VectorXd bottomWallVector, topWallVector;
+        VectorXd bottomWallVector(2), topWallVector(2);
 
         bottomWallVector << (parameters_.walls.typeBottom == DIRICHLET ? 1.0 : 0.5),
                             (parameters_.walls.typeBottom == DIRICHLET ? -1.0 : 0.5);

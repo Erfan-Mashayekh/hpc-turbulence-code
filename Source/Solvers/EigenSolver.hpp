@@ -6,7 +6,7 @@
 #include "FlowField.hpp"
 #include "Parameters.hpp"
 
-#include <math.h>
+#include <cmath>
 #include <vector>
 
 // Eigen
