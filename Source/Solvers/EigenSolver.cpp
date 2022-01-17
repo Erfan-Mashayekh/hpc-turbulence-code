@@ -32,19 +32,6 @@ namespace NSEOF::Solvers {
         }
     }
 
-    int EigenSolver::getObstacle_(const int i, const int j, const int k = 0,
-                                  const int iStart = 1, const int jStart = 1, const int kStart = 1) const {
-        const int cellIndexX = i - iStart + 2;
-        const int cellIndexY = j - jStart + 2;
-        const int cellIndexZ = (parameters_.geometry.dim == 3) * (k - kStart + 2);
-
-        return flowField_.getFlags().getValue(cellIndexX, cellIndexY, cellIndexZ);
-    }
-
-    int EigenSolver::getSumObstacles_() const {
-        return pow(2, parameters_.geometry.dim * 2 + 1) - 1;
-    }
-
     void EigenSolver::computeStencilRowForFluidCell_(const int stencilRowLength, VectorXd& stencilRow,
                                                      const int i, const int j, const int k = 0) const {
         const Constants center = constantsVector_[COLUMN_MAJOR_IND(i, j, k, cellsY_, cellsZ_)];
@@ -135,6 +122,7 @@ namespace NSEOF::Solvers {
         /**
          * Fill the matrix on white region
          */
+        const int sumObstacles = pow(2, parameters_.geometry.dim * 2 + 1) - 1;
 
         int row = cellsY_ + 1;
         int column = 1;
@@ -146,14 +134,15 @@ namespace NSEOF::Solvers {
         for (int i = 1; i < cellsX_ - 1; i++, row += 2, column += 2) {
             for (int j = 1; j < cellsY_ - 1; j++, row++, column++) {
                 for (int k = kLowerBound; k < kUpperBound; k++) {
-                    const int obstacle = getObstacle_(i, j);
+                    const int obstacle = flowField_.getFlags().getValue(
+                            i + 1, j + 1, (parameters_.geometry.dim == 3) * (k + 1));
 
                     const int stencilRowLength = cellsY_ * 2 + 1;
                     VectorXd stencilRow = VectorXd::Zero(stencilRowLength);
 
                     if ((obstacle & OBSTACLE_SELF) == 0) { // It is a fluid cell
                         computeStencilRowForFluidCell_(stencilRowLength, stencilRow, i, j, k);
-                    } else if (obstacle != getSumObstacles_()) { // Not a fluid cell, but fluid is somewhere around
+                    } else if (obstacle != sumObstacles) { // Not a fluid cell, but fluid is somewhere around
                         computeStencilRowForObstacleCellWithFluidAround_(obstacle, stencilRowLength, stencilRow);
                     } else { // The cell is an obstacle cell surrounded by more obstacle cells
                         computeStencilRowForObstacleCell_(stencilRowLength, stencilRow);

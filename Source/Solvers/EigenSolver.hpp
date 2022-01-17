@@ -48,9 +48,6 @@ private:
 
     void fillConstantsVector_();
 
-    int getObstacle_(int, int, int, int, int, int) const;
-    int getSumObstacles_() const;
-
     void computeStencilRowForFluidCell_(int, VectorXd&, int, int, int) const;
     void computeStencilRowForObstacleCellWithFluidAround_(int, int, VectorXd&) const;
     void computeStencilRowForObstacleCell_(int, VectorXd&) const;
