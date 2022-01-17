@@ -207,45 +207,69 @@ namespace NSEOF::Solvers {
         x_.resize(0);
     }
 
-    void EigenSolver::computeRHS_() {
-        if (parameters_.geometry.dim == 2) { // 2D
-            for (int i = 1; i < cellsX_ - 1; i++) {
-                for (int j = 1; j < cellsY_ - 1; j++) {
-                    rhs_(COLUMN_MAJOR_IND(i, j, 0, cellsY_, cellsZ_)) = flowField_.getRHS().getScalar(i + 1, j + 1);
+    FLOAT EigenSolver::getScalarRHS_(const int obstacle, int i, int j, int k = 0) {
+        if ((obstacle & OBSTACLE_SELF) == 0) { // Fluid cell
+            return flowField_.getRHS().getScalar(i, j, k);
+        }
+
+        return 0.0; // Obstacle cell
+    }
+
+    void EigenSolver::computeRHS2D_() {
+        for (int i = 1; i < cellsX_ - 1; i++) {
+            for (int j = 1; j < cellsY_ - 1; j++) {
+                const int obstacle = flowField_.getFlags().getValue(i + 1, j + 1);
+                rhs_(COLUMN_MAJOR_IND(i, j, 0, cellsY_, cellsZ_)) = getScalarRHS_(obstacle, i + 1, j + 1);
+            }
+        }
+    }
+
+    void EigenSolver::computeRHS3D_() {
+        for (int i = 1; i < cellsX_ - 1; i++) {
+            for (int j = 1; j < cellsY_ - 1; j++) {
+                for (int k = 1; k < cellsZ_ - 1; k++) {
+                    const int obstacle = flowField_.getFlags().getValue(i + 1, j + 1, k + 1);
+                    rhs_(COLUMN_MAJOR_IND(i, j, k, cellsY_, cellsZ_)) = getScalarRHS_(obstacle, i + 1, j + 1, k + 1);
                 }
             }
-        } else { // 3D
-            for (int i = 1; i < cellsX_ - 1; i++) {
-                for (int j = 1; j < cellsY_ - 1; j++) {
-                    for (int k = 1; k < cellsZ_ - 1; k++) {
-                        rhs_(COLUMN_MAJOR_IND(i, j, k, cellsY_, cellsZ_)) = flowField_.getRHS().getScalar(i + 1, j + 1, k + 1);
-                    }
+        }
+    }
+
+    void EigenSolver::setPressure2D_() {
+        for (int i = 0; i < cellsX_; i++) {
+            for (int j = 0; j < cellsY_; j++) {
+                flowField_.getPressure().getScalar(i + 1, j + 1) = x_(COLUMN_MAJOR_IND(i, j, 0, cellsY_, cellsZ_));
+            }
+        }
+    }
+
+    void EigenSolver::setPressure3D_() {
+        for (int i = 0; i < cellsX_; i++) {
+            for (int j = 0; j < cellsY_; j++) {
+                for (int k = 0; k < cellsZ_; k++) {
+                    flowField_.getPressure().getScalar(i + 1, j + 1, k + 1) = x_(COLUMN_MAJOR_IND(i, j, k, cellsY_, cellsZ_));
                 }
             }
         }
     }
 
     void EigenSolver::solve() {
-        computeRHS_();
+        // Compute RHS
+        if (parameters_.geometry.dim == 2) { // 2D
+            computeRHS2D_();
+        } else { // 3D
+            computeRHS3D_();
+        }
+
         x_ = solver_.solve(rhs_);
 
         std::cout << "# of iterations: " << solver_.iterations() << std::endl;
         std::cout << "estimated error: " << solver_.error()      << std::endl;
 
         if (parameters_.geometry.dim == 2) { // 2D
-            for (int i = 0; i < cellsX_; i++) {
-                for (int j = 0; j < cellsY_; j++) {
-                    flowField_.getPressure().getScalar(i + 1, j + 1) = x_(COLUMN_MAJOR_IND(i, j, 0, cellsY_, cellsZ_));
-                }
-            }
+            setPressure2D_();
         } else { // 3D
-            for (int i = 0; i < cellsX_; i++) {
-                for (int j = 0; j < cellsY_; j++) {
-                    for (int k = 0; k < cellsZ_; k++) {
-                        flowField_.getPressure().getScalar(i + 1, j + 1, k + 1) = x_(COLUMN_MAJOR_IND(i, j, k, cellsY_, cellsZ_));
-                    }
-                }
-            }
+            setPressure3D_();
         }
     }
 

@@ -57,11 +57,16 @@ private:
 
     void computeMatrixBoundaryLeftOrRight2D_(BoundaryType, unsigned int, int);
     void computeMatrixBoundariesBottomAndTop2D_();
-
     void computeMatrix2D_();
-    void computeRHS_();
 
     void initMatrix_();
+
+    FLOAT getScalarRHS_(int, int, int, int);
+    void computeRHS2D_();
+    void computeRHS3D_();
+
+    void setPressure2D_();
+    void setPressure3D_();
 
 public:
     EigenSolver(FlowField&, const Parameters&);
