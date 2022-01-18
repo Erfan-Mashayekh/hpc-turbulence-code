@@ -1,9 +1,9 @@
 #include "Simulation.hpp"
 
-#include "Stencils/VTKStencil.hpp"
-
 #include "Solvers/SORSolver.hpp"
 #include "Solvers/PetscSolver.hpp"
+
+#include <limits>
 
 namespace NSEOF {
 
@@ -16,30 +16,47 @@ Simulation::Simulation(Parameters& parameters, FlowField& flowField)
     , globalBoundaryFactory_(parameters)
     , wallVelocityIterator_(globalBoundaryFactory_.getGlobalBoundaryVelocityIterator(flowField_))
     , wallFGHIterator_(globalBoundaryFactory_.getGlobalBoundaryFGHIterator(flowField_))
-    , fghStencil_(parameters)
-    , fghIterator_(flowField_, parameters, fghStencil_)
     , rhsStencil_(parameters)
     , rhsIterator_(flowField_, parameters, rhsStencil_)
     , velocityStencil_(parameters)
     , obstacleStencil_(parameters)
     , velocityIterator_(flowField_, parameters, velocityStencil_)
     , obstacleIterator_(flowField_, parameters, obstacleStencil_)
+    , petscParallelManager_(parameters, flowField_)
 #ifdef BUILD_WITH_PETSC
     , solver_(std::make_unique<Solvers::PetscSolver>(flowField_, parameters))
 #else
-    , solver_(std::make_unique<Solvers::SORSolver>(flowField_, parameters))
+    , solver_(std::make_unique<Solvers::SORSolver>(flowField_, parameters)) {
 #endif
-    {}
+{
+    fghStencil_  = new Stencils::FGHStencil(parameters_);
+    fghIterator_ = new FieldIterator<FlowField>(flowField_, parameters_, *fghStencil_);
+
+    vtkStencil_  = new Stencils::VTKStencil(parameters_,
+                                            flowField_.getCellsX(), flowField_.getCellsY(), flowField_.getCellsZ());
+    vtkIterator_ = new FieldIterator<FlowField>(flowField_, parameters_, *vtkStencil_,
+                                                parameters.vtk.whiteRegionLowOffset, parameters.vtk.whiteRegionHighOffset);
+}
+
+Simulation::~Simulation() {
+    delete fghStencil_;
+    delete fghIterator_;
+
+    delete vtkStencil_;
+    delete vtkIterator_;
+}
 
 void Simulation::initializeFlowField() {
     if (parameters_.simulation.scenario == "taylor-green") {
         // Currently, a particular initialization is only required for the taylor-green vortex.
         Stencils::InitTaylorGreenFlowFieldStencil stencil(parameters_);
         FieldIterator<FlowField> iterator(flowField_, parameters_, stencil);
+
         iterator.iterate();
     } else if (parameters_.simulation.scenario == "channel") {
         Stencils::BFStepInitStencil stencil(parameters_);
         FieldIterator<FlowField> iterator(flowField_, parameters_, stencil, 0, 1);
+
         iterator.iterate();
         wallVelocityIterator_.iterate();
     } else if (parameters_.simulation.scenario == "pressure-channel") {
@@ -55,6 +72,7 @@ void Simulation::initializeFlowField() {
         } else {
             const int sizey = flowField_.getNy();
             const int sizez = flowField_.getNz();
+
             for (int i = 0; i < sizey + 3; i++) {
                 for (int j = 0; j < sizez + 3; j++) {
                     rhs.getScalar(0, i, j) = value;
@@ -65,64 +83,44 @@ void Simulation::initializeFlowField() {
         // Do same procedure for domain flagging as for regular channel
         Stencils::BFStepInitStencil stencil(parameters_);
         FieldIterator<FlowField> iterator(flowField_, parameters_, stencil, 0, 1);
+
         iterator.iterate();
     }
 
     solver_->reInitMatrix();
 }
 
-void Simulation::solveTimestep() {
-    // Determine and set max. timestep which is allowed in this simulation
-    setTimeStep();
-
-    fghIterator_.iterate(); // Compute FGH
-    wallFGHIterator_.iterate(); // Set global boundary values
-    rhsIterator_.iterate(); // Compute the right-hand side (RHS)
-
-    // Solve for pressure
-    solver_->solve();
-
-    // TODO WS2: communicate pressure values
-
-    // Compute velocity
-    velocityIterator_.iterate();
-    obstacleIterator_.iterate();
-
-    // TODO WS2: communicate velocity values
-
-    // Iterate for velocities on the boundary
-    wallVelocityIterator_.iterate();
-}
-
-void Simulation::plotVTK(int timeStep) {
-    Stencils::VTKStencil vtkStencil_(parameters_, flowField_.getCellsX(), flowField_.getCellsY(), flowField_.getCellsZ());
-    FieldIterator<FlowField> vtkIterator_(flowField_, parameters_, vtkStencil_,
-                                          parameters_.vtk.whiteRegionLowOffset, parameters_.vtk.whiteRegionHighOffset);
-
-    vtkIterator_.iterate();
-    vtkStencil_.write(timeStep);
-}
-
-void Simulation::setTimeStep() {
-    ASSERTION(parameters_.geometry.dim == 2 || parameters_.geometry.dim == 3);
-
-	FLOAT localMin, globalMin;
-    FLOAT factor = 1.0 / (parameters_.meshsize->getDxMin() * parameters_.meshsize->getDxMin()) + 1.0 / (parameters_.meshsize->getDyMin() * parameters_.meshsize->getDyMin());
-
-	// Determine maximum velocity
-	maxUStencil_.reset();
-	maxUFieldIterator_.iterate();
-	maxUBoundaryIterator_.iterate();
+FLOAT Simulation::getDiffusiveTimestep_() {
+    FLOAT factor = 1.0 / (parameters_.meshsize->getDxMin() * parameters_.meshsize->getDxMin()) +
+            1.0 / (parameters_.meshsize->getDyMin() * parameters_.meshsize->getDyMin());
 
     if (parameters_.geometry.dim == 3) { // 3D
         factor += 1.0 / (parameters_.meshsize->getDzMin() * parameters_.meshsize->getDzMin());
-        parameters_.timestep.dt = 1.0 / maxUStencil_.getMaxValues()[2];
-    } else { // 2D
-        parameters_.timestep.dt = 1.0 / maxUStencil_.getMaxValues()[0];
     }
 
-    // localMin = std::min(parameters_.timestep.dt, std::min(std::min(parameters_.flow.Re/(2 * factor), 1.0 / maxUStencil_.getMaxValues()[0]), 1.0 / maxUStencil_.getMaxValues()[1]));
-    localMin = std::min(parameters_.flow.Re / (2 * factor), std::min(parameters_.timestep.dt, std::min(1 / maxUStencil_.getMaxValues()[0], 1 / maxUStencil_.getMaxValues()[1])));
+    return parameters_.flow.Re / (2 * factor);
+}
+
+void Simulation::setTimestep_() {
+    ASSERTION(parameters_.geometry.dim == 2 || parameters_.geometry.dim == 3);
+    FLOAT localMin, globalMin;
+
+    // Determine maximum velocity
+    maxUStencil_.reset();
+    maxUFieldIterator_.iterate();
+    maxUBoundaryIterator_.iterate();
+
+    if (parameters_.geometry.dim == 2) { // 2D
+        parameters_.timestep.dt = 1.0 / maxUStencil_.getMaxValues()[0];
+    } else { // 3D
+        parameters_.timestep.dt = 1.0 / maxUStencil_.getMaxValues()[2];
+    }
+
+    // Gets the diffusive timestep and uses that to get the local min
+    const FLOAT diffusiveTimestep = getDiffusiveTimestep_();
+    localMin = std::min(diffusiveTimestep,
+                        std::min(parameters_.timestep.dt,
+                                 std::min(1 / maxUStencil_.getMaxValues()[0], 1 / maxUStencil_.getMaxValues()[1])));
 
     // Here, we select the type of operation before compiling. This allows to use the correct
     // data type for MPI. Not a concern for small simulations, but useful if using heterogeneous
@@ -133,6 +131,38 @@ void Simulation::setTimeStep() {
 
     parameters_.timestep.dt = globalMin;
     parameters_.timestep.dt *= parameters_.timestep.tau;
+}
+
+void Simulation::solveTimestep() {
+    // Determine and set max timestep which is allowed in this simulation
+    setTimestep_();
+
+    fghIterator_->iterate(); // Compute FGH
+    wallFGHIterator_.iterate(); // Set global boundary values
+    rhsIterator_.iterate(); // Compute the right-hand side (RHS)
+
+    // Solve for pressure
+    solver_->solve();
+
+    // Communicate pressure values
+    petscParallelManager_.communicatePressure();
+
+    // Compute velocity
+    velocityIterator_.iterate();
+    obstacleIterator_.iterate();
+
+    // Communicate velocity values
+    petscParallelManager_.communicateVelocity();
+
+    // Iterate for velocities on the boundary
+    wallVelocityIterator_.iterate();
+}
+
+void Simulation::plotVTK(int timestep) {
+    vtkIterator_->iterate();
+
+    vtkStencil_->write(timestep);
+    vtkStencil_->clearValues(true);
 }
 
 } // namespace NSEOF

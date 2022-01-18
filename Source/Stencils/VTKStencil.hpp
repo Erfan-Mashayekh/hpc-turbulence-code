@@ -30,9 +30,16 @@ private:
     void writePressures_(FILE*);
     void writeVelocities_(FILE*);
 
+protected:
+    virtual void writeValues_(FILE*);
+
+    [[nodiscard]] const std::vector<CellIndex>& getCellIndices_() const;
+
 public:
-    explicit VTKStencil(const Parameters&, int, int, int);
+    VTKStencil(const Parameters&, int, int, int);
     ~VTKStencil() override;
+
+    void clearValues(bool);
 
     void apply(FlowField&, int, int, int) override;
     void apply(FlowField&, int, int) override;

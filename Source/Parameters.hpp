@@ -23,6 +23,13 @@ public:
     std::string scenario;   //! If channel or cavity, for example
 };
 
+
+class TurbulenceParameters {
+public:
+	int turbViscosity; //! set eddy turbulence to zero or to be calculated (=1)
+	int model;		   //! choose the turbulence model via an integer 0, 1, 2, 3
+};
+
 class EnvironmentalParameters {
 public:
     // Gravity components
@@ -129,6 +136,10 @@ public:
     int topNb;
     int frontNb;
     int backNb;
+    int leftTopNb;
+    int rightTopNb;
+    int leftBottomNb;
+    int rightBottomNb;
     //@}
 
     int indices[3];         //! 3D indices to locate the array
@@ -176,7 +187,7 @@ public:
     ParallelParameters      parallel;
     StdOutParameters        stdOut;
     BFStepParameters        bfStep;
-    // TODO WS2: include parameters for turbulence
+    TurbulenceParameters    turbulence;
     Meshsize                *meshsize;
 };
 

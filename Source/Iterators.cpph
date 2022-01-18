@@ -257,3 +257,70 @@ void ParallelBoundaryIterator<FlowFieldType>::iterate() {
         }
     }
 }
+
+template <class FlowFieldType>
+ParallelBoundaryDiagonalIterator<FlowFieldType>::ParallelBoundaryDiagonalIterator(FlowFieldType& flowField,
+                                                                                  const Parameters& parameters,
+                                                                                  Stencils::BoundaryStencil<FlowFieldType>& stencil,
+                                                                                  int lowOffset, int highOffset)
+        : Iterator<FlowFieldType>(flowField, parameters)
+        , stencil_(stencil)
+        , lowOffset_(lowOffset)
+        , highOffset_(highOffset) {}
+
+template <class FlowFieldType>
+void ParallelBoundaryDiagonalIterator<FlowFieldType>::iterate() {
+    if (Iterator<FlowFieldType>::parameters_.geometry.dim == 2) {
+        if (Iterator<FlowFieldType>::parameters_.parallel.leftTopNb >= 0) {
+            stencil_.applyLeftWall(Iterator<FlowFieldType>::flowField_,
+                                   lowOffset_,
+                                   Iterator<FlowFieldType>::flowField_.getCellsY() + highOffset_ - 1);
+        }
+
+        if (Iterator<FlowFieldType>::parameters_.parallel.rightTopNb >= 0) {
+            stencil_.applyTopWall(Iterator<FlowFieldType>::flowField_,
+                                  Iterator<FlowFieldType>::flowField_.getCellsY() + highOffset_ - 1,
+                                  Iterator<FlowFieldType>::flowField_.getCellsX() + highOffset_ - 1);
+        }
+
+        if (Iterator<FlowFieldType>::parameters_.parallel.rightBottomNb >= 0) {
+            stencil_.applyRightWall(Iterator<FlowFieldType>::flowField_,
+                                    Iterator<FlowFieldType>::flowField_.getCellsX() + highOffset_ - 1,
+                                    lowOffset_);
+        }
+
+        if (Iterator<FlowFieldType>::parameters_.parallel.leftBottomNb >= 0) {
+            stencil_.applyBottomWall(Iterator<FlowFieldType>::flowField_,
+                                     lowOffset_,
+                                     lowOffset_ );
+        }
+    } else if (Iterator<FlowFieldType>::parameters_.geometry.dim == 3) {
+        if (Iterator<FlowFieldType>::parameters_.parallel.leftTopNb >= 0) {
+            for (int k = lowOffset_; k < Iterator<FlowFieldType>::flowField_.getCellsZ() + highOffset_; k++) {
+                stencil_.applyLeftWall(Iterator<FlowFieldType>::flowField_,
+                                       lowOffset_, Iterator<FlowFieldType>::flowField_.getCellsY() + highOffset_ - 1, k);
+            }
+        }
+
+        if (Iterator<FlowFieldType>::parameters_.parallel.rightTopNb >= 0) {
+            for (int k = lowOffset_; k < Iterator<FlowFieldType>::flowField_.getCellsZ() + highOffset_; k++) {
+                stencil_.applyTopWall(Iterator<FlowFieldType>::flowField_,
+                                      Iterator<FlowFieldType>::flowField_.getCellsY() + highOffset_ - 1, Iterator<FlowFieldType>::flowField_.getCellsX() + highOffset_ - 1, k);
+            }
+        }
+
+        if (Iterator<FlowFieldType>::parameters_.parallel.rightBottomNb >= 0) {
+            for (int k = lowOffset_; k < Iterator<FlowFieldType>::flowField_.getCellsZ() + highOffset_; k++) {
+                stencil_.applyRightWall(Iterator<FlowFieldType>::flowField_,
+                                        Iterator<FlowFieldType>::flowField_.getCellsX() + highOffset_ - 1, lowOffset_, k);
+            }
+        }
+
+        if (Iterator<FlowFieldType>::parameters_.parallel.leftBottomNb >= 0) {
+            for (int k = lowOffset_; k < Iterator<FlowFieldType>::flowField_.getCellsZ() + highOffset_; k++) {
+                stencil_.applyBottomWall(Iterator<FlowFieldType>::flowField_,
+                                         lowOffset_, lowOffset_, k);
+            }
+        }
+    }
+}

@@ -117,6 +117,25 @@ public:
     virtual void iterate() override;
 };
 
+template <class FlowFieldType>
+class ParallelBoundaryDiagonalIterator : public Iterator<FlowFieldType> {
+private:
+    Stencils::BoundaryStencil<FlowFieldType>& stencil_;
+
+    const int lowOffset_;
+    const int highOffset_;
+
+public:
+    ParallelBoundaryDiagonalIterator(FlowFieldType& flowField,
+                                     const Parameters& parameters,
+                                     Stencils::BoundaryStencil<FlowFieldType>& stencil,
+                                     int lowOffset = 0, int highOffset = 0);
+
+    virtual ~ParallelBoundaryDiagonalIterator() override = default;
+
+    virtual void iterate() override;
+};
+
 #include "Iterators.cpph"
 
 } // namespace NSEOF

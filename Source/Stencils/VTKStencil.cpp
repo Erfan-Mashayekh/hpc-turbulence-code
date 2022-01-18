@@ -16,30 +16,42 @@ namespace NSEOF::Stencils {
         return numCellsExpected;
     }
 
-    VTKStencil::VTKStencil(const Parameters &parameters, int Nx, int Ny, int Nz)
-            : FieldStencil<FlowField>(parameters)
-            , pressure_(ScalarField(Nx, Ny, parameters.geometry.dim == 3 ? Nz : 1))
-            , velocity_(VectorField(Nx, Ny, parameters.geometry.dim == 3 ? Nz : 1)) {
+    VTKStencil::VTKStencil(const Parameters &parameters, const int cellsX, const int cellsY, const int cellsZ)
+        : FieldStencil<FlowField>(parameters)
+        , pressure_(ScalarField(cellsX, cellsY, parameters.geometry.dim == 3 ? cellsZ : 1))
+        , velocity_(VectorField(cellsX, cellsY, parameters.geometry.dim == 3 ? cellsZ : 1)) {
         // Pre-allocate the space needed for storing the cell indices!
         cellIndices_.reserve(getNumCellsExpected(parameters));
     }
 
-    VTKStencil::~VTKStencil() {
+    void VTKStencil::clearValues(bool valuesReserved = false) {
         cellIndices_.clear();
+
+        // Re-allocate the space needed for storing the cell indices!
+        if (valuesReserved) {
+            cellIndices_.reserve(getNumCellsExpected(parameters_));
+        }
+    }
+
+    VTKStencil::~VTKStencil() {
+        clearValues();
     }
 
     void VTKStencil::apply(FlowField& flowField, int i, int j, int k) {
         // Store the cell indices
         cellIndices_.emplace_back(i, j, k);
 
-        // Make sure that it is a fluid cell, and if it is not, stop the computation and store 0s instead!
-        if ((flowField.getFlags().getValue(i, j, k) & OBSTACLE_SELF) != 0) {
-            return;
-        }
-
         // Get the data structures stored
         FLOAT& cellPressure = pressure_.getScalar(i, j, k);
         FLOAT* cellVelocity = velocity_.getVector(i, j, k);
+
+        // Make sure that it is a fluid cell, and if it is not, stop the computation and store 0s instead!
+        if ((flowField.getFlags().getValue(i, j, k) & OBSTACLE_SELF) != 0) {
+            cellPressure = 0.0;
+            for (int dim = 0; dim < parameters_.geometry.dim; dim++) cellVelocity[dim] = 0.0;
+
+            return;
+        }
 
         // Get the pressure and velocity
         if (parameters_.geometry.dim == 2) { // 2D
@@ -54,9 +66,9 @@ namespace NSEOF::Stencils {
     }
 
     void VTKStencil::writePositions_(FILE* filePtr) {
-        const int sizeX = parameters_.geometry.sizeX;
-        const int sizeY = parameters_.geometry.sizeY;
-        const int sizeZ = parameters_.geometry.dim == 3 ? parameters_.geometry.sizeZ : 0;
+        const int sizeX = parameters_.parallel.localSize[0];
+        const int sizeY = parameters_.parallel.localSize[1];
+        const int sizeZ = parameters_.geometry.dim == 3 ? parameters_.parallel.localSize[2] : 0;
 
         fprintf(filePtr, "DATASET %s\n", parameters_.vtk.datasetName.c_str());
         fprintf(filePtr, "DIMENSIONS %d %d %d\n", (sizeX + 1), (sizeY + 1), (sizeZ + 1));
@@ -65,13 +77,13 @@ namespace NSEOF::Stencils {
         auto cellIndexIterator = cellIndices_.begin();
         CellIndex* cellIndex;
 
-        FLOAT posX, posY, posZ = parameters_.parallel.firstCorner[2];
+        FLOAT posX, posY, posZ = parameters_.parallel.firstCorner[2] * parameters_.meshsize->getDz(0, 0, 0);
 
         for (int k = 0; k <= sizeZ; k++) {
-            posY = parameters_.parallel.firstCorner[1];
+            posY = parameters_.parallel.firstCorner[1] * parameters_.meshsize->getDy(0, 0, 0);
 
             for (int j = 0; j <= sizeY; j++) {
-                posX = parameters_.parallel.firstCorner[0];
+                posX = parameters_.parallel.firstCorner[0] * parameters_.meshsize->getDx(0, 0, 0);
 
                 for (int i = 0; i <= sizeX; i++) {
                     cellIndex = &(*cellIndexIterator);
@@ -121,10 +133,17 @@ namespace NSEOF::Stencils {
         fprintf(filePtr, "\n");
     }
 
-    void VTKStencil::write(int timeStep) {
+    void VTKStencil::writeValues_(FILE* filePtr) {
+        writePositions_(filePtr);
+        writePressures_(filePtr);
+        writeVelocities_(filePtr);
+    }
+
+    void VTKStencil::write(int timestep) {
         // Decide on the filename
-        long time = timeStep * parameters_.vtk.interval * 1e6;
+        long time = timestep * parameters_.vtk.interval * 1e6;
         std::string filename = parameters_.vtk.outDir + "/" + parameters_.vtk.prefix + "_" +
+                               std::to_string(parameters_.parallel.rank) + "_" +
                                std::to_string(time) + ".vtk";
 
         // Open the file stream
@@ -134,12 +153,14 @@ namespace NSEOF::Stencils {
         fprintf(filePtr, "%s\n", parameters_.vtk.vtkFileHeader.c_str());
 
         // Write data to the file
-        writePositions_(filePtr);
-        writePressures_(filePtr);
-        writeVelocities_(filePtr);
+        writeValues_(filePtr);
 
         // Close the file stream
         fclose(filePtr);
+    }
+
+    const std::vector<CellIndex>& VTKStencil::getCellIndices_() const {
+        return cellIndices_;
     }
 
 } // namespace NSEOF::Stencils

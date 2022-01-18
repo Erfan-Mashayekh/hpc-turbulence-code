@@ -1,4 +1,6 @@
 #include "Simulation.hpp"
+#include "TurbulentSimulation.hpp"
+
 #include "Configuration.hpp"
 #include "MeshsizeFactory.hpp"
 
@@ -9,6 +11,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sys/stat.h>
+#include <filesystem>
 
 
 int main(int argc, char *argv[]) {
@@ -67,17 +70,23 @@ int main(int argc, char *argv[]) {
     std::cout << "Min. meshsizes: " << parameters.meshsize->getDxMin() << ", " << parameters.meshsize->getDyMin() << ", " << parameters.meshsize->getDzMin() << std::endl;
 #endif
 
-    // Initialise simulation
-    if (parameters.simulation.type == "turbulence") {
-        // TODO WS2: initialise turbulent flow field and turbulent simulation object
-    } else if (parameters.simulation.type == "dns") {
-        if (rank==0) {
+    if (rank == 0) { // Master
+        if (parameters.simulation.type == "turbulence") {
+            std::cout << "Start turbulence simulation in " << parameters.geometry.dim << "D" << std::endl;
+        } else if (parameters.simulation.type == "dns") {
             std::cout << "Start DNS simulation in " << parameters.geometry.dim << "D" << std::endl;
         }
-        flowField = new NSEOF::FlowField(parameters);
-        if (flowField == NULL) {
-            HANDLE_ERROR(1, "flowField == NULL!");
-        }
+    }
+
+    flowField = new NSEOF::FlowField(parameters);
+    if (flowField == NULL) {
+        HANDLE_ERROR(1, "flowField == NULL!");
+    }
+
+    // Initialise simulation
+    if (parameters.simulation.type == "turbulence") { // Turbulence Model
+        simulation = new NSEOF::TurbulentSimulation(parameters, *flowField);
+    } else if (parameters.simulation.type == "dns") { // Laminar Model
         simulation = new NSEOF::Simulation(parameters, *flowField);
     } else {
         HANDLE_ERROR(1, "Unknown simulation type! Currently supported: dns, turbulence");
@@ -87,6 +96,7 @@ int main(int argc, char *argv[]) {
     if (simulation == NULL) {
         HANDLE_ERROR(1, "simulation == NULL!");
     }
+
     simulation->initializeFlowField();
 
     // flowField->getFlags().show();
@@ -102,11 +112,7 @@ int main(int argc, char *argv[]) {
 
     FLOAT time = 0.0;
     FLOAT timeStdOut = parameters.stdOut.interval;
-    FLOAT timeVtk = parameters.vtk.interval;
     int timeSteps = 0;
-
-    // Plot initial state
-    simulation->plotVTK(timeSteps++);
 
     // Time loop
     while (time < parameters.simulation.finalTime) {
@@ -120,16 +126,10 @@ int main(int argc, char *argv[]) {
             timeStdOut += parameters.stdOut.interval;
         }
 
-        // Trigger VTK output
-        if (timeVtk <= time) {
-            simulation->plotVTK(timeSteps);
-            timeVtk += parameters.vtk.interval;
-        }
-
         timeSteps++;
     }
 
-    // Plot final output
+    // Plot final output for each process
     simulation->plotVTK(timeSteps);
 
     delete simulation;

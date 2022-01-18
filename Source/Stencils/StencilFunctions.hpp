@@ -58,6 +58,37 @@ inline void loadLocalMeshsize3D(const Parameters& parameters, FLOAT* const local
     }
 }
 
+// Load the local viscosity (normal + eddy) cube with relevant viscosities of the 2D plane
+// in all three dimension the same value
+inline void loadLocalViscosity2D(const Parameters& parameters, FlowField& flowField, FLOAT* const localViscosity, int i, int j) {
+    for (int row = -1; row <= 1; row++) {
+        for (int column = -1; column <= 1; column ++) {
+        	// changed from: const FLOAT* const point
+            const FLOAT point = flowField.getEddyViscosity().getScalar(i + column, j + row);
+
+            // changed from: point[0] to point
+            localViscosity[39 + 9 * row + 3 * column]     = point + 1 / parameters.flow.Re; // x-component
+            localViscosity[39 + 9 * row + 3 * column + 1] = point + 1 / parameters.flow.Re; // y-component
+        }
+    }
+}
+
+// Load the local viscosity (normal + eddy) cube with surrounding viscosities
+// in all three dimension the same value
+inline void loadLocalViscosity3D(const Parameters& parameters, FlowField& flowField, FLOAT* const localViscosity, int i, int j, int k) {
+    for (int layer = -1; layer <= 1; layer ++) {
+        for (int row = -1; row <= 1; row++) {
+            for (int column = -1; column <= 1; column++) {
+                //changed from: const FLOAT* const point
+                const FLOAT point = flowField.getEddyViscosity().getScalar(i + column, j + row, k + layer);
+
+                localViscosity[39 + 27 * layer + 9 * row + 3 * column    ] = point + 1 / parameters.flow.Re; // x-component
+                localViscosity[39 + 27 * layer + 9 * row + 3 * column + 1] = point + 1 / parameters.flow.Re; // y-component
+                localViscosity[39 + 27 * layer + 9 * row + 3 * column + 2] = point + 1 / parameters.flow.Re; // z-component
+            }
+        }
+    }
+}
 // Maps an index and a component to the corresponding value in the cube.
 inline int mapd(int i, int j, int k, int component) {
     return 39 + 27 * k + 9 * j + 3 * i + component;
@@ -598,7 +629,7 @@ inline FLOAT dv2dy(const FLOAT* const lv, const Parameters& parameters, const FL
 }
 
 // First derivative of w*w w.r.t. z, evaluated at location of w-component. For details, see du2dx.
-inline FLOAT dw2dz ( const FLOAT * const lv, const Parameters & parameters, const FLOAT* const lm ) {
+inline FLOAT dw2dz(const FLOAT*  const lv, const Parameters & parameters, const FLOAT* const lm) {
 #ifndef NDEBUG
     const FLOAT tmp1 = 1.0 / 4.0 * ((((lv[mapd(0, 0, 0, 2)] + lv[mapd(0, 0, 1, 2)]) *
         (lv[mapd(0, 0, 0, 2)] + lv[mapd(0, 0, 1, 2)])) -
@@ -644,6 +675,387 @@ inline FLOAT dw2dz ( const FLOAT * const lv, const Parameters & parameters, cons
     return tmp2;
 }
 
+/**
+ * Turbulence Modelling
+ */
+
+inline FLOAT FT_term1(const FLOAT* const lv, const FLOAT* const lm, FLOAT vijk, FLOAT vi1jk) {
+    // vijk: total viscosity: vstar[i,j,k]
+    // vi1jk: total viscosity: vstar[i+1,j,k]
+
+    const int index0 = mapd(0, 0, 0, 0); // u[i,j,k]
+    const int index1 = mapd(-1, 0, 0, 0); // u[i-1,j,k]
+    const int index2 = mapd(1, 0, 0, 0); // u[i+1,j,k]
+
+    //firstTerm: vstar[i+1,j,k]*(u[i+1,j,k] - u[i,j,k])
+    FLOAT firstTerm = vi1jk * (lv[index2] - lv[index0]);
+
+    //secondTerm: vstar[i,j,k]*(u[i,j,k] - u[i-1,j,k])
+    FLOAT secondTerm = vijk * (lv[index0] - lv[index1]);
+
+    //return 2*(d/dx)(vstar*(du/dx))
+    return 2 * (firstTerm - secondTerm) / (lm[index0] * lm[index0]);
+}
+
+inline FLOAT FT_term2(const FLOAT* const lv, const FLOAT* const lm, FLOAT vtr, FLOAT vbr) {
+    // vtr: viscosity at top right corner: v*[i+1/2, j+1/2, k]
+    // vbr: viscosity at bottom right corner: v*[i+1/2, j-1/2, k]
+
+    const int index0 = mapd(0, 0, 0, 0); // u[i,j,k]
+    const int index1 = mapd(0, 1, 0, 0); // u[i,j+1,k]
+    const int index2 = mapd(0, -1, 0, 0); // u[i,j-1,k]
+    const int index3 = mapd(0, 0, 0, 1); // v[i,j,k]
+    const int index4 = mapd(1, 0, 0, 1); // v[i+1,j,k]
+    const int index5 = mapd(0, -1, 0, 1); // v[i,j-1,k]
+    const int index6 = mapd(1, -1, 0, 1); // v[i+1,j-1,k]
+
+    // firstTerm: vstar[i+1/2, j+1/2, k] * ((u[i,j+1,k]-u[i,j,k])/dy + (v[i+1,j,k]-v[i,j,k])/dx)
+    FLOAT firstTerm = vtr * ((lv[index1] - lv[index0]) / lm[index3] + (lv[index4] - lv[index3]) / lm[index0]);
+
+    // secondTerm: vstar[i+1/2, j-1/2, k] * ((u[i,j,k]-u[i,j-1,k])/dy + (v[i+1,j-1,k]-v[i,j-1,k])/dx)
+    FLOAT secondTerm = vbr * ((lv[index0] - lv[index2]) / lm[index3] + (lv[index6] - lv[index5]) / lm[index0]);
+
+    //return (d/dy)*(vstar*(du/dy + dv/dx))
+    return (firstTerm - secondTerm) / lm[index3];
+}
+
+inline FLOAT FT_term3(const FLOAT* const lv, const FLOAT* const lm, FLOAT vrf, FLOAT vrb) {
+    // vrf: viscosity at right front corner: v*[i+1/2, j, k+1/2]
+    // vrb: viscosity at right back corner: v*[i+1/2, j, k-1/2]
+
+    const int index0 = mapd(0, 0, 0, 0); // u[i,j,k]
+    const int index1 = mapd(0, 0, 1, 0); // u[i,j,k+1]
+    const int index2 = mapd(0, 0, -1, 0); // u[i,j,k-1]
+    const int index3 = mapd(0, 0, 0, 2); // w[i,j,k]
+    const int index4 = mapd(1, 0, 0, 2); // w[i+1,j,k]
+    const int index5 = mapd(0, 0, -1, 2); // w[i,j,k-1]
+    const int index6 = mapd(1, 0, -1, 2); // w[i+1,j,k-1]
+
+    // firstTerm: vstar[i+1/2, j, k+1/2] * ((u[i,j,k+1]-u[i,j,k])/dz + (w[i+1,j,k]-w[i,j,k])/dx)
+    FLOAT firstTerm = vrf * ((lv[index1] - lv[index0]) / lm[index3] + (lv[index4] - lv[index3]) / lm[index0]);
+
+    // secondTerm: vstar[i+1/2, j, k-1/2] * ((u[i,j,k]-u[i,j,k-1])/dz + (w[i+1,j,k-1]-w[i,j,k-1])/dx)
+    FLOAT secondTerm = vrb * ((lv[index0] - lv[index2]) / lm[index3] + (lv[index6] - lv[index5]) / lm[index0]);
+
+    //return (d/dz)*(vstar*(du/dz + dw/dx))
+    return (firstTerm - secondTerm) / lm[index3];
+}
+
+/**
+ * Computes the F term for 2D Turbulence momentum equations
+ */
+inline FLOAT computeF2DT(const FLOAT* const localVelocity, const FLOAT* const localMeshsize, const FLOAT* const localViscosity, const Parameters &parameters, FLOAT dt) {
+    const int index0 = mapd(0, 0, 0,0); // vstar[i,j,k]
+    const int index1 = mapd(1, 0, 0, 0); // vstar[i+1,j,k]
+    const int index2 = mapd(0, 1, 0, 0); // vstar[i,j+1,k]
+    const int index3 = mapd(1, 1, 0, 0); // vstar[i+1,j+1,k]
+    const int index4 = mapd(0, -1, 0, 0); // vstar[i,j-1,k]
+    const int index5 = mapd(1, -1, 0, 0); // vstar[i+1,j-1,k]
+
+    // vijk: total viscosity: vstar[i,j,k]
+    FLOAT vijk = localViscosity[index0];
+
+    // vi1jk: total viscosity: vstar[i+1,j,k]
+    FLOAT vi1jk = localViscosity[index1];
+
+    // vtr: viscosity at top right corner: v*[i+1/2, j+1/2, k]
+    FLOAT vtr = (localViscosity[index3] + localViscosity[index2] + localViscosity[index1] + localViscosity[index0]) / 4;
+
+    // vbr: viscosity at bottom right corner: v*[i+1/2, j-1/2, k]
+    FLOAT vbr = (localViscosity[index5] + localViscosity[index4] + localViscosity[index1] + localViscosity[index0]) / 4;
+
+    FLOAT term1 = FT_term1(localVelocity, localMeshsize, vijk, vi1jk);
+    FLOAT term2 = FT_term2(localVelocity, localMeshsize, vtr, vbr);
+
+    return localVelocity[mapd(0, 0, 0, 0)] + dt * (term1 + term2  - du2dx(localVelocity, parameters, localMeshsize)
+            - duvdy(localVelocity, parameters, localMeshsize) + parameters.environment.gx);
+}
+
+/**
+ * Computes the F term for 3D Turbulence momentum equations
+ */
+inline FLOAT computeF3DT(const FLOAT* const localVelocity, const FLOAT* const localMeshsize, const FLOAT* const localViscosity, const Parameters& parameters, FLOAT dt) {
+    const int index0 = mapd(0, 0, 0, 0); // vstar[i,j,k]
+    const int index1 = mapd(1, 0, 0, 0); // vstar[i+1,j,k]
+    const int index2 = mapd(0, 1, 0, 0); // vstar[i,j+1,k]
+    const int index3 = mapd(1, 1, 0, 0); // vstar[i+1,j+1,k]
+    const int index4 = mapd(0, -1, 0, 0); // vstar[i,j-1,k]
+    const int index5 = mapd(1, -1, 0, 0); // vstar[i+1,j-1,k]
+    const int index6 = mapd(0, 0, 1, 0); // vstar[i,j,k+1]
+    const int index7 = mapd(1, 0, 1, 0); // vstar[i+1,j,k+1]
+    const int index8 = mapd(0, 0, -1, 0); // vstar[i,j,k-1]
+    const int index9 = mapd(1, 0, -1, 0); // vstar[i+1,j,k-1]
+
+    // vijk: total viscosity: vstar[i,j,k]
+    FLOAT vijk = localViscosity[index0];
+
+    // vi1jk: total viscosity: vstar[i+1,j,k]
+    FLOAT vi1jk = localViscosity[index1];
+
+    // vtr: viscosity at top right corner: v*[i+1/2, j+1/2, k]
+    FLOAT vtr = (localViscosity[index3] + localViscosity[index2] + localViscosity[index1] + localViscosity[index0]) / 4;
+
+    // vbr: viscosity at bottom right corner: v*[i+1/2, j-1/2, k]
+    FLOAT vbr = (localViscosity[index5] + localViscosity[index4] + localViscosity[index1] + localViscosity[index0]) / 4;
+
+    // vrf: viscosity at right front corner: v*[i+1/2, j, k+1/2]
+    FLOAT vrf = (localViscosity[index0] + localViscosity[index1] + localViscosity[index6] + localViscosity[index7]) / 4;
+
+    // vrb: viscosity at right back corner: v*[i+1/2, j, k-1/2]
+    FLOAT vrb = (localViscosity[index0] + localViscosity[index1] + localViscosity[index8] + localViscosity[index9]) / 4;
+
+    FLOAT term1 = FT_term1(localVelocity, localMeshsize, vijk, vi1jk);
+    FLOAT term2 = FT_term2(localVelocity, localMeshsize, vtr, vbr);
+    FLOAT term3 = FT_term3(localVelocity, localMeshsize, vrf, vrb);
+
+    return localVelocity[mapd(0, 0, 0, 0)] + dt * (term1 + term2 + term3
+		    - du2dx(localVelocity, parameters, localMeshsize)
+		    - duvdy(localVelocity, parameters, localMeshsize)
+		    - duwdz(localVelocity, parameters, localMeshsize) + parameters.environment.gx);
+}
+
+inline FLOAT GT_term1(const FLOAT* const lv, const FLOAT* const lm, FLOAT vtr, FLOAT vtl) {
+    // vtr: viscosity at top right corner: v*[i+1/2, j+1/2, k]
+    // vtl: viscosity at top left corner: v*[i-1/2, j+1/2, k]
+
+    const int index0 = mapd(0, 0, 0, 0); // u[i,j,k]
+    const int index1 = mapd(0, 1, 0, 0); // u[i,j+1,k]
+    // Not used: const int index2 = mapd(0, -1, 0, 0); // u[i,j-1,k]
+    const int index3 = mapd(0, 0, 0, 1); // v[i,j,k]
+    const int index4 = mapd(1, 0, 0, 1); // v[i+1,j,k]
+    // Not used: const int index5 = mapd(0, -1, 0, 1); // v[i,j-1,k]
+    // Not used: const int index6 = mapd(1, -1, 0, 1); // v[i+1,j-1,k]
+    const int index7 = mapd(-1, 0, 0, 1); // v[i-1,j,k]
+    const int index8 = mapd(-1, 1, 0, 0); // u[i-1,j+1,k]
+    const int index9 = mapd(-1, 0, 0, 0); // u[i-1,j,k]
+
+    // firstTerm: vstar[i+1/2, j+1/2, k] * ((u[i,j+1,k]-u[i,j,k])/dy + (v[i+1,j,k]-v[i,j,k])/dx)
+    FLOAT firstTerm = vtr * ((lv[index1] - lv[index0]) / lm[index3] + (lv[index4] - lv[index3]) / lm[index0]);
+
+    // secondTerm: vstar[i-1/2, j+1/2, k] * ((v[i,j,k]-v[i-1,j,k])/dx + (u[i-1,j+1,k]-u[i-1,j,k])/dy)
+    FLOAT secondTerm = vtl * ((lv[index3] - lv[index7]) / lm[index0] + (lv[index8] - lv[index9]) / lm[index3]);
+
+    //return (d/dx)(vstar*(dv/dx + du/dy))
+    return (firstTerm - secondTerm) / lm[index0];
+}
+
+inline FLOAT GT_term2(const FLOAT* const lv, const FLOAT* const lm, FLOAT vijk, FLOAT vij1k) {
+    // vijk: total viscosity: vstar[i,j,k]
+    // vij1k: total viscosity: vstar[i,j+1,k]
+
+    const int index0 = mapd(0, 0, 0, 1); // v[i,j,k]
+    const int index1 = mapd(0, -1, 0, 1); // v[i,j-1,k]
+    const int index2 = mapd(0, 1, 0, 1); // v[i,j+1,k]
+
+    //firstTerm: vstar[i,j+1,k]*(v[i,j+1,k] - v[i,j,k])
+    FLOAT firstTerm = vij1k * (lv[index2] - lv[index0]);
+
+    //secondTerm: vstar[i,j,k]*(v[i,j,k] - v[i,j-1,k])
+    FLOAT secondTerm = vijk * (lv[index0] - lv[index1]);
+
+    //return 2*(d/dy)(vstar*(dv/dy))
+    return 2 * (firstTerm - secondTerm) / (lm[index0] * lm[index0]);
+}
+
+inline FLOAT GT_term3(const FLOAT* const lv, const FLOAT* const lm, FLOAT vtf, FLOAT vtb) {
+    // vtf: viscosity at top front corner: v*[i, j+1/2, k+1/2]
+    // vtb: viscosity at top back corner: v*[i, j+1/2, k-1/2]
+
+    const int index0 = mapd(0, 0, 0, 1); // v[i,j,k]
+    const int index1 = mapd(0, 0, 1, 1); // v[i,j,k+1]
+    const int index2 = mapd(0, 0, -1, 1); // v[i,j,k-1]
+    const int index3 = mapd(0, 0, 0, 2); // w[i,j,k]
+    const int index4 = mapd(0, 1, 0, 2); // w[i,j+1,k]
+    const int index5 = mapd(0, 0, -1, 2); // w[i,j,k-1]
+    const int index6 = mapd(0, 1, -1, 2); // w[i,j+1,k-1]
+
+    // firstTerm: vstar[i, j+1/2, k+1/2] * ((v[i,j,k+1]-v[i,j,k])/dz + (w[i,j+1,k]-w[i,j,k])/dy)
+    FLOAT firstTerm = vtf * ((lv[index1] - lv[index0]) / lm[index3] + (lv[index4] - lv[index3]) / lm[index0]);
+
+    // secondTerm: vstar[i, j+1/2, k-1/2] * ((v[i,j,k]-v[i,j,k-1])/dz + (w[i,j+1,k-1]-w[i,j,k-1])/dy)
+    FLOAT secondTerm = vtb * ((lv[index0] - lv[index2]) / lm[index3] + (lv[index6] - lv[index5]) / lm[index0]);
+
+    //return (d/dz)*(vstar*(dv/dz + dw/dy))
+    return (firstTerm - secondTerm) / lm[index3];
+}
+
+/**
+ * Computes the G term for 2D Turbulence momentum equations
+ */
+inline FLOAT computeG2DT(const FLOAT* const localVelocity, const FLOAT* const localMeshsize, const FLOAT* const localViscosity, const Parameters& parameters, FLOAT dt) {
+    const int index0 = mapd(0, 0, 0, 0); // vstar[i,j,k]
+    const int index1 = mapd(1, 0, 0, 0); // vstar[i+1,j,k]
+    const int index2 = mapd(0, 1, 0, 0); // vstar[i,j+1,k]
+    const int index3 = mapd(1, 1, 0, 0); // vstar[i+1,j+1,k]
+    const int index4 = mapd(-1, 0, 0, 0); // vstar[i-1,j,k]
+    const int index5 = mapd(-1, 1, 0, 0); // vstar[i-1,j+1,k]
+
+    // vijk: total viscosity: vstar[i,j,k]
+    FLOAT vijk =  localViscosity[index0];
+    // vij1k: total viscosity: vstar[i,j+1,k]
+    FLOAT vij1k =  localViscosity[index2];
+    // vtr: viscosity at top right corner: v*[i+1/2, j+1/2, k]
+    FLOAT vtr = (localViscosity[index3] + localViscosity[index2] + localViscosity[index1] + localViscosity[index0])/4;
+    // vtl: viscosity at top left corner: v*[i-1/2, j+1/2, k]
+    FLOAT vtl = (localViscosity[index0] + localViscosity[index2] + localViscosity[index4] + localViscosity[index5])/4;
+
+
+    FLOAT term1 = GT_term1(localVelocity, localMeshsize, vtr, vtl);
+    FLOAT term2 = GT_term2(localVelocity, localMeshsize, vijk, vij1k);
+
+    return localVelocity[mapd(0, 0, 0, 1)] +
+            dt * (term1 + term2 - duvdx(localVelocity, parameters, localMeshsize)
+            - dv2dy(localVelocity, parameters, localMeshsize) + parameters.environment.gy);
+}
+
+/**
+ * Computes the G term for 3D Turbulence momentum equations
+ */
+inline FLOAT computeG3DT(const FLOAT* const localVelocity, const FLOAT* const localMeshsize, const FLOAT* const localViscosity, const Parameters& parameters, FLOAT dt) {
+	const int index0 = mapd(0, 0, 0, 0); // vstar[i,j,k]
+    const int index1 = mapd(1, 0, 0, 0); // vstar[i+1,j,k]
+    const int index2 = mapd(0, 1, 0, 0); // vstar[i,j+1,k]
+    const int index3 = mapd(1, 1, 0, 0); // vstar[i+1,j+1,k]
+    const int index4 = mapd(-1, 0, 0, 0); // vstar[i-1,j,k]
+    const int index5 = mapd(-1, 1, 0, 0); // vstar[i-1,j+1,k]
+    const int index6 = mapd(0, 0, 1, 0); // vstar[i,j,k+1]
+    const int index7 = mapd(0, 1, 1, 0); // vstar[i,j+1,k+1]
+    const int index8 = mapd(0, 0, -1, 0); // vstar[i,j,k-1]
+    const int index9 = mapd(0, 1, -1, 0); // vstar[i,j+1,k-1]
+
+    // vijk: total viscosity: vstar[i,j,k]
+    FLOAT vijk =  localViscosity[index0];
+
+    // vij1k: total viscosity: vstar[i,j+1,k]
+    FLOAT vij1k =  localViscosity[index2];
+
+    // vtr: viscosity at top right corner: v*[i+1/2, j+1/2, k]
+    FLOAT vtr = (localViscosity[index3] + localViscosity[index2] + localViscosity[index1] + localViscosity[index0]) / 4;
+
+    // vtl: viscosity at top left corner: v*[i-1/2, j+1/2, k]
+    FLOAT vtl = (localViscosity[index0] + localViscosity[index2] + localViscosity[index4] + localViscosity[index5]) / 4;
+
+    // vtf: viscosity at top front corner: v*[i, j+1/2, k+1/2]
+    FLOAT vtf = (localViscosity[index0] + localViscosity[index2] + localViscosity[index6] + localViscosity[index7]) / 4;
+
+    // vtb: viscosity at top back corner: v*[i, j+1/2, k-1/2]
+    FLOAT vtb = (localViscosity[index0] + localViscosity[index2] + localViscosity[index8] + localViscosity[index9]) / 4;
+
+    FLOAT term1 = GT_term1(localVelocity, localMeshsize, vtr, vtl);
+    FLOAT term2 = GT_term2(localVelocity, localMeshsize, vijk, vij1k);
+    FLOAT term3 = GT_term3(localVelocity, localMeshsize, vtf, vtb);
+
+    return localVelocity[mapd(0, 0, 0, 1)] + dt * (term1 + term2 + term3
+		    - dv2dy(localVelocity, parameters, localMeshsize) - duvdx(localVelocity, parameters, localMeshsize)
+		    - dvwdz(localVelocity, parameters, localMeshsize) + parameters.environment.gy);
+}
+
+inline FLOAT HT_term1(const FLOAT* const lv, const FLOAT* const lm, FLOAT vfr, FLOAT vfl) {
+    // vfr: viscosity at front right corner: v*[i+1/2, j, k+1/2]
+    // vfl: viscosity at front left corner: v*[i-1/2, j, k+1/2]
+
+    const int index0 = mapd(0, 0, 0, 0); // u[i,j,k]
+    const int index1 = mapd(0, 0, 1, 0); // u[i,j,k+1]
+    const int index2 = mapd(-1, 0, 0, 2); // w[i-1,j,k]
+    const int index3 = mapd(0, 0, 0, 2); // w[i,j,k]
+    const int index4 = mapd(1, 0, 0, 2); // w[i+1,j,k]
+    const int index5 = mapd(-1, 0, 0, 0); // u[i-1,j,k]
+    const int index6 = mapd(-1, 0, 1, 0); // u[i-1,j,k+1]
+
+    // firstTerm: vstar[i+1/2, j, k+1/2] * ((u[i,j,k+1]-u[i,j,k])/dz + (w[i+1,j,k]-w[i,j,k])/dx)
+    FLOAT firstTerm = vfr * ((lv[index1] - lv[index0]) / lm[index3] + (lv[index4] - lv[index3]) / lm[index0]);
+
+    // secondTerm: vstar[i+1/2, j, k-1/2] * ((w[i,j,k]-w[i-1,j,k])/dx + (u[i-1,j,k+1]-u[i-1,j,k])/dz)
+    FLOAT secondTerm = vfl * ((lv[index3] - lv[index2]) / lm[index0] + (lv[index6] - lv[index5]) / lm[index3]);
+
+    //return (d/dz)*(vstar*(du/dz + dw/dx))
+    return (firstTerm - secondTerm) / lm[index0];
+}
+
+inline FLOAT HT_term2(const FLOAT* const lv, const FLOAT* const lm, FLOAT vft, FLOAT vfb) {
+    // vft: viscosity at front top corner: v*[i, j+1/2, k+1/2]
+    // vfb: viscosity at front bottom corner: v*[i, j-1/2, k+1/2]
+
+    const int index0 = mapd(0, 0, 0, 1); // v[i,j,k]
+    const int index1 = mapd(0, 0, 1, 1); // v[i,j,k+1]
+    const int index2 = mapd(0, -1, 0, 2); // w[i,j-1,k]
+    const int index3 = mapd(0, 0, 0, 2); // w[i,j,k]
+    const int index4 = mapd(0, 1, 0, 2); // w[i,j+1,k]
+    const int index5 = mapd(0, -1, 0, 1); // v[i,j-1,k]
+    const int index6 = mapd(0, -1, 1, 1); // v[i,j-1,k+1]
+
+    // firstTerm: vstar[i, j+1/2, k+1/2] * ((v[i,j,k+1]-v[i,j,k])/dz + (w[i,j+1,k]-w[i,j,k])/dy)
+    FLOAT firstTerm = vft * ((lv[index1] - lv[index0]) / lm[index3] + (lv[index4] - lv[index3]) / lm[index0]);
+
+    // secondTerm: vstar[i, j+1/2, k-1/2] * ((w[i,j,k]-w[i,j-1,k])/dy + (v[i,j-1,k+1]-v[i,j-1,k])/dz)
+    FLOAT secondTerm = vfb * ((lv[index3] - lv[index2]) / lm[index0] + (lv[index6] - lv[index5]) / lm[index3]);
+
+    //return (d/dz)*(vstar*(dv/dz + dw/dy))
+    return (firstTerm - secondTerm) / lm[index0];
+}
+
+inline FLOAT HT_term3(const FLOAT* const lv, const FLOAT* const lm, FLOAT vijk, FLOAT vijk1) {
+    // vijk: total viscosity: vstar[i,j],j
+    // vijk1: total viscosity: vstar[i,j,k+1]
+
+    const int index0 = mapd(0, 0, 0, 2); // w[i,j,k]
+    const int index1 = mapd(0, 0, -1, 2); // w[i,j,k-1]
+    const int index2 = mapd(0, 0, 1, 2); // w[i,j,k+1]
+
+    //firstTerm: vstar[i,j,k+1]*(w[i,j,k+1] - w[i,j,k])
+    FLOAT firstTerm = vijk1 * (lv[index2] - lv[index0]);
+
+    //secondTerm: vstar[i,j,k]*(w[i,j,k] - w[i,j,k-1])
+    FLOAT secondTerm = vijk * (lv[index0] - lv[index1]);
+
+    //return 2*(d/dx)(vstar*(du/dx))
+    return 2 * (firstTerm - secondTerm) / (lm[index0] * lm[index0]);
+}
+
+/**
+ * Computes the H term for 3D Turbulence momentum equations
+ */
+inline FLOAT computeH3DT(const FLOAT* const localVelocity, const FLOAT* const localMeshsize, const FLOAT* const localViscosity, const Parameters& parameters, FLOAT dt) {
+    const int index0 = mapd(0, 0, 0, 0); // vstar[i,j,k]
+    const int index1 = mapd(1, 0, 0, 0); // vstar[i+1,j,k]
+    const int index2 = mapd(0, 1, 0, 0); // vstar[i,j+1,k]
+    const int index3 = mapd(1, 0, 1, 0); // vstar[i+1,j,k+1]
+    const int index4 = mapd(-1, 0, 0, 0); // vstar[i-1,j,k]
+    const int index5 = mapd(-1, 0, 1, 0); // vstar[i-1,1,k+1]
+
+    const int index6 = mapd(0, 0, 1, 0); // vstar[i,j,k+1]
+    const int index7 = mapd(0, 1, 1, 0); // vstar[i,j+1,k+1]
+
+    const int index8 = mapd(0, -1, 0, 0); // vstar[i,j-1,k]
+    const int index9 = mapd(0, -1, 1, 0); // vstar[i,j-1,k+1]
+
+    // vijk: total viscosity: vstar[i,j,k]
+    FLOAT vijk =  localViscosity[index0];
+
+    // vijk1: total viscosity: vstar[i,j,k+1]
+    FLOAT vijk1 =  localViscosity[index6];
+
+    // vfr: viscosity at front right corner: v*[i+1/2, j, k+1/2]
+    FLOAT vfr = (localViscosity[index0] + localViscosity[index6] + localViscosity[index1] + localViscosity[index3]) / 4;
+
+    // vfl: viscosity at front left corner: v*[i-1/2, j, k+1/2]
+    FLOAT vfl = (localViscosity[index0] + localViscosity[index6] + localViscosity[index4] + localViscosity[index5]) / 4;
+
+    // vft: viscosity at front top corner: v*[i, j+1/2, k+1/2]
+    FLOAT vft = (localViscosity[index0] + localViscosity[index6] + localViscosity[index2] + localViscosity[index7]) / 4;
+
+    // vfb: viscosity at front bottom corner: v*[i, j-1/2, k+1/2]
+    FLOAT vfb = (localViscosity[index0] + localViscosity[index6] + localViscosity[index8] + localViscosity[index9]) / 4;
+
+    FLOAT term1 = HT_term1(localVelocity, localMeshsize, vfr, vfl);
+    FLOAT term2 = HT_term2(localVelocity, localMeshsize, vft, vfb);
+    FLOAT term3 = HT_term3(localVelocity, localMeshsize, vijk, vijk1);
+
+    return localVelocity[mapd(0, 0, 0, 2)] + dt * (term1 + term2 + term3
+		    - dw2dz(localVelocity, parameters, localMeshsize) - duwdx(localVelocity, parameters, localMeshsize)
+		    - dvwdy(localVelocity, parameters, localMeshsize)  + parameters.environment.gz);
+}
+
 inline FLOAT computeF2D(const FLOAT* const localVelocity, const FLOAT* const localMeshsize, const Parameters& parameters, FLOAT dt) {
     return localVelocity[mapd(0, 0, 0, 0)]
         + dt * (1 / parameters.flow.Re * (d2udx2(localVelocity, localMeshsize)
@@ -680,6 +1092,81 @@ inline FLOAT computeH3D(const FLOAT* const localVelocity, const FLOAT* const loc
             + d2wdy2(localVelocity, localMeshsize) + d2wdz2(localVelocity, localMeshsize))
             - dw2dz(localVelocity, parameters, localMeshsize) - duwdx(localVelocity, parameters, localMeshsize)
             - dvwdy(localVelocity, parameters, localMeshsize) + parameters.environment.gz);
+}
+
+// dudy <-> first derivative of u-component of velocity field w.r.t. y-direction.
+inline FLOAT dudy(const FLOAT* const lv, const FLOAT* const lm) {
+    // Evaluate dudy in the cell center by a central difference
+    const int index0 = mapd(0, 0, 0, 0);
+    const int index1 = mapd(0, -1, 0, 0);
+
+    return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 1)];
+}
+
+// dudz <-> first derivative of u-component of velocity field w.r.t. z-direction.
+inline FLOAT dudz(const FLOAT* const lv, const FLOAT* const lm) {
+    // Evaluate dudz in the cell center by a central difference
+    const int index0 = mapd(0, 0, 0, 0);
+    const int index1 = mapd(0, 0, -1, 0);
+
+    return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 2)];
+}
+
+// dvdx <-> first derivative of v-component of velocity field w.r.t. x-direction.
+inline FLOAT dvdx(const FLOAT* const lv, const FLOAT* const lm) {
+    const int index0 = mapd(0, 0, 0, 1);
+    const int index1 = mapd(-1, 0, 0, 1);
+
+    return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 0)];
+}
+
+// dvdz <-> first derivative of v-component of velocity field w.r.t. z-direction.
+inline FLOAT dvdz(const FLOAT* const lv, const FLOAT* const lm) {
+    // Evaluate dudz in the cell center by a central difference
+    const int index0 = mapd(0, 0, 0, 1);
+    const int index1 = mapd(0, 0, -1, 1);
+
+    return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 2)];
+}
+
+// dwdx <-> first derivative of w-component of velocity field w.r.t. x-direction.
+inline FLOAT dwdx(const FLOAT* const lv, const FLOAT* const lm) {
+    // Evaluate dwdx in the cell center by a central difference
+    const int index0 = mapd(0, 0, 0, 2);
+    const int index1 = mapd(-1, 0, 0, 2);
+
+    return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 0)];
+}
+
+// dwdy <-> first derivative of w-component of velocity field w.r.t. y-direction.
+inline FLOAT dwdy(const FLOAT* const lv, const FLOAT* const lm) {
+    // Evaluate dwdy in the cell center by a central difference
+    const int index0 = mapd(0, 0, 0, 2);
+    const int index1 = mapd(0, -1, 0, 2);
+
+    return (lv[index0] - lv[index1]) / lm[mapd(0, 0, 0, 1)];
+}
+
+// function to compute the strain tensor squared in 2D
+inline FLOAT computeStrainTensorSquared2D(const FLOAT* const localVelocity, const FLOAT* const localMeshsize) {
+    FLOAT S11 = 2 * dudx(localVelocity, localMeshsize);
+    FLOAT S22 = 2 * dvdy(localVelocity, localMeshsize);
+    FLOAT S12 = dudy(localVelocity, localMeshsize) + dvdx(localVelocity, localMeshsize);
+
+    return std::pow(S11, 2) + std::pow(S22, 2) + 2 * std::pow(S12, 2);
+}
+
+// function to compute the strain tensor squared in 3D
+inline FLOAT computeStrainTensorSquared3D(const FLOAT* const localVelocity, const FLOAT* const localMeshsize) {
+	FLOAT S11 = 2 * dudx(localVelocity, localMeshsize);
+	FLOAT S22 = 2 * dvdy(localVelocity, localMeshsize);
+	FLOAT S33 = 2 * dwdz(localVelocity, localMeshsize);
+	FLOAT S12 = dudy(localVelocity, localMeshsize) + dvdx(localVelocity, localMeshsize);
+	FLOAT S13 = dudz(localVelocity, localMeshsize) + dwdx(localVelocity, localMeshsize);
+	FLOAT S23 = dvdz(localVelocity, localMeshsize) + dwdy(localVelocity, localMeshsize);
+
+    return std::pow(S11, 2) + std::pow(S22, 2) + std::pow(S33, 2) +
+           2 * (std::pow(S12, 2) + std::pow(S13, 2) + std::pow(S23, 2));
 }
 
 } // namespace NSEOF::Stencils
