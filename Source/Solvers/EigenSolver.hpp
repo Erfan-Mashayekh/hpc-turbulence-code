@@ -17,7 +17,7 @@
 #include <Eigen/SparseQR>
 
 // The number of maximum iterations used by the solver (set to -1 to let the solver decide)
-#define SOLVER_MAX_NUM_ITERATIONS -1
+#define SOLVER_MAX_NUM_ITERATIONS 300
 
 using namespace Eigen;
 
