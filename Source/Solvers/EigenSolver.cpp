@@ -109,9 +109,9 @@ namespace NSEOF::Solvers {
         topWallVector << (parameters_.walls.typeBottom == DIRICHLET ? -1.0 : 0.5),
                          (parameters_.walls.typeBottom == DIRICHLET ? 1.0 : 0.5);
 
-        for (int j = 1; j < cellsX_ - 1; j++) {
-            matA_.block(j * cellsY_, j * cellsY_, 1, 2) = bottomWallVector.transpose();
-            matA_.block((j + 1) * cellsY_ - 1, (j + 1) * cellsY_ - 2, 1, 2) = topWallVector.transpose();
+        for (int i = 1; i < cellsX_ - 1; i++) {
+            matA_.block(i * cellsY_, i * cellsY_, 1, 2) = bottomWallVector.transpose();
+            matA_.block((i + 1) * cellsY_ - 1, (i + 1) * cellsY_ - 2, 1, 2) = topWallVector.transpose();
         }
 
         // TODO: Extend for 3D part
@@ -271,4 +271,3 @@ namespace NSEOF::Solvers {
         initMatrix_();
     }
 } // namespace Solvers::NSEOF
-
