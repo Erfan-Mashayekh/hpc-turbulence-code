@@ -171,6 +171,8 @@ namespace NSEOF::Solvers {
 
     void EigenSolver::initMatrix_() {
 #ifdef OMP
+        Eigen::initParallel();
+
         #pragma omp parallel default(none)
         #pragma omp master
         Eigen::setNbThreads(omp_get_num_threads());
