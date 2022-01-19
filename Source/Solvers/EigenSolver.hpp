@@ -9,6 +9,10 @@
 #include <cmath>
 #include <vector>
 
+#ifdef OMP
+#include <omp.h>
+#endif
+
 // Eigen
 #include <Eigen/Core>
 #include <Eigen/Sparse>

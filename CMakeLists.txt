@@ -73,7 +73,9 @@ if(BUILD_WITH_PETSC)
     find_package(PETSc REQUIRED)
     add_definitions(-DBUILD_WITH_PETSC)
 endif()
-find_package(MPI REQUIRED)
+
+find_package(MPI REQUIRED) # Finds and loads MPI
+find_package(OpenMP) # Finds and loads OpenMP
 
 add_subdirectory(3rdParty)
 add_subdirectory(Source)

@@ -72,6 +72,13 @@ else()
     message(AUTHOR_WARNING "No compiler flags set for '${CMAKE_CXX_COMPILER_ID}' compiler.")
 endif()
 
+if(OPENMP_FOUND)
+    set(COMPILER_FLAGS "${COMPILER_FLAGS} ${OpenMP_CXX_FLAGS}")
+    set(OpenMP_LINKING OpenMP::OpenMP_CXX)
+
+    add_definitions(-DOMP)
+endif()
+
 # Set the folder containing the external libraries
 set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../lib CACHE PATH "Path to the folder containing the external libraries")
 
@@ -89,12 +96,14 @@ target_link_libraries(nsObj PUBLIC
     tinyxml2
     MPI::MPI_CXX
     ${PETSc_LIBRARIES}
+    ${OpenMP_LINKING}
 )
 
 target_include_directories(nsObj PUBLIC
     ${CMAKE_SOURCE_DIR}/Source
     ${PETSc_INCLUDE_DIRS}
     ${EIGEN3_INCLUDE_DIR}
+    ${OpenMP_CXX_INCLUDE_DIR}
 )
 
 set_target_properties(nsObj PROPERTIES
