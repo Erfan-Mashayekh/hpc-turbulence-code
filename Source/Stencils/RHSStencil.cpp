@@ -10,7 +10,6 @@ void RHSStencil::apply(FlowField& flowField, int i, int j) {
     flowField.getRHS().getScalar(i, j) = 1.0 / parameters_.timestep.dt *
         ((flowField.getFGH().getVector(i, j)[0] - flowField.getFGH().getVector(i - 1, j)[0]) / parameters_.meshsize->getDx(i, j) +
          (flowField.getFGH().getVector(i, j)[1] - flowField.getFGH().getVector(i, j - 1)[1]) / parameters_.meshsize->getDy(i, j));
-    // flowField.getRHS().getScalar(i, j) = 100;
 }
 
 void RHSStencil::apply(FlowField& flowField, int i, int j, int k) {
