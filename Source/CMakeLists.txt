@@ -72,10 +72,11 @@ else()
     message(AUTHOR_WARNING "No compiler flags set for '${CMAKE_CXX_COMPILER_ID}' compiler.")
 endif()
 
-# Set folder containing the Eigen library
-set(EIGEN3_PARENT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../lib CACHE PATH "Path to the folder containing the Eigen library")
+# Set the folder containing the external libraries
+set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../lib CACHE PATH "Path to the folder containing the external libraries")
 
 # Add a path to the installed Eigen library for find_package command https://cmake.org/cmake/help/latest/command/find_package.html
+set(EIGEN3_PARENT_DIR ${LIB_DIR} CACHE PATH "Path to the folder containing the Eigen library") # Can be changed if Eigen is placed somewhere else
 set(Eigen3_DIR ${EIGEN3_PARENT_DIR}/eigen/share/eigen3/cmake CACHE PATH "Path to the folder containing Eigen3Config.cmake file in the Eigen installation folder")
 set(EIGEN3_INCLUDE_DIR ${EIGEN3_PARENT_DIR}/eigen/include/eigen3 CACHE PATH "Path to Eigen3 include folder")
 
