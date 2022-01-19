@@ -171,10 +171,9 @@ namespace NSEOF::Solvers {
 
     void EigenSolver::initMatrix_() {
 #ifdef OMP
-        omp_set_num_threads(NUM_OMP_THREADS);
-
+        #pragma omp parallel default(none)
         #pragma omp master
-        Eigen::setNbThreads(NUM_OMP_THREADS);
+        Eigen::setNbThreads(omp_get_num_threads());
 #endif
 
         matA_ = MatrixXd::Zero(dim_, dim_);
