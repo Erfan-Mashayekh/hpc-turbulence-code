@@ -62,6 +62,13 @@ set(GCC_COMPILER_FLAGS
     -Wlogical-op # Warn about logical operations being used where bitwise were probably wanted.
 )
 
+if(OPENMP_FOUND)
+    set(COMPILER_FLAGS "${COMPILER_FLAGS} ${OpenMP_CXX_FLAGS}")
+    set(OpenMP_LINKING OpenMP::OpenMP_CXX)
+
+    add_definitions(-DOMP)
+endif()
+
 if(MSVC)
     set(COMPILER_FLAGS ${MSVC_COMPILER_FLAGS})
 elseif(CMAKE_CXX_COMPILER_ID MATCHES ".*Clang")
@@ -70,13 +77,6 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(COMPILER_FLAGS ${GCC_COMPILER_FLAGS})
 else()
     message(AUTHOR_WARNING "No compiler flags set for '${CMAKE_CXX_COMPILER_ID}' compiler.")
-endif()
-
-if(OPENMP_FOUND)
-    set(COMPILER_FLAGS "${COMPILER_FLAGS} ${OpenMP_CXX_FLAGS}")
-    set(OpenMP_LINKING OpenMP::OpenMP_CXX)
-
-    add_definitions(-DOMP)
 endif()
 
 # Set the folder containing the external libraries

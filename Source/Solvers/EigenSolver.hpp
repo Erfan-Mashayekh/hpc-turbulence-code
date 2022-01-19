@@ -11,6 +11,7 @@
 
 #ifdef OMP
 #include <omp.h>
+#define NUM_OMP_THREADS 8
 #endif
 
 // Eigen
