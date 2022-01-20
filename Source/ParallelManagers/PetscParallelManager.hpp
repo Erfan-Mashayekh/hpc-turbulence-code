@@ -1,5 +1,5 @@
-#ifndef __PARALLEL_MANAGERS_PARALLEL_MANAGER_HPP__
-#define __PARALLEL_MANAGERS_PARALLEL_MANAGER_HPP__
+#ifndef __PARALLEL_MANAGERS_PETSC_PARALLEL_MANAGER_HPP__
+#define __PARALLEL_MANAGERS_PETSC_PARALLEL_MANAGER_HPP__
 
 #include "FlowField.hpp"
 #include "Iterators.hpp"
@@ -16,7 +16,7 @@
 
 namespace NSEOF::ParallelManagers {
 
-class ParallelManager {
+class PetscParallelManager {
 private:
     const Parameters& parameters_;
 
@@ -41,8 +41,8 @@ protected:
     void communicateDiagonal_(Stencils::BufferFillStencil&, Stencils::BufferReadStencil&) const;
 
 public:
-    ParallelManager(const Parameters&, FlowField&);
-    virtual ~ParallelManager() = default;
+    PetscParallelManager(const Parameters&, FlowField&);
+    virtual ~PetscParallelManager() = default;
 
     static void sendRecvBuffers(std::vector<FLOAT>&, int, std::vector<FLOAT>&, int);
 
@@ -53,4 +53,4 @@ public:
 
 } // namespace NSEOF::ParallelManagers
 
-#endif // __PARALLEL_MANAGERS_PARALLEL_MANAGER_HPP__
+#endif // __PARALLEL_MANAGERS_PETSC_PARALLEL_MANAGER_HPP__

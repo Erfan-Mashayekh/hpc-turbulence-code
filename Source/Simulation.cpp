@@ -21,13 +21,15 @@ Simulation::Simulation(Parameters& parameters, FlowField& flowField)
     , obstacleStencil_(parameters)
     , velocityIterator_(flowField_, parameters, velocityStencil_)
     , obstacleIterator_(flowField_, parameters, obstacleStencil_)
-    , parallelManager_(parameters, flowField_)
+    , petscParallelManager_(parameters, flowField_)
 #if BUILD_WITH_EIGEN
     , solver_(std::make_unique<Solvers::EigenSolver>(flowField_, parameters))
-#elif BUILD_WITH_PETSC
+#else
+#ifdef BUILD_WITH_PETSC
     , solver_(std::make_unique<Solvers::PetscSolver>(flowField_, parameters))
 #else
     , solver_(std::make_unique<Solvers::SORSolver>(flowField_, parameters))
+#endif
 #endif
 {
     fghStencil_  = new Stencils::FGHStencil(parameters_);
@@ -147,7 +149,7 @@ void Simulation::solveTimestep() {
 
 #if not BUILD_WITH_EIGEN
     // Communicate pressure values
-    parallelManager_.communicatePressure();
+    petscParallelManager_.communicatePressure();
 #endif
 
     // Compute velocity
@@ -155,7 +157,7 @@ void Simulation::solveTimestep() {
     obstacleIterator_.iterate();
 
     // Communicate velocity values
-    parallelManager_.communicateVelocity();
+    petscParallelManager_.communicateVelocity();
 
     // Iterate for velocities on the boundary
     wallVelocityIterator_.iterate();

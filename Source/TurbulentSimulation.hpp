@@ -10,7 +10,7 @@
 #include "Stencils/TurbulentFGHStencil.hpp"
 #include "Stencils/TurbulentVTKStencil.hpp"
 
-#include "ParallelManagers/TurbulentParallelManager.hpp"
+#include "ParallelManagers/TurbulentPetscParallelManager.hpp"
 
 namespace NSEOF {
 
@@ -25,7 +25,7 @@ private:
     Stencils::ViscosityStencil viscosityStencil_;
     FieldIterator<FlowField> viscosityIterator_;
 
-    ParallelManagers::TurbulentParallelManager turbulentParallelManager_;
+    ParallelManagers::TurbulentPetscParallelManager turbulentPetscParallelManager_;
 
 protected:
     /** Gets the diffusive timestep for setting the timestep before solving */

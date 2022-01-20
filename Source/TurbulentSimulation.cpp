@@ -10,7 +10,7 @@ TurbulentSimulation::TurbulentSimulation(Parameters& parameters, FlowField& flow
     , distanceIterator_(flowField, parameters, distanceStencil_)
     , viscosityStencil_(parameters)
     , viscosityIterator_(flowField, parameters, viscosityStencil_)
-    , turbulentParallelManager_(parameters, flowField)
+    , turbulentPetscParallelManager_(parameters, flowField)
 {
     fghStencil_  = new Stencils::TurbulentFGHStencil(parameters_);
     fghIterator_ = new FieldIterator<FlowField>(flowField_, parameters_, *fghStencil_);
@@ -46,13 +46,13 @@ void TurbulentSimulation::solveTimestep() {
     }
 
     // Communicate diagonal velocity values before as they are also needed for viscosity computations
-    turbulentParallelManager_.communicateDiagonalVelocity();
+    turbulentPetscParallelManager_.communicateDiagonalVelocity();
 
     // Compute eddy viscosities
     viscosityIterator_.iterate();
 
     // Communicate viscosity values
-    turbulentParallelManager_.communicateViscosity();
+    turbulentPetscParallelManager_.communicateViscosity();
 }
 
 } // namespace NSEOF

@@ -1,8 +1,8 @@
-#include "ParallelManager.hpp"
+#include "PetscParallelManager.hpp"
 
 namespace NSEOF::ParallelManagers {
 
-    ParallelManager::ParallelManager(const Parameters& parameters, FlowField& flowField)
+    PetscParallelManager::PetscParallelManager(const Parameters& parameters, FlowField& flowField)
         : parameters_(parameters)
         , pressureBufferFillStencil_(parameters)
         , pressureBufferReadStencil_(parameters)
@@ -23,15 +23,15 @@ namespace NSEOF::ParallelManagers {
         , velocityBufferReadDiagonalIterator_(flowField, parameters, velocityBufferDiagonalReadStencil_,
                                               parameters.vtk.whiteRegionLowOffset, parameters.vtk.whiteRegionHighOffset) {}
 
-    void ParallelManager::sendRecvBuffers(std::vector<FLOAT>& bufferSent, int receiverRank,
-                                          std::vector<FLOAT>& bufferReceived, int senderRank) {
+    void PetscParallelManager::sendRecvBuffers(std::vector<FLOAT>& bufferSent, int receiverRank,
+                                               std::vector<FLOAT>& bufferReceived, int senderRank) {
         MPI_Sendrecv(&bufferSent[0],     (int) bufferSent.size(),     MY_MPI_FLOAT, receiverRank, 0,
                      &bufferReceived[0], (int) bufferReceived.size(), MY_MPI_FLOAT, senderRank,   0,
                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     }
 
-    void ParallelManager::communicate_(Stencils::BufferFillStencil& bufferFillStencil,
-                                       Stencils::BufferReadStencil& bufferReadStencil) const {
+    void PetscParallelManager::communicate_(Stencils::BufferFillStencil& bufferFillStencil,
+                                            Stencils::BufferReadStencil& bufferReadStencil) const {
         std::vector<FLOAT> bufferLeft, bufferRight;
         std::vector<FLOAT> bufferBottom, bufferTop;
         std::vector<FLOAT> bufferFront, bufferBack;
@@ -138,20 +138,20 @@ namespace NSEOF::ParallelManagers {
         bufferFillStencil.clearBuffers();
     }
 
-    void ParallelManager::communicatePressure() {
+    void PetscParallelManager::communicatePressure() {
         pressureBufferFillIterator_.iterate();
         communicate_(pressureBufferFillStencil_, pressureBufferReadStencil_);
         pressureBufferReadIterator_.iterate();
     }
 
-    void ParallelManager::communicateVelocity() {
+    void PetscParallelManager::communicateVelocity() {
         velocityBufferFillIterator_.iterate();
         communicate_(velocityBufferFillStencil_, velocityBufferReadStencil_);
         velocityBufferReadIterator_.iterate();
     }
 
-    void ParallelManager::communicateDiagonal_(Stencils::BufferFillStencil& bufferFillStencil,
-                                               Stencils::BufferReadStencil& bufferReadStencil) const {
+    void PetscParallelManager::communicateDiagonal_(Stencils::BufferFillStencil& bufferFillStencil,
+                                                    Stencils::BufferReadStencil& bufferReadStencil) const {
         // Wait for all normal communications to end before communicating diagonally!
         MPI_Barrier(MPI_COMM_WORLD);
 
@@ -228,7 +228,7 @@ namespace NSEOF::ParallelManagers {
         bufferFillStencil.clearBuffers();
     }
 
-    void ParallelManager::communicateDiagonalVelocity() {
+    void PetscParallelManager::communicateDiagonalVelocity() {
         velocityBufferFillDiagonalIterator_.iterate();
         communicateDiagonal_(velocityBufferDiagonalFillStencil_, velocityBufferDiagonalReadStencil_);
         velocityBufferReadDiagonalIterator_.iterate();

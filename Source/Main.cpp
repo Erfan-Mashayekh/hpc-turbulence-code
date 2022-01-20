@@ -4,7 +4,7 @@
 #include "Configuration.hpp"
 #include "MeshsizeFactory.hpp"
 
-#include "ParallelManagers/ParallelConfiguration.hpp"
+#include "ParallelManagers/PetscParallelConfiguration.hpp"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
     NSEOF::Configuration configuration(argv[1]);
     NSEOF::Parameters parameters;
     configuration.loadParameters(parameters);
-    NSEOF::ParallelManagers::ParallelConfiguration parallelConfiguration(parameters);
+    NSEOF::ParallelManagers::PetscParallelConfiguration parallelConfiguration(parameters);
     NSEOF::MeshsizeFactory::getInstance().initMeshsize(parameters);
     NSEOF::FlowField* flowField = NULL;
     NSEOF::Simulation* simulation = NULL;

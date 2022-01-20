@@ -1,16 +1,15 @@
-#ifndef __PARALLEL_MANAGERS_PARALLEL_CONFIGURATION_HPP__
-#define __PARALLEL_MANAGERS_PARALLEL_CONFIGURATION_HPP__
+#ifndef __PARALLEL_MANAGERS_PETSC_PARALLEL_CONFIGURATION_HPP__
+#define __PARALLEL_MANAGERS_PETSC_PARALLEL_CONFIGURATION_HPP__
 
 #include "Parameters.hpp"
 #include "Definitions.hpp"
 
-namespace NSEOF::ParallelManagers {
+namespace NSEOF {
+namespace ParallelManagers {
 
-/**
- * Class used to set parameters relevant to the parallel distribution.
- * All functions modify the parameters instance.
+/** Class used to set parameters relevant to the parallel distribution. All functions modify the parameters instance.
  */
-class ParallelConfiguration {
+class PetscParallelConfiguration {
 private:
     Parameters& parameters_; //! Reference to the parameters
 
@@ -29,7 +28,7 @@ private:
      * @return Rank of the process with that index, assuming that they are ordered
      * lexicographically, or MPI_PROC_NULL if outside the domain.
      */
-    [[nodiscard]] int computeRankFromIndices(int i, int j, int k) const;
+    int computeRankFromIndices(int i, int j, int k) const;
 
     /** Compute local sizes and sizes in all directions. Requires deallocation of sizes.
      */
@@ -40,10 +39,11 @@ private:
     void freeSizes();
 
 public:
-    explicit ParallelConfiguration(Parameters& parameters);
-    ~ParallelConfiguration();
+    PetscParallelConfiguration(Parameters& parameters);
+    ~PetscParallelConfiguration();
 };
 
-} // namespace NSEOF::ParallelManagers
+} // namespace ParallelManagers
+} // namespace NSEOF
 
-#endif // __PARALLEL_MANAGERS_PARALLEL_CONFIGURATION_HPP__
+#endif // __PARALLEL_MANAGERS_PETSC_PARALLEL_CONFIGURATION_HPP__

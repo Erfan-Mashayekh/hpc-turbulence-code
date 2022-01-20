@@ -62,6 +62,7 @@ set(GCC_COMPILER_FLAGS
     -Wlogical-op # Warn about logical operations being used where bitwise were probably wanted.
 )
 
+# Set OpenMP compiler flags and linking if it is found
 if(OPENMP_FOUND)
     set(COMPILER_FLAGS "${COMPILER_FLAGS} ${OpenMP_CXX_FLAGS}")
     set(OpenMP_LINKING OpenMP::OpenMP_CXX)

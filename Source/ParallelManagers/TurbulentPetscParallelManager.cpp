@@ -1,9 +1,9 @@
-#include "TurbulentParallelManager.hpp"
+#include "TurbulentPetscParallelManager.hpp"
 
 namespace NSEOF::ParallelManagers {
 
-    TurbulentParallelManager::TurbulentParallelManager(const Parameters& parameters, FlowField& flowField)
-            : ParallelManager(parameters, flowField)
+    TurbulentPetscParallelManager::TurbulentPetscParallelManager(const Parameters& parameters, FlowField& flowField)
+            : PetscParallelManager(parameters, flowField)
             , viscosityBufferFillStencil_(parameters)
             , viscosityBufferReadStencil_(parameters)
             , viscosityBufferFillIterator_(flowField, parameters, viscosityBufferFillStencil_,
@@ -11,7 +11,7 @@ namespace NSEOF::ParallelManagers {
             , viscosityBufferReadIterator_(flowField, parameters, viscosityBufferReadStencil_,
                                           parameters.vtk.whiteRegionLowOffset, parameters.vtk.whiteRegionHighOffset) {}
 
-    void TurbulentParallelManager::communicateViscosity() {
+    void TurbulentPetscParallelManager::communicateViscosity() {
         viscosityBufferFillIterator_.iterate();
         communicate_(viscosityBufferFillStencil_, viscosityBufferReadStencil_);
         viscosityBufferReadIterator_.iterate();
