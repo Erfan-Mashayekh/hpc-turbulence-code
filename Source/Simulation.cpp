@@ -4,6 +4,8 @@
 #include "Solvers/PetscSolver.hpp"
 #include "Solvers/EigenSolver.hpp"
 
+#include <limits>
+
 namespace NSEOF {
 
 Simulation::Simulation(Parameters& parameters, FlowField& flowField)
