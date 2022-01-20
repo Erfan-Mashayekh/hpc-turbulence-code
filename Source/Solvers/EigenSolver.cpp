@@ -154,7 +154,7 @@ namespace NSEOF::Solvers {
         const MatrixXd offDiagMat = (boundaryType == DIRICHLET ? -1.0 : 0.5) * identityMatrix;
 
         matA_.block(startIdx, startIdx, cellsX_ - 2, cellsX_ - 2) = diagMat;
-        matA_.block(startIdx, startIdx + (direction * cellsX_ * cellsY_), cellsX_ - 2, cellsX_ - 2) = offDiagMat;
+        matA_.block(startIdx, startIdx + (direction * cellsX_), cellsX_ - 2, cellsX_ - 2) = offDiagMat;
     }
 
     void EigenSolver::computeMatrixOnBoundaryFrontOrBack_(BoundaryType boundaryType,
@@ -197,18 +197,18 @@ namespace NSEOF::Solvers {
             computeMatrixOnBoundariesLeftAndRight_(startIdx);
 
             // Bottom and top walls
-            computeMatrixOnBoundaryBottomOrTop_(parameters_.walls.typeBottom,
-                                                startIdx + 1, 1);
-            computeMatrixOnBoundaryBottomOrTop_(parameters_.walls.typeTop,
-                                                startIdx + (cellsY_ - 1) * cellsX_ + 1, -1);
+            computeMatrixOnBoundaryBottomOrTop_(parameters_.walls.typeBottom, startIdx + 1, 1);
+            computeMatrixOnBoundaryBottomOrTop_(parameters_.walls.typeTop, startIdx + (cellsY_ - 1) * cellsX_ + 1, -1);
         }
 
-        /**
-         * Fill the matrix on boundary conditions (3D)
-         */
+        if (parameters_.geometry.dim == 3) { // 3D
+            /**
+             * Fill the matrix on boundary conditions (3D)
+             */
 
-        computeMatrixOnBoundaryFrontOrBack_(parameters_.walls.typeFront,1, 1);
-        computeMatrixOnBoundaryFrontOrBack_(parameters_.walls.typeBack, (cellsZ_ - 1) * (cellsX_ * cellsY_) + 1, -1);
+            computeMatrixOnBoundaryFrontOrBack_(parameters_.walls.typeFront, 1, 1);
+            computeMatrixOnBoundaryFrontOrBack_(parameters_.walls.typeBack, (cellsZ_ - 1) * (cellsX_ * cellsY_) + 1,-1);
+        }
 
         /**
          * Convert the matrix to a sparse matrix
