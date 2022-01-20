@@ -233,10 +233,9 @@ namespace NSEOF::Solvers {
         fillCoefficientsVector_();
         computeMatrix_();
 
-#if SOLVER_MAX_NUM_ITERATIONS != -1
-        solver_.setMaxIterations(SOLVER_MAX_NUM_ITERATIONS);
-#endif
+        currentNumIterations_ = SOLVER_ITERATIONS_MAX_NUM;
 
+        solver_.setMaxIterations(currentNumIterations_);
         solver_.compute(sparseMatA_);
     }
 
@@ -303,6 +302,20 @@ namespace NSEOF::Solvers {
         }
     }
 
+    void EigenSolver::updateNumIterationsBasedOnError_() {
+        const int stepDirection = (solver_.error() < SOLVER_LOWER_ERROR_THRESHOLD) ? -1 : 1;
+        const int stepValue = stepDirection * (int) (currentNumIterations_ * SOLVER_ITERATIONS_STEP);
+
+        if (solver_.error() < SOLVER_LOWER_ERROR_THRESHOLD) {
+            currentNumIterations_ -= (int) (currentNumIterations_ * SOLVER_ITERATIONS_STEP);
+        } else {
+            currentNumIterations_ += (int) (currentNumIterations_ * SOLVER_ITERATIONS_STEP);
+        }
+
+        currentNumIterations_ += stepValue;
+        solver_.setMaxIterations(currentNumIterations_);
+    }
+
     void EigenSolver::solve() {
         // Compute RHS
         if (parameters_.geometry.dim == 2) { // 2D
@@ -321,6 +334,8 @@ namespace NSEOF::Solvers {
         } else { // 3D
             setPressure3D_();
         }
+
+        updateNumIterationsBasedOnError_();
     }
 
     inline void EigenSolver::reInitMatrix() {

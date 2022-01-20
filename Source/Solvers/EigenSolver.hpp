@@ -20,8 +20,10 @@
 #include <Eigen/SparseLU>
 #include <Eigen/SparseQR>
 
-// The number of maximum iterations used by the solver (set to -1 to let the solver decide)
-#define SOLVER_MAX_NUM_ITERATIONS 300
+// Solver constants
+#define SOLVER_ITERATIONS_MAX_NUM 300
+#define SOLVER_ITERATIONS_STEP 0.02
+#define SOLVER_LOWER_ERROR_THRESHOLD 1e-7
 
 using namespace Eigen;
 
@@ -44,11 +46,12 @@ private:
     std::vector<Coefficients> coefficientsVector_;
 
     MatrixXd matA_;
+    SparseMatrix<FLOAT> sparseMatA_;
     VectorXd rhs_;
     VectorXd x_;
 
-    SparseMatrix<FLOAT> sparseMatA_;
     BiCGSTAB<SparseMatrix<FLOAT>> solver_;
+    int currentNumIterations_ = {};
 
     void fillCoefficientsVector_();
 
@@ -70,6 +73,8 @@ private:
 
     void setPressure2D_();
     void setPressure3D_();
+
+    void updateNumIterationsBasedOnError_();
 
 public:
     EigenSolver(FlowField&, const Parameters&);
