@@ -265,6 +265,7 @@ namespace NSEOF::Solvers {
     }
 
     void EigenSolver::computeRHS2D_() {
+        #pragma omp parallel for collapse(2) default(none) shared(cellsX_, cellsY_, flowField_, rhs_)
         for (int j = 1; j < cellsY_ - 1; j++) {
             for (int i = 1; i < cellsX_ - 1; i++) {
                 const int obstacle = flowField_.getFlags().getValue(i + 1, j + 1);
@@ -274,6 +275,7 @@ namespace NSEOF::Solvers {
     }
 
     void EigenSolver::computeRHS3D_() {
+        #pragma omp parallel for collapse(3) default(none) shared(cellsX_, cellsY_, cellsZ_, flowField_, rhs_)
         for (int k = 1; k < cellsZ_ - 1; k++) {
             for (int j = 1; j < cellsY_ - 1; j++) {
                 for (int i = 1; i < cellsX_ - 1; i++) {
@@ -285,6 +287,7 @@ namespace NSEOF::Solvers {
     }
 
     void EigenSolver::setPressure2D_() {
+        #pragma omp parallel for collapse(2) default(none) shared(cellsX_, cellsY_, flowField_, x_)
         for (int j = 0; j < cellsY_; j++) {
             for (int i = 0; i < cellsX_; i++) {
                 flowField_.getPressure().getScalar(i + 1, j + 1) = x_(ROW_MAJOR_IDX(i, j, 0, cellsX_, cellsY_));
@@ -293,6 +296,7 @@ namespace NSEOF::Solvers {
     }
 
     void EigenSolver::setPressure3D_() {
+        #pragma omp parallel for collapse(3) default(none) shared(cellsX_, cellsY_, cellsZ_, flowField_, x_)
         for (int k = 0; k < cellsZ_; k++) {
             for (int j = 0; j < cellsY_; j++) {
                 for (int i = 0; i < cellsX_; i++) {
