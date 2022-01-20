@@ -43,9 +43,9 @@ namespace NSEOF::Solvers {
         /* Top    */ stencilRow(centerIdx + cellsX_) = 2.0 / (constants.dyTop * (constants.dyBottom + constants.dyTop));
 
         if (parameters_.geometry.dim == 3) { // 3D
-            /* Front  */ stencilRow(centerIdx - cellsX_ * cellsY_) =  2.0 / (constants.dyBottom * (constants.dyBottom + constants.dyTop));
+            /* Front  */ stencilRow(centerIdx - cellsX_ * cellsY_) =  2.0 / (constants.dzFront * (constants.dzBack + constants.dzFront));
             /* Center */ stencilRow(centerIdx                    ) += 2.0 / (constants.dzFront * constants.dzBack);
-            /* Back   */ stencilRow(centerIdx + cellsX_ * cellsY_) =  2.0 / (constants.dyTop * (constants.dyBottom + constants.dyTop));
+            /* Back   */ stencilRow(centerIdx + cellsX_ * cellsY_) =  2.0 / (constants.dzBack * (constants.dzBack + constants.dzFront));
         }
 
         /* Center */ stencilRow(centerIdx) *= -1.0;
