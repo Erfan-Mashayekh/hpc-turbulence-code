@@ -27,11 +27,11 @@ using namespace Eigen;
 
 namespace NSEOF::Solvers {
 
-struct Constants {
+struct Coefficients {
 public:
     FLOAT dxLeft, dxRight, dyBottom, dyTop, dzFront, dzBack;
 
-    Constants(FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT);
+    Coefficients(FLOAT, FLOAT, FLOAT, FLOAT, FLOAT, FLOAT);
 };
 
 class EigenSolver : public LinearSolver {
@@ -41,7 +41,7 @@ private:
     const int cellsZ_;
     const int dim_;
 
-    std::vector<Constants> constantsVector_;
+    std::vector<Coefficients> coefficientsVector_;
 
     MatrixXd matA_;
     VectorXd rhs_;
@@ -50,7 +50,7 @@ private:
     SparseMatrix<FLOAT> sparseMatA_;
     BiCGSTAB<SparseMatrix<FLOAT>> solver_;
 
-    void fillConstantsVector_();
+    void fillCoefficientsVector_();
 
     void computeStencilRowForFluidCell_(VectorXd&, int, int, int) const;
     void computeStencilRowForObstacleCellWithFluidAround_(int, VectorXd&) const;

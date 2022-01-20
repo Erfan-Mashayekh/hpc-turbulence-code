@@ -5,12 +5,12 @@
 
 namespace NSEOF::Solvers {
 
-    Constants::Constants(FLOAT dxLeft, FLOAT dxRight, FLOAT dyBottom, FLOAT dyTop, FLOAT dzFront, FLOAT dzBack)
+    Coefficients::Coefficients(FLOAT dxLeft, FLOAT dxRight, FLOAT dyBottom, FLOAT dyTop, FLOAT dzFront, FLOAT dzBack)
         : dxLeft(dxLeft), dxRight(dxRight), dyBottom(dyBottom), dyTop(dyTop), dzFront(dzFront), dzBack(dzBack) {}
 
-    void EigenSolver::fillConstantsVector_() {
-        constantsVector_.clear();
-        constantsVector_.reserve(dim_);
+    void EigenSolver::fillCoefficientsVector_() {
+        coefficientsVector_.clear();
+        coefficientsVector_.reserve(dim_);
 
         for (int k = 0; k < cellsZ_; k++) {
             for (int j = 0; j < cellsY_; j++) {
@@ -26,26 +26,26 @@ namespace NSEOF::Solvers {
                     const FLOAT dzFront  = 0.5 * (dz + parameters_.meshsize->getDz(i, j, k - 1));
                     const FLOAT dzBack   = 0.5 * (dz + parameters_.meshsize->getDz(i, j, k + 1));
 
-                    constantsVector_.emplace_back(dxLeft, dxRight, dyBottom, dyTop, dzFront, dzBack);
+                    coefficientsVector_.emplace_back(dxLeft, dxRight, dyBottom, dyTop, dzFront, dzBack);
                 }
             }
         }
     }
 
     void EigenSolver::computeStencilRowForFluidCell_(VectorXd& stencilRow, const int i, const int j, const int k = 0) const {
-        const Constants constants = constantsVector_[ROW_MAJOR_IDX(i, j, k, cellsX_, cellsY_)];
+        const Coefficients coefficients = coefficientsVector_[ROW_MAJOR_IDX(i, j, k, cellsX_, cellsY_)];
         const int centerIdx = (parameters_.geometry.dim == 2) ? cellsX_ : cellsX_ * cellsY_;
 
-        /* Bottom */ stencilRow(centerIdx - cellsX_) = 2.0 / (constants.dyBottom * (constants.dyBottom + constants.dyTop));
-        /* Left   */ stencilRow(centerIdx - 1      ) = 2.0 / (constants.dxLeft * (constants.dxLeft + constants.dxRight));
-        /* Center */ stencilRow(centerIdx          ) = 2.0 / (constants.dxLeft * constants.dxRight) + 2.0 / (constants.dyBottom * constants.dyTop);
-        /* Right  */ stencilRow(centerIdx + 1      ) = 2.0 / (constants.dxRight * (constants.dxLeft + constants.dxRight));
-        /* Top    */ stencilRow(centerIdx + cellsX_) = 2.0 / (constants.dyTop * (constants.dyBottom + constants.dyTop));
+        /* Bottom */ stencilRow(centerIdx - cellsX_) = 2.0 / (coefficients.dyBottom * (coefficients.dyBottom + coefficients.dyTop));
+        /* Left   */ stencilRow(centerIdx - 1      ) = 2.0 / (coefficients.dxLeft * (coefficients.dxLeft + coefficients.dxRight));
+        /* Center */ stencilRow(centerIdx          ) = 2.0 / (coefficients.dxLeft * coefficients.dxRight) + 2.0 / (coefficients.dyBottom * coefficients.dyTop);
+        /* Right  */ stencilRow(centerIdx + 1      ) = 2.0 / (coefficients.dxRight * (coefficients.dxLeft + coefficients.dxRight));
+        /* Top    */ stencilRow(centerIdx + cellsX_) = 2.0 / (coefficients.dyTop * (coefficients.dyBottom + coefficients.dyTop));
 
         if (parameters_.geometry.dim == 3) { // 3D
-            /* Front  */ stencilRow(centerIdx - cellsX_ * cellsY_) =  2.0 / (constants.dzFront * (constants.dzBack + constants.dzFront));
-            /* Center */ stencilRow(centerIdx                    ) += 2.0 / (constants.dzFront * constants.dzBack);
-            /* Back   */ stencilRow(centerIdx + cellsX_ * cellsY_) =  2.0 / (constants.dzBack * (constants.dzBack + constants.dzFront));
+            /* Front  */ stencilRow(centerIdx - cellsX_ * cellsY_) =  2.0 / (coefficients.dzFront * (coefficients.dzBack + coefficients.dzFront));
+            /* Center */ stencilRow(centerIdx                    ) += 2.0 / (coefficients.dzFront * coefficients.dzBack);
+            /* Back   */ stencilRow(centerIdx + cellsX_ * cellsY_) =  2.0 / (coefficients.dzBack * (coefficients.dzBack + coefficients.dzFront));
         }
 
         /* Center */ stencilRow(centerIdx) *= -1.0;
@@ -230,7 +230,7 @@ namespace NSEOF::Solvers {
         rhs_ = VectorXd::Zero(dim_);
         x_ = VectorXd::Zero(dim_);
 
-        fillConstantsVector_();
+        fillCoefficientsVector_();
         computeMatrix_();
 
 #if SOLVER_MAX_NUM_ITERATIONS != -1
@@ -250,7 +250,7 @@ namespace NSEOF::Solvers {
     }
 
     EigenSolver::~EigenSolver() {
-        constantsVector_.clear();
+        coefficientsVector_.clear();
 
         matA_.resize(0, 0);
         rhs_.resize(0);
