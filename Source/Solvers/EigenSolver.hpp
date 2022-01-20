@@ -52,13 +52,14 @@ private:
 
     void fillConstantsVector_();
 
-    void computeStencilRowForFluidCell_(int, VectorXd&, int, int, int) const;
-    void computeStencilRowForObstacleCellWithFluidAround_(int, int, VectorXd&) const;
-    void computeStencilRowForObstacleCell_(int, VectorXd&) const;
+    void computeStencilRowForFluidCell_(VectorXd&, int, int, int) const;
+    void computeStencilRowForObstacleCellWithFluidAround_(int, VectorXd&) const;
+    void computeStencilRowForObstacleCell_(VectorXd&) const;
 
-    void computeMatrixOnWhiteRegion_();
-    void computeMatrixOnBoundariesLeftAndRight_();
+    void computeMatrixOnFluidRegion_(int, int);
+    void computeMatrixOnBoundariesLeftAndRight_(unsigned int);
     void computeMatrixOnBoundaryBottomOrTop_(BoundaryType, unsigned int, int);
+    void computeMatrixOnBoundaryFrontOrBack_(BoundaryType, unsigned int, int);
 
     void computeMatrix_();
     void initMatrix_();

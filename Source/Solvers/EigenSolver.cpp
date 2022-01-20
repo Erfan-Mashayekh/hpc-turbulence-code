@@ -1,6 +1,6 @@
 #include "EigenSolver.hpp"
 
-#define ROW_MAJOR_IND(i, j, k, sizeX, sizeY) ((i) + ((j) * (sizeX)) + ((k) * (sizeX) * (sizeY)))
+#define ROW_MAJOR_IDX(i, j, k, sizeX, sizeY) ((i) + ((j) * (sizeX)) + ((k) * (sizeX) * (sizeY)))
 #define COLUMN_MAJOR_IND(i, j, k, sizeY, sizeZ) ((k) + ((j) * (sizeZ)) + ((i) * (sizeY) * (sizeZ)))
 
 namespace NSEOF::Solvers {
@@ -32,95 +32,107 @@ namespace NSEOF::Solvers {
         }
     }
 
-    void EigenSolver::computeStencilRowForFluidCell_(const int stencilRowLength, VectorXd& stencilRow,
-                                                     const int i, const int j, const int k = 0) const {
-        const Constants bottom = constantsVector_[ROW_MAJOR_IND(i - 1, j, k, cellsX_, cellsY_)];
-        const Constants left   = constantsVector_[ROW_MAJOR_IND(i, j - 1, k, cellsX_, cellsY_)];
-        const Constants center = constantsVector_[ROW_MAJOR_IND(i, j, k, cellsX_, cellsY_)];
-        const Constants right  = constantsVector_[ROW_MAJOR_IND(i, j + 1, k, cellsX_, cellsY_)];
-        const Constants top    = constantsVector_[ROW_MAJOR_IND(i + 1, j, k, cellsX_, cellsY_)];
+    void EigenSolver::computeStencilRowForFluidCell_(VectorXd& stencilRow, const int i, const int j, const int k = 0) const {
+        const Constants constants = constantsVector_[ROW_MAJOR_IDX(i, j, k, cellsX_, cellsY_)];
+        const int centerIdx = (parameters_.geometry.dim == 2) ? cellsX_ : cellsX_ * cellsY_;
 
-        if (parameters_.geometry.dim == 2) { // 2D
-            /* Bottom */ stencilRow(0                       ) =  2.0 / (bottom.dyBottom * (bottom.dyBottom + bottom.dyTop));
-            /* Left   */ stencilRow(stencilRowLength / 2 - 1) =  2.0 / (left.dxLeft * (left.dxLeft + left.dxRight));
-            /* Center */ stencilRow(stencilRowLength / 2    ) = -2.0 / (center.dxLeft * center.dxRight) - 2.0 / (center.dyBottom * center.dyTop);
-            /* Right  */ stencilRow(stencilRowLength / 2 + 1) =  2.0 / (right.dxRight * (right.dxLeft + right.dxRight));
-            /* Top    */ stencilRow(stencilRowLength - 1    ) =  2.0 / (top.dyTop * (top.dyBottom + top.dyTop));
-        } else { // 3D
-            const Constants front = constantsVector_[ROW_MAJOR_IND(i, j, k - 1, cellsX_, cellsY_)];
-            const Constants back  = constantsVector_[ROW_MAJOR_IND(i, j, k + 1, cellsX_, cellsY_)];
+        /* Bottom */ stencilRow(centerIdx - cellsX_) = 2.0 / (constants.dyBottom * (constants.dyBottom + constants.dyTop));
+        /* Left   */ stencilRow(centerIdx - 1      ) = 2.0 / (constants.dxLeft * (constants.dxLeft + constants.dxRight));
+        /* Center */ stencilRow(centerIdx          ) = 2.0 / (constants.dxLeft * constants.dxRight) + 2.0 / (constants.dyBottom * constants.dyTop);
+        /* Right  */ stencilRow(centerIdx + 1      ) = 2.0 / (constants.dxRight * (constants.dxLeft + constants.dxRight));
+        /* Top    */ stencilRow(centerIdx + cellsX_) = 2.0 / (constants.dyTop * (constants.dyBottom + constants.dyTop));
 
-            // TODO: Implement the 3D part
+        if (parameters_.geometry.dim == 3) { // 3D
+            /* Front  */ stencilRow(centerIdx - cellsX_ * cellsY_) =  2.0 / (constants.dyBottom * (constants.dyBottom + constants.dyTop));
+            /* Center */ stencilRow(centerIdx                    ) += 2.0 / (constants.dzFront * constants.dzBack);
+            /* Back   */ stencilRow(centerIdx + cellsX_ * cellsY_) =  2.0 / (constants.dyTop * (constants.dyBottom + constants.dyTop));
         }
+
+        /* Center */ stencilRow(centerIdx) *= -1.0;
     }
 
-    void EigenSolver::computeStencilRowForObstacleCellWithFluidAround_(const int obstacle,
-                                                                       const int stencilRowLength, VectorXd& stencilRow) const {
+    void EigenSolver::computeStencilRowForObstacleCellWithFluidAround_(const int obstacle, VectorXd& stencilRow) const {
         const auto bottomObstacle = (FLOAT) ((obstacle & OBSTACLE_BOTTOM) == 0);
         const auto leftObstacle   = (FLOAT) ((obstacle & OBSTACLE_LEFT)   == 0);
         const auto rightObstacle  = (FLOAT) ((obstacle & OBSTACLE_RIGHT)  == 0);
         const auto topObstacle    = (FLOAT) ((obstacle & OBSTACLE_TOP)    == 0);
 
-        if (parameters_.geometry.dim == 2) { // 2D
-            /* Bottom */ stencilRow(0                       ) = bottomObstacle;
-            /* Left   */ stencilRow(stencilRowLength / 2 - 1) = leftObstacle;
-            /* Center */ stencilRow(stencilRowLength / 2    ) = -1.0 * (leftObstacle + rightObstacle + bottomObstacle + topObstacle);
-            /* Right  */ stencilRow(stencilRowLength / 2 + 1) = rightObstacle;
-            /* Top    */ stencilRow(stencilRowLength - 1    ) = topObstacle;
-        } else { // 3D
+        const int centerIdx = (parameters_.geometry.dim == 2) ? cellsX_ : cellsX_ * cellsY_;
+
+        /* Bottom */ stencilRow(centerIdx - cellsX_) = bottomObstacle;
+        /* Left   */ stencilRow(centerIdx - 1      ) = leftObstacle;
+        /* Center */ stencilRow(centerIdx          ) = leftObstacle + rightObstacle + bottomObstacle + topObstacle;
+        /* Right  */ stencilRow(centerIdx + 1      ) = rightObstacle;
+        /* Top    */ stencilRow(centerIdx + cellsX_) = topObstacle;
+
+        if (parameters_.geometry.dim == 3) { // 3D
             const auto frontObstacle = (FLOAT) ((obstacle & OBSTACLE_FRONT) == 0);
             const auto backObstacle  = (FLOAT) ((obstacle & OBSTACLE_BACK)  == 0);
 
-            // TODO: Implement the 3D part
+            /* Front  */ stencilRow(centerIdx - cellsX_ * cellsY_) = frontObstacle;
+            /* Center */ stencilRow(centerIdx                    ) = frontObstacle + backObstacle;
+            /* Back   */ stencilRow(centerIdx + cellsX_ * cellsY_) = backObstacle;
+        }
+
+        /* Center */ stencilRow(centerIdx) *= -1.0;
+    }
+
+    void EigenSolver::computeStencilRowForObstacleCell_(VectorXd& stencilRow) const {
+        const int centerIdx = (parameters_.geometry.dim == 2) ? cellsX_ : cellsX_ * cellsY_;
+
+        /* Bottom */ stencilRow(centerIdx - cellsX_) = 0.0;
+        /* Left   */ stencilRow(centerIdx - 1      ) = 0.0;
+        /* Center */ stencilRow(centerIdx          ) = 1.0;
+        /* Right  */ stencilRow(centerIdx + 1      ) = 0.0;
+        /* Top    */ stencilRow(centerIdx + cellsX_) = 0.0;
+
+        if (parameters_.geometry.dim == 3) { // 3D
+            /* Front */ stencilRow(centerIdx - cellsX_ * cellsY_) = 0.0;
+            /* Back  */ stencilRow(centerIdx + cellsX_ * cellsY_) = 0.0;
         }
     }
 
-    void EigenSolver::computeStencilRowForObstacleCell_(const int stencilRowLength, VectorXd& stencilRow) const {
-        if (parameters_.geometry.dim == 2) { // 2D
-            /* Bottom */ stencilRow(0                       ) = 0.0;
-            /* Left   */ stencilRow(stencilRowLength / 2 - 1) = 0.0;
-            /* Center */ stencilRow(stencilRowLength / 2    ) = 1.0;
-            /* Right  */ stencilRow(stencilRowLength / 2 + 1) = 0.0;
-            /* Top    */ stencilRow(stencilRowLength - 1    ) = 0.0;
-        } else { // 3D
-            // TODO: Implement the 3D part
-        }
-    }
-
-    void EigenSolver::computeMatrixOnWhiteRegion_() {
-        const int sumObstacles = pow(2, parameters_.geometry.dim * 2 + 1) - 1;
-
+    /**
+     * Creates the matrix using the values on the fluid region for both 2D and 3D grids
+     *
+     * @param sumObstacles summation of all obstacles
+     * @param k the layer (face) index
+     */
+    void EigenSolver::computeMatrixOnFluidRegion_(const int sumObstacles, const int k = 0) {
         int row = cellsX_ + 1;
         int column = 1;
 
-        // If 3D, use the actual bounds, otherwise, use [0, 1) and iterate on k only once!
-        const int kLowerBound = (parameters_.geometry.dim == 3) ? 1 : 0;
-        const int kUpperBound = (parameters_.geometry.dim == 3) ? (cellsZ_ - 1) : 1;
+        if (parameters_.geometry.dim == 3) { // 3D
+            row += k * cellsX_ * cellsY_;
+            column += (k - 1) * (cellsX_ * cellsY_) + cellsX_;
+        }
 
-        for (int k = kLowerBound; k < kUpperBound; k++) {
-            for (int j = 1; j < cellsY_ - 1; j++, row += 2, column += 2) {
-                for (int i = 1; i < cellsX_ - 1; i++, row++, column++) {
-                    const int obstacle = flowField_.getFlags().getValue(
-                            i + 1, j + 1, (parameters_.geometry.dim == 3) * (k + 1));
+        for (int j = 1; j < cellsY_ - 1; j++, row += 2, column += 2) {
+            for (int i = 1; i < cellsX_ - 1; i++, row++, column++) {
+                int obstacle = flowField_.getFlags().getValue(i + 1, j + 1);
+                int stencilRowLength = cellsX_ * 2 + 1;
 
-                    const int stencilRowLength = cellsX_ * 2 + 1;
-                    VectorXd stencilRow = VectorXd::Zero(stencilRowLength);
-
-                    if ((obstacle & OBSTACLE_SELF) == 0) { // It is a fluid cell
-                        computeStencilRowForFluidCell_(stencilRowLength, stencilRow, i, j, k);
-                    } else if (obstacle != sumObstacles) { // Not a fluid cell, but fluid is somewhere around
-                        computeStencilRowForObstacleCellWithFluidAround_(obstacle, stencilRowLength, stencilRow);
-                    } else { // The cell is an obstacle cell surrounded by more obstacle cells
-                        computeStencilRowForObstacleCell_(stencilRowLength, stencilRow);
-                    }
-
-                    matA_.block(row, column, 1, stencilRowLength) = stencilRow.transpose();
+                if (parameters_.geometry.dim == 3) { // 3D
+                    obstacle = flowField_.getFlags().getValue(i + 1, j + 1, k + 1);
+                    stencilRowLength = cellsX_ * cellsY_ * 2 + 1;
                 }
+
+                VectorXd stencilRow = VectorXd::Zero(stencilRowLength);
+
+                if ((obstacle & OBSTACLE_SELF) == 0) { // It is a fluid cell
+                    computeStencilRowForFluidCell_(stencilRow, i, j, k);
+                } else if (obstacle != sumObstacles) { // Not a fluid cell, but fluid is somewhere around
+                    computeStencilRowForObstacleCellWithFluidAround_(obstacle, stencilRow);
+                } else { // The cell is an obstacle cell surrounded by more obstacle cells
+                    computeStencilRowForObstacleCell_(stencilRow);
+                }
+
+                matA_.block(row, column, 1, stencilRowLength) = stencilRow.transpose();
             }
         }
     }
 
-    void EigenSolver::computeMatrixOnBoundariesLeftAndRight_() {
+    void EigenSolver::computeMatrixOnBoundariesLeftAndRight_(const unsigned int startIdx = 0) {
         VectorXd leftWallVector(2), rightWallVector(2);
 
         leftWallVector << (parameters_.walls.typeLeft == DIRICHLET ? 1.0 : 0.5),
@@ -129,8 +141,8 @@ namespace NSEOF::Solvers {
                            (parameters_.walls.typeRight == DIRICHLET ? 1.0 : 0.5);
 
         for (int j = 1; j < cellsY_ - 1; j++) {
-            matA_.block(j * cellsX_, j * cellsX_, 1, 2) = leftWallVector.transpose();
-            matA_.block((j + 1) * cellsX_ - 1, (j + 1) * cellsX_ - 2, 1, 2) = rightWallVector.transpose();
+            matA_.block(startIdx + j * cellsX_, startIdx + j * cellsX_, 1, 2) = leftWallVector.transpose();
+            matA_.block(startIdx + (j + 1) * cellsX_ - 1, startIdx + (j + 1) * cellsX_ - 2, 1, 2) = rightWallVector.transpose();
         }
     }
 
@@ -142,31 +154,69 @@ namespace NSEOF::Solvers {
         const MatrixXd offDiagMat = (boundaryType == DIRICHLET ? -1.0 : 0.5) * identityMatrix;
 
         matA_.block(startIdx, startIdx, cellsX_ - 2, cellsX_ - 2) = diagMat;
-        matA_.block(startIdx, startIdx + (direction * cellsX_), cellsX_ - 2, cellsX_ - 2) = offDiagMat;
+        matA_.block(startIdx, startIdx + (direction * cellsX_ * cellsY_), cellsX_ - 2, cellsX_ - 2) = offDiagMat;
     }
 
-    // TODO: Extend for 3D part
+    void EigenSolver::computeMatrixOnBoundaryFrontOrBack_(BoundaryType boundaryType,
+                                                          const unsigned int startIdx, const int direction) {
+        const MatrixXd identityMatrix = MatrixXd::Identity(cellsX_ - 2, cellsX_ - 2);
+
+        const MatrixXd diagMat = (boundaryType == DIRICHLET ? 1.0 : 0.5) * identityMatrix;
+        const MatrixXd offDiagMat = (boundaryType == DIRICHLET ? -1.0 : 0.5) * identityMatrix;
+
+        for (int i = 1; i < cellsY_ - 1; i++) {
+            const unsigned int currentStartIdx = startIdx + i * cellsX_;
+            const unsigned int currentOffDiagColStartIdx = currentStartIdx + (direction * cellsX_ * cellsY_);
+
+            matA_.block(currentStartIdx, currentStartIdx, cellsX_ - 2, cellsX_ - 2) = diagMat;
+            matA_.block(currentStartIdx, currentOffDiagColStartIdx, cellsX_ - 2, cellsX_ - 2) = offDiagMat;
+        }
+    }
+
     void EigenSolver::computeMatrix_() {
+        const int sumObstacles = pow(2, parameters_.geometry.dim * 2 + 1) - 1;
+
+        // If 3D, use the actual bounds, otherwise, use [0, 1) and iterate on k only once!
+        const int kLowerBound = (parameters_.geometry.dim == 3) ? 1 : 0;
+        const int kUpperBound = (parameters_.geometry.dim == 3) ? (cellsZ_ - 1) : 1;
+
+        for (int k = kLowerBound; k < kUpperBound; k++) {
+            /**
+             * Fill the matrix on white region (2D and 3D)
+             */
+
+            computeMatrixOnFluidRegion_(sumObstacles, k);
+
+            /**
+             * Fill the matrix on boundary conditions (2D)
+             */
+
+            const int startIdx = k * cellsX_ * cellsY_;
+
+            // Left and right walls
+            computeMatrixOnBoundariesLeftAndRight_(startIdx);
+
+            // Bottom and top walls
+            computeMatrixOnBoundaryBottomOrTop_(parameters_.walls.typeBottom,
+                                                startIdx + 1, 1);
+            computeMatrixOnBoundaryBottomOrTop_(parameters_.walls.typeTop,
+                                                startIdx + (cellsY_ - 1) * cellsX_ + 1, -1);
+        }
+
         /**
-         * Fill the matrix on white region
+         * Fill the matrix on boundary conditions (3D)
          */
 
-        computeMatrixOnWhiteRegion_(); // White region
-
-        /**
-         * Fill the matrix on boundary conditions
-         */
-
-        computeMatrixOnBoundariesLeftAndRight_(); // Left and right walls
-
-        computeMatrixOnBoundaryBottomOrTop_(parameters_.walls.typeBottom, 1, 1); // Bottom wall
-        computeMatrixOnBoundaryBottomOrTop_(parameters_.walls.typeTop, (cellsY_ - 1) * cellsX_ + 1, -1); // Top wall
+        computeMatrixOnBoundaryFrontOrBack_(parameters_.walls.typeFront,1, 1);
+        computeMatrixOnBoundaryFrontOrBack_(parameters_.walls.typeBack, (cellsZ_ - 1) * (cellsX_ * cellsY_) + 1, -1);
 
         /**
          * Convert the matrix to a sparse matrix
          */
 
         sparseMatA_ = matA_.sparseView();
+
+        std::cout << matA_ << "\n" << std::endl;
     }
 
     void EigenSolver::initMatrix_() {
@@ -221,7 +271,7 @@ namespace NSEOF::Solvers {
         for (int j = 1; j < cellsY_ - 1; j++) {
             for (int i = 1; i < cellsX_ - 1; i++) {
                 const int obstacle = flowField_.getFlags().getValue(i + 1, j + 1);
-                rhs_(ROW_MAJOR_IND(i, j, 0, cellsX_, cellsY_)) = getScalarRHS_(obstacle, i + 1, j + 1);
+                rhs_(ROW_MAJOR_IDX(i, j, 0, cellsX_, cellsY_)) = getScalarRHS_(obstacle, i + 1, j + 1);
             }
         }
     }
@@ -231,7 +281,7 @@ namespace NSEOF::Solvers {
             for (int j = 1; j < cellsY_ - 1; j++) {
                 for (int i = 1; i < cellsX_ - 1; i++) {
                     const int obstacle = flowField_.getFlags().getValue(i + 1, j + 1, k + 1);
-                    rhs_(ROW_MAJOR_IND(i, j, k, cellsX_, cellsY_)) = getScalarRHS_(obstacle, i + 1, j + 1, k + 1);
+                    rhs_(ROW_MAJOR_IDX(i, j, k, cellsX_, cellsY_)) = getScalarRHS_(obstacle, i + 1, j + 1, k + 1);
                 }
             }
         }
@@ -240,7 +290,7 @@ namespace NSEOF::Solvers {
     void EigenSolver::setPressure2D_() {
         for (int j = 0; j < cellsY_; j++) {
             for (int i = 0; i < cellsX_; i++) {
-                flowField_.getPressure().getScalar(i + 1, j + 1) = x_(ROW_MAJOR_IND(i, j, 0, cellsX_, cellsY_));
+                flowField_.getPressure().getScalar(i + 1, j + 1) = x_(ROW_MAJOR_IDX(i, j, 0, cellsX_, cellsY_));
             }
         }
     }
@@ -249,7 +299,7 @@ namespace NSEOF::Solvers {
         for (int k = 0; k < cellsZ_; k++) {
             for (int j = 0; j < cellsY_; j++) {
                 for (int i = 0; i < cellsX_; i++) {
-                    flowField_.getPressure().getScalar(i + 1, j + 1, k + 1) = x_(ROW_MAJOR_IND(i, j, k, cellsX_, cellsY_));
+                    flowField_.getPressure().getScalar(i + 1, j + 1, k + 1) = x_(ROW_MAJOR_IDX(i, j, k, cellsX_, cellsY_));
                 }
             }
         }
