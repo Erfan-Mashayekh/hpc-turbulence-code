@@ -23,7 +23,12 @@ ParallelConfiguration::ParallelConfiguration(Parameters& parameters)
         nprocFromFile *= parameters_.parallel.numProcessors[2];
     }
 
-    if (nproc != nprocFromFile){
+#if BUILD_WITH_EIGEN
+    // TODO (Parallelization of Eigen Solver): Implement EigenSolver to also work with multiple processors
+    HANDLE_ERROR(1, "The Eigen Solver currently supports only sequential solving, not parallel");
+#endif
+
+    if (nproc != nprocFromFile) {
         HANDLE_ERROR(1, "The number of processors specified in the configuration file doesn't match the communicator");
     }
 }
