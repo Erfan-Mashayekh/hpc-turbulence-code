@@ -61,7 +61,7 @@ namespace NSEOF::Solvers {
 
         /* Bottom */ stencilRow(centerIdx - cellsX_) = bottomObstacle;
         /* Left   */ stencilRow(centerIdx - 1      ) = leftObstacle;
-        /* Center */ stencilRow(centerIdx          ) = leftObstacle + rightObstacle + bottomObstacle + topObstacle;
+        /* Center */ stencilRow(centerIdx          ) = bottomObstacle + leftObstacle + rightObstacle + topObstacle;
         /* Right  */ stencilRow(centerIdx + 1      ) = rightObstacle;
         /* Top    */ stencilRow(centerIdx + cellsX_) = topObstacle;
 
@@ -69,9 +69,9 @@ namespace NSEOF::Solvers {
             const auto frontObstacle = (FLOAT) ((obstacle & OBSTACLE_FRONT) == 0);
             const auto backObstacle  = (FLOAT) ((obstacle & OBSTACLE_BACK)  == 0);
 
-            /* Front  */ stencilRow(centerIdx - cellsX_ * cellsY_) = frontObstacle;
-            /* Center */ stencilRow(centerIdx                    ) = frontObstacle + backObstacle;
-            /* Back   */ stencilRow(centerIdx + cellsX_ * cellsY_) = backObstacle;
+            /* Front  */ stencilRow(centerIdx - cellsX_ * cellsY_) =  frontObstacle;
+            /* Center */ stencilRow(centerIdx                    ) += frontObstacle + backObstacle;
+            /* Back   */ stencilRow(centerIdx + cellsX_ * cellsY_) =  backObstacle;
         }
 
         /* Center */ stencilRow(centerIdx) *= -1.0;
@@ -215,8 +215,6 @@ namespace NSEOF::Solvers {
          */
 
         sparseMatA_ = matA_.sparseView();
-
-        std::cout << matA_ << "\n" << std::endl;
     }
 
     void EigenSolver::initMatrix_() {
