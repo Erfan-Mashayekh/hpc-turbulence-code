@@ -58,6 +58,23 @@ CMAKE_PREFIX_PATH
 
 If you are building PETSc from source, make sure to use the correct `mpirun`, when running the program! Use `$MPI_HOME/bin/mpirun`, not just `mpirun`. 
 
+### Eigen
+
+To run the project, you have to install the Eigen library. Execute the following commands in the root directory:
+
+- Create a library directory: `mkdir lib`
+- Switch to this directory: `cd lib`
+- Clone Eigen: `git clone git@github.com:libigl/eigen.git eigen`
+- Switch to eigen directory: `cd eigen`
+- Create build directory: `mkdir build`
+- Switch to this directory: `cd build`
+- Set eigen install dir in cmake (**cmake-gui** can come in handy):
+  - `sudo apt-get install cmake-gui`
+  - `cmake-gui`
+  - Set **CMAKE_INSTALL_PREFIX** to `<project_root_dir_here>/lib/eigen`
+- Then make the Eigen project by running the following commands in `<project_root_dir_here>/lib/eigen/build`: `make && make install`
+- `<project_root_dir_here>/lib/eigen/` folder should contain both `share` and `include`. If not, it means that the Eigen is installed on the system directly. In that case, you have to copy `share` and `include` to `<project_root_dir_here>/lib/eigen/` or set the **EIGEN_PARENT_DIR** in the project's CMake to make it point to the folder containing  `share` and `include`.
+
 ### CMake
 
 Run `apt install cmake` to install CMake on your system.
