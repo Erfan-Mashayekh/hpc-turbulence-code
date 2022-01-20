@@ -306,12 +306,6 @@ namespace NSEOF::Solvers {
         const int stepDirection = (solver_.error() < SOLVER_LOWER_ERROR_THRESHOLD) ? -1 : 1;
         const int stepValue = stepDirection * (int) (currentNumIterations_ * SOLVER_ITERATIONS_STEP);
 
-        if (solver_.error() < SOLVER_LOWER_ERROR_THRESHOLD) {
-            currentNumIterations_ -= (int) (currentNumIterations_ * SOLVER_ITERATIONS_STEP);
-        } else {
-            currentNumIterations_ += (int) (currentNumIterations_ * SOLVER_ITERATIONS_STEP);
-        }
-
         currentNumIterations_ += stepValue;
         solver_.setMaxIterations(currentNumIterations_);
     }
