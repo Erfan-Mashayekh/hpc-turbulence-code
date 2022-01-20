@@ -19,7 +19,6 @@ namespace NSEOF::ParallelManagers {
 class PetscParallelManager {
 private:
     const Parameters& parameters_;
-    FlowField& flowField_;
 
     NSEOF::Stencils::PressureBufferFillStencil pressureBufferFillStencil_;
     NSEOF::Stencils::PressureBufferReadStencil pressureBufferReadStencil_;

@@ -4,7 +4,6 @@ namespace NSEOF::ParallelManagers {
 
     PetscParallelManager::PetscParallelManager(const Parameters& parameters, FlowField& flowField)
         : parameters_(parameters)
-        , flowField_(flowField)
         , pressureBufferFillStencil_(parameters)
         , pressureBufferReadStencil_(parameters)
         , velocityBufferFillStencil_(parameters)

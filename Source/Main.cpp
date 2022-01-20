@@ -112,12 +112,17 @@ int main(int argc, char *argv[]) {
 
     FLOAT time = 0.0;
     FLOAT timeStdOut = parameters.stdOut.interval;
-    int timeSteps = 0;
+    FLOAT timeVtk = parameters.vtk.interval;
+    int timesteps = 0;
+
+//    // Plot the initial state
+//    simulation->plotVTK(timesteps);
 
     // Time loop
     while (time < parameters.simulation.finalTime) {
         simulation->solveTimestep();
 
+        timesteps++;
         time += parameters.timestep.dt;
 
         // Log the time (Master)
@@ -126,11 +131,15 @@ int main(int argc, char *argv[]) {
             timeStdOut += parameters.stdOut.interval;
         }
 
-        timeSteps++;
+//        // Plot the current state
+//        if (timeVtk <= time) {
+//            simulation->plotVTK(timesteps);
+//            timeVtk += parameters.vtk.interval;
+//        }
     }
 
-    // Plot final output for each process
-    simulation->plotVTK(timeSteps);
+    // Plot the final state
+    simulation->plotVTK(timesteps);
 
     delete simulation;
     simulation = NULL;
