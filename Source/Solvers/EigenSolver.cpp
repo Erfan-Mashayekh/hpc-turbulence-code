@@ -182,13 +182,13 @@ namespace NSEOF::Solvers {
 
         for (int k = kLowerBound; k < kUpperBound; k++) {
             /**
-             * Fill the matrix on white region (2D and 3D)
+             * Fill the matrix on white region
              */
 
             computeMatrixOnFluidRegion_(sumObstacles, k);
 
             /**
-             * Fill the matrix on boundary conditions (2D)
+             * Fill the matrix on boundary conditions (Left, right, bottom and top walls)
              */
 
             const int startIdx = k * cellsX_ * cellsY_;
@@ -203,7 +203,7 @@ namespace NSEOF::Solvers {
 
         if (parameters_.geometry.dim == 3) { // 3D
             /**
-             * Fill the matrix on boundary conditions (3D)
+             * Fill the matrix on boundary conditions (Front and back walls)
              */
 
             computeMatrixOnBoundaryFrontOrBack_(parameters_.walls.typeFront, 1, 1);
