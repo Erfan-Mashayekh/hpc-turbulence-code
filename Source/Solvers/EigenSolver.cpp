@@ -52,26 +52,26 @@ namespace NSEOF::Solvers {
     }
 
     void EigenSolver::computeStencilRowForObstacleCellWithFluidAround_(const int obstacle, VectorXd& stencilRow) const {
-        const auto bottomObstacle = (FLOAT) ((obstacle & OBSTACLE_BOTTOM) == 0);
-        const auto leftObstacle   = (FLOAT) ((obstacle & OBSTACLE_LEFT)   == 0);
-        const auto rightObstacle  = (FLOAT) ((obstacle & OBSTACLE_RIGHT)  == 0);
-        const auto topObstacle    = (FLOAT) ((obstacle & OBSTACLE_TOP)    == 0);
+        const auto bottomFluid = (FLOAT) ((obstacle & OBSTACLE_BOTTOM) == 0);
+        const auto leftFluid   = (FLOAT) ((obstacle & OBSTACLE_LEFT)   == 0);
+        const auto rightFluid  = (FLOAT) ((obstacle & OBSTACLE_RIGHT)  == 0);
+        const auto topFluid    = (FLOAT) ((obstacle & OBSTACLE_TOP)    == 0);
 
         const int centerIdx = (parameters_.geometry.dim == 2) ? cellsX_ : cellsX_ * cellsY_;
 
-        /* Bottom */ stencilRow(centerIdx - cellsX_) = bottomObstacle;
-        /* Left   */ stencilRow(centerIdx - 1      ) = leftObstacle;
-        /* Center */ stencilRow(centerIdx          ) = bottomObstacle + leftObstacle + rightObstacle + topObstacle;
-        /* Right  */ stencilRow(centerIdx + 1      ) = rightObstacle;
-        /* Top    */ stencilRow(centerIdx + cellsX_) = topObstacle;
+        /* Bottom */ stencilRow(centerIdx - cellsX_) = bottomFluid;
+        /* Left   */ stencilRow(centerIdx - 1      ) = leftFluid;
+        /* Center */ stencilRow(centerIdx          ) = bottomFluid + leftFluid + rightFluid + topFluid;
+        /* Right  */ stencilRow(centerIdx + 1      ) = rightFluid;
+        /* Top    */ stencilRow(centerIdx + cellsX_) = topFluid;
 
         if (parameters_.geometry.dim == 3) { // 3D
-            const auto frontObstacle = (FLOAT) ((obstacle & OBSTACLE_FRONT) == 0);
-            const auto backObstacle  = (FLOAT) ((obstacle & OBSTACLE_BACK)  == 0);
+            const auto frontFluid = (FLOAT) ((obstacle & OBSTACLE_FRONT) == 0);
+            const auto backFluid  = (FLOAT) ((obstacle & OBSTACLE_BACK)  == 0);
 
-            /* Front  */ stencilRow(centerIdx - cellsX_ * cellsY_) =  frontObstacle;
-            /* Center */ stencilRow(centerIdx                    ) += frontObstacle + backObstacle;
-            /* Back   */ stencilRow(centerIdx + cellsX_ * cellsY_) =  backObstacle;
+            /* Front  */ stencilRow(centerIdx - cellsX_ * cellsY_) =  frontFluid;
+            /* Center */ stencilRow(centerIdx                    ) += frontFluid + backFluid;
+            /* Back   */ stencilRow(centerIdx + cellsX_ * cellsY_) =  backFluid;
         }
 
         /* Center */ stencilRow(centerIdx) *= -1.0;
@@ -182,13 +182,13 @@ namespace NSEOF::Solvers {
 
         for (int k = kLowerBound; k < kUpperBound; k++) {
             /**
-             * Fill the matrix on white region (2D and 3D)
+             * Fill the matrix on white region
              */
 
             computeMatrixOnFluidRegion_(sumObstacles, k);
 
             /**
-             * Fill the matrix on boundary conditions (2D)
+             * Fill the matrix on boundary conditions (Left, right, bottom and top walls)
              */
 
             const int startIdx = k * cellsX_ * cellsY_;
@@ -203,7 +203,7 @@ namespace NSEOF::Solvers {
 
         if (parameters_.geometry.dim == 3) { // 3D
             /**
-             * Fill the matrix on boundary conditions (3D)
+             * Fill the matrix on boundary conditions (Front and back walls)
              */
 
             computeMatrixOnBoundaryFrontOrBack_(parameters_.walls.typeFront, 1, 1);
@@ -219,11 +219,11 @@ namespace NSEOF::Solvers {
 
     void EigenSolver::initMatrix_() {
 #ifdef OMP
-        Eigen::initParallel();
+        initParallel();
 
         #pragma omp parallel default(none)
         #pragma omp master
-        Eigen::setNbThreads(omp_get_num_threads());
+        setNbThreads(omp_get_num_threads());
 #endif
 
         matA_ = MatrixXd::Zero(dim_, dim_);
