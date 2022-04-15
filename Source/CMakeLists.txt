@@ -62,6 +62,14 @@ set(GCC_COMPILER_FLAGS
     -Wlogical-op # Warn about logical operations being used where bitwise were probably wanted.
 )
 
+# Set OpenMP compiler flags and linking if it is found
+if(OPENMP_FOUND)
+    set(COMPILER_FLAGS "${COMPILER_FLAGS} ${OpenMP_CXX_FLAGS}")
+    set(OpenMP_LINKING OpenMP::OpenMP_CXX)
+
+    add_definitions(-DOMP)
+endif()
+
 if(MSVC)
     set(COMPILER_FLAGS ${MSVC_COMPILER_FLAGS})
 elseif(CMAKE_CXX_COMPILER_ID MATCHES ".*Clang")
@@ -72,17 +80,31 @@ else()
     message(AUTHOR_WARNING "No compiler flags set for '${CMAKE_CXX_COMPILER_ID}' compiler.")
 endif()
 
+# Set the folder containing the external libraries
+set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../lib CACHE PATH "Path to the folder containing the external libraries")
+
+# Add a path to the installed Eigen library for find_package command https://cmake.org/cmake/help/latest/command/find_package.html
+set(EIGEN3_PARENT_DIR ${LIB_DIR} CACHE PATH "Path to the folder containing the Eigen library") # Can be changed if Eigen is placed somewhere else
+set(Eigen3_DIR ${EIGEN3_PARENT_DIR}/eigen/share/eigen3/cmake CACHE PATH "Path to the folder containing Eigen3Config.cmake file in the Eigen installation folder")
+set(EIGEN3_INCLUDE_DIR ${EIGEN3_PARENT_DIR}/eigen/include/eigen3 CACHE PATH "Path to Eigen3 include folder")
+
+# Finds and loads settings from the installed Eigen package
+find_package(Eigen3 REQUIRED)
+
 target_compile_options(nsObj PUBLIC ${COMPILER_FLAGS})
 
 target_link_libraries(nsObj PUBLIC
     tinyxml2
     MPI::MPI_CXX
     ${PETSc_LIBRARIES}
+    ${OpenMP_LINKING}
 )
 
 target_include_directories(nsObj PUBLIC
     ${CMAKE_SOURCE_DIR}/Source
     ${PETSc_INCLUDE_DIRS}
+    ${EIGEN3_INCLUDE_DIR}
+    ${OpenMP_CXX_INCLUDE_DIR}
 )
 
 set_target_properties(nsObj PROPERTIES

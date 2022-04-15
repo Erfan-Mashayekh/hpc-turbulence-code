@@ -12,6 +12,7 @@
 #include <iomanip>
 #include <sys/stat.h>
 #include <filesystem>
+#include <chrono>
 
 
 int main(int argc, char *argv[]) {
@@ -118,6 +119,9 @@ int main(int argc, char *argv[]) {
 //    // Plot the initial state
 //    simulation->plotVTK(timesteps);
 
+    // Start the timer
+    std::chrono::time_point <std::chrono::high_resolution_clock> t0 = std::chrono::high_resolution_clock::now();
+
     // Time loop
     while (time < parameters.simulation.finalTime) {
         simulation->solveTimestep();
@@ -137,6 +141,10 @@ int main(int argc, char *argv[]) {
 //            timeVtk += parameters.vtk.interval;
 //        }
     }
+
+    // End the timer and print duration
+    double duration = std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - t0).count();
+    printf("It took %f seconds..\n", duration);
 
     // Plot the final state
     simulation->plotVTK(timesteps);

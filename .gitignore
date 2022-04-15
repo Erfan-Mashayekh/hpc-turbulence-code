@@ -75,3 +75,6 @@ dkms.conf
 
 # VS Code
 .vscode/
+
+# External libraries
+lib/

@@ -2,6 +2,7 @@
 
 #include "Solvers/SORSolver.hpp"
 #include "Solvers/PetscSolver.hpp"
+#include "Solvers/EigenSolver.hpp"
 
 #include <limits>
 
@@ -23,10 +24,14 @@ Simulation::Simulation(Parameters& parameters, FlowField& flowField)
     , velocityIterator_(flowField_, parameters, velocityStencil_)
     , obstacleIterator_(flowField_, parameters, obstacleStencil_)
     , petscParallelManager_(parameters, flowField_)
+#if BUILD_WITH_EIGEN
+    , solver_(std::make_unique<Solvers::EigenSolver>(flowField_, parameters))
+#else
 #ifdef BUILD_WITH_PETSC
     , solver_(std::make_unique<Solvers::PetscSolver>(flowField_, parameters))
 #else
-    , solver_(std::make_unique<Solvers::SORSolver>(flowField_, parameters)) {
+    , solver_(std::make_unique<Solvers::SORSolver>(flowField_, parameters))
+#endif
 #endif
 {
     fghStencil_  = new Stencils::FGHStencil(parameters_);
@@ -144,8 +149,10 @@ void Simulation::solveTimestep() {
     // Solve for pressure
     solver_->solve();
 
+#if not BUILD_WITH_EIGEN
     // Communicate pressure values
     petscParallelManager_.communicatePressure();
+#endif
 
     // Compute velocity
     velocityIterator_.iterate();
